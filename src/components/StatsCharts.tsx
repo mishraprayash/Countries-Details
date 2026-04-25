@@ -1,32 +1,33 @@
 "use client";
 
+import React from "react";
 import {
   PieChart,
   Pie,
   Cell,
   ResponsiveContainer,
   Tooltip,
+  Legend,
   BarChart,
   Bar,
   XAxis,
   YAxis,
   CartesianGrid,
-  Legend,
 } from "recharts";
 
 interface StatsChartsProps {
-  regionData: { name: string; value: number }[];
-  populationData: { name: string; population: number }[];
+  regionData: any[];
+  populationData: any[];
 }
 
-const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884d8", "#82ca9d"];
+const COLORS = ["#3b82f6", "#10b981", "#f59e0b", "#8b5cf6", "#ec4899", "#06b6d4"];
 
 export default function StatsCharts({ regionData, populationData }: StatsChartsProps) {
   return (
     <div className="grid gap-8 lg:grid-cols-2">
       {/* Population by Region Pie Chart */}
-      <div className="rounded-2xl border border-navy-100 bg-white p-8 shadow-sm dark:border-navy-800 dark:bg-navy-900">
-        <h3 className="mb-6 text-lg font-bold text-navy-900 dark:text-navy-50">
+      <div className="rounded-2xl border border-white/5 bg-zinc-900/50 p-8 shadow-sm">
+        <h3 className="mb-6 text-lg font-bold text-white">
           Population Distribution by Region
         </h3>
         <div className="h-[350px] w-full">
@@ -36,61 +37,63 @@ export default function StatsCharts({ regionData, populationData }: StatsChartsP
                 data={regionData}
                 cx="50%"
                 cy="50%"
-                labelLine={false}
+                innerRadius={60}
                 outerRadius={100}
-                fill="#8884d8"
+                paddingAngle={5}
                 dataKey="value"
-                label={({ name, percent }) => `${name} ${(Number(percent || 0) * 100).toFixed(0)}%`}
+                stroke="none"
               >
                 {regionData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} stroke="none" />
+                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                 ))}
               </Pie>
-              <Tooltip 
-                contentStyle={{ 
-                  backgroundColor: "var(--background)", 
-                  border: "1px solid rgba(0,0,0,0.1)", 
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: "#18181b",
+                  border: "1px solid rgba(255,255,255,0.1)",
                   borderRadius: "12px",
-                  color: "var(--foreground)",
-                  boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1)"
+                  color: "#fff",
                 }}
-                itemStyle={{ color: "var(--foreground)" }}
+                itemStyle={{ color: "#fff" }}
               />
+              <Legend verticalAlign="bottom" height={36} />
             </PieChart>
           </ResponsiveContainer>
         </div>
       </div>
 
       {/* Top 10 Countries Bar Chart */}
-      <div className="rounded-2xl border border-navy-200 bg-white p-8 shadow-sm dark:border-white/10 dark:bg-navy-900">
-        <h3 className="mb-6 text-lg font-bold text-navy-900 dark:text-navy-50">
+      <div className="rounded-2xl border border-white/5 bg-zinc-900/50 p-8 shadow-sm">
+        <h3 className="mb-6 text-lg font-bold text-white">
           Top 10 Countries by Population (Millions)
         </h3>
         <div className="h-[350px] w-full">
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart
-              data={populationData}
-              layout="vertical"
-              margin={{ top: 5, right: 30, left: 40, bottom: 5 }}
-            >
-              <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} stroke="currentColor" opacity={0.1} />
-              <XAxis type="number" hide />
+            <BarChart data={populationData} layout="vertical" margin={{ left: 40, right: 20 }}>
+              <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} stroke="rgba(255,255,255,0.05)" />
+              <XAxis 
+                type="number" 
+                tick={{ fill: "#71717a", fontSize: 12 }} 
+                axisLine={false}
+                tickLine={false}
+                tickFormatter={(val) => `${(val / 1000000).toFixed(0)}M`}
+              />
               <YAxis 
                 dataKey="name" 
                 type="category" 
-                tick={{ fill: "currentColor", fontSize: 12, opacity: 0.6 }}
+                tick={{ fill: "#71717a", fontSize: 10 }} 
                 width={80}
+                axisLine={false}
+                tickLine={false}
               />
               <Tooltip
-                cursor={{ fill: "currentColor", opacity: 0.05 }}
-                contentStyle={{ 
-                  backgroundColor: "var(--background)", 
-                  border: "1px solid rgba(0,0,0,0.1)", 
+                cursor={{ fill: "rgba(255,255,255,0.02)" }}
+                contentStyle={{
+                  backgroundColor: "#18181b",
+                  border: "1px solid rgba(255,255,255,0.1)",
                   borderRadius: "12px",
-                  color: "var(--foreground)",
-                  boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1)"
+                  color: "#fff",
                 }}
-                itemStyle={{ color: "var(--foreground)" }}
                 formatter={(value: any) => [`${(Number(value) / 1000000).toFixed(1)}M`, "Population"]}
               />
               <Bar 
@@ -98,7 +101,6 @@ export default function StatsCharts({ regionData, populationData }: StatsChartsP
                 fill="#3b82f6" 
                 radius={[0, 4, 4, 0]}
                 barSize={20}
-                stroke="none"
               />
             </BarChart>
           </ResponsiveContainer>

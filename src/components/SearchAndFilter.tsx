@@ -1,17 +1,23 @@
-"use client";
-
+import React from "react";
 import { Search, ChevronDown } from "lucide-react";
 
 interface SearchAndFilterProps {
   searchQuery: string;
-  setSearchQuery: (query: string) => void;
+  setSearchQuery: (term: string) => void;
   regionFilter: string;
   setRegionFilter: (region: string) => void;
   sortOrder: string;
-  setSortOrder: (order: string) => void;
+  setSortOrder: (sort: string) => void;
 }
 
-const regions = ["Africa", "Americas", "Asia", "Europe", "Oceania"];
+const regions = ["All", "Africa", "Americas", "Asia", "Europe", "Oceania"];
+const sortOptions = [
+  { label: "Default", value: "default" },
+  { label: "Population (High to Low)", value: "pop-desc" },
+  { label: "Population (Low to High)", value: "pop-asc" },
+  { label: "Area (High to Low)", value: "area-desc" },
+  { label: "Name (A-Z)", value: "name-asc" },
+];
 
 export default function SearchAndFilter({
   searchQuery,
@@ -22,53 +28,55 @@ export default function SearchAndFilter({
   setSortOrder,
 }: SearchAndFilterProps) {
   return (
-    <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between animate-in fade-in slide-in-from-top-4 duration-500">
-      <div className="relative w-full max-w-lg">
-        <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4.5">
-          <Search className="h-4.5 w-4.5 text-navy-400" />
+    <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+      {/* Search Input */}
+      <div className="relative w-full max-w-md">
+        <div className="absolute inset-y-0 left-4.5 flex items-center pointer-events-none">
+          <Search className="h-4.5 w-4.5 text-zinc-500" />
         </div>
         <input
           type="text"
           placeholder="Search for a country..."
-          className="h-12 w-full rounded-2xl bg-white pl-12 pr-5 text-sm font-medium shadow-sm ring-1 ring-navy-200 transition-all focus:outline-none focus:ring-2 focus:ring-navy-900 dark:bg-navy-900/50 dark:text-navy-50 dark:ring-white/10 dark:focus:ring-white/30"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
+          className="h-12 w-full rounded-2xl bg-zinc-900/50 pl-12 pr-5 text-sm font-medium shadow-sm ring-1 ring-white/5 transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
         />
       </div>
 
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+      <div className="flex flex-col sm:flex-row gap-4">
+        {/* Region Filter */}
         <div className="relative w-full sm:w-48">
           <select
-            className="h-12 w-full appearance-none rounded-2xl bg-white pl-4.5 pr-10 text-sm font-medium shadow-sm ring-1 ring-navy-200 transition-all focus:outline-none focus:ring-2 focus:ring-navy-900 dark:bg-navy-900/50 dark:text-navy-50 dark:ring-white/10 dark:focus:ring-white/30 cursor-pointer"
             value={regionFilter}
             onChange={(e) => setRegionFilter(e.target.value)}
+            className="h-12 w-full appearance-none rounded-2xl bg-zinc-900/50 pl-4.5 pr-10 text-sm font-medium shadow-sm ring-1 ring-white/5 transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 text-white cursor-pointer"
           >
-            <option value="">All Regions</option>
             {regions.map((region) => (
-              <option key={region} value={region}>
-                {region}
+              <option key={region} value={region} className="bg-zinc-900 text-white">
+                {region === "All" ? "Filter by Region" : region}
               </option>
             ))}
           </select>
-          <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-4.5">
-            <ChevronDown className="h-4 w-4 text-navy-400" />
+          <div className="absolute inset-y-0 right-4 flex items-center pointer-events-none">
+            <ChevronDown className="h-4 w-4 text-zinc-500" />
           </div>
         </div>
 
-        <div className="relative w-full sm:w-48">
+        {/* Sort Select */}
+        <div className="relative w-full sm:w-60">
           <select
-            className="h-12 w-full appearance-none rounded-2xl bg-white pl-4.5 pr-10 text-sm font-medium shadow-sm ring-1 ring-navy-200 transition-all focus:outline-none focus:ring-2 focus:ring-navy-900 dark:bg-navy-900/50 dark:text-navy-50 dark:ring-white/10 dark:focus:ring-white/30 cursor-pointer"
             value={sortOrder}
             onChange={(e) => setSortOrder(e.target.value)}
+            className="h-12 w-full appearance-none rounded-2xl bg-zinc-900/50 pl-4.5 pr-10 text-sm font-medium shadow-sm ring-1 ring-white/5 transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 text-white cursor-pointer"
           >
-            <option value="name">Sort by Name</option>
-            <option value="pop-desc">Population (High to Low)</option>
-            <option value="pop-asc">Population (Low to High)</option>
-            <option value="area-desc">Area (Largest First)</option>
-            <option value="area-asc">Area (Smallest First)</option>
+            {sortOptions.map((option) => (
+              <option key={option.value} value={option.value} className="bg-zinc-900 text-white">
+                {option.label}
+              </option>
+            ))}
           </select>
-          <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-4.5">
-            <ChevronDown className="h-4 w-4 text-navy-400" />
+          <div className="absolute inset-y-0 right-4 flex items-center pointer-events-none">
+            <ChevronDown className="h-4 w-4 text-zinc-500" />
           </div>
         </div>
       </div>

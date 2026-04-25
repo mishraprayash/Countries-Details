@@ -42,7 +42,7 @@ export default function CountryList({ initialCountries }: CountryListProps) {
 
   return (
     <div className="space-y-10">
-      <div className="rounded-3xl border border-navy-200 bg-navy-50/50 p-6 dark:border-white/5 dark:bg-white/5">
+      <div className="rounded-3xl border border-zinc-200 bg-zinc-50/50 p-6 dark:border-white/5 dark:bg-white/5">
         <SearchAndFilter
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
@@ -61,13 +61,13 @@ export default function CountryList({ initialCountries }: CountryListProps) {
 
       {filteredCountries.length === 0 && (
         <div className="flex flex-col items-center justify-center py-32 animate-in fade-in duration-500">
-          <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-navy-100 dark:bg-navy-900">
+          <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-zinc-100 dark:bg-zinc-900">
             <span className="text-2xl">🌍</span>
           </div>
-          <p className="text-lg font-bold text-navy-900 dark:text-navy-50">
+          <p className="text-lg font-bold text-zinc-900 dark:text-zinc-50">
             No countries found
           </p>
-          <p className="text-sm text-navy-500 dark:text-navy-400">
+          <p className="text-sm text-zinc-500 dark:text-zinc-400">
             Try adjusting your search or filter criteria.
           </p>
           <button 

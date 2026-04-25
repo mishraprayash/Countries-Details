@@ -5,7 +5,7 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-3178C6?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
 
-A premium, interactive web application for exploring global demographics, population trends, and regional distributions. Built with a focus on high-performance data visualization and a state-of-the-art "Midnight Navy" design system.
+A premium, interactive web application for exploring global demographics, population trends, and regional distributions. Built with a focus on high-performance data visualization and a state-of-the-art **Pure Dark** design system.
 
 ---
 
@@ -14,7 +14,7 @@ A premium, interactive web application for exploring global demographics, popula
 - **📊 Advanced Data Dashboard**: Interactive Recharts-powered visualizations including population distribution by region and top populous countries.
 - **🌎 Global Country Explorer**: Search and filter through 250+ countries with high-performance client-side filtering.
 - **🔍 Deep Insights**: Detailed pages for every country, featuring demographic data, geographical extremes, and UN membership status.
-- **🌓 Midnight Navy Theme**: A sophisticated, custom-designed dark and light mode system that moves beyond standard black/gray to a premium indigo-navy aesthetic.
+- **🌑 Permanent Dark Theme**: A sophisticated, custom-designed dark theme using a Zinc-950 palette for a premium "Midnight" aesthetic.
 - **⚡ Next.js 15 Power**: Utilizing the latest App Router, Server Components, and optimized metadata for SEO and performance.
 - **📱 Fully Responsive**: A mobile-first design that looks stunning on everything from ultra-wide monitors to smartphones.
 
@@ -23,10 +23,9 @@ A premium, interactive web application for exploring global demographics, popula
 ## 🚀 Tech Stack
 
 - **Framework**: [Next.js 15 (App Router)](https://nextjs.org/)
-- **Styling**: [Tailwind CSS 4.0](https://tailwindcss.com/) (Midnight Navy System)
+- **Styling**: [Tailwind CSS 4.0](https://tailwindcss.com/) (Pure Dark System)
 - **Visuals**: [Recharts](https://recharts.org/) for data storytelling
 - **Icons**: [Lucide React](https://lucide.dev/)
-- **Theme Management**: [next-themes](https://github.com/pacocoursey/next-themes)
 - **Data Source**: [REST Countries API](https://restcountries.com/)
 
 ---
@@ -62,11 +61,8 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 ## 📸 Screenshots
 
-### 🌗 Midnight Dark Mode
-> A deep, rich indigo-based dark theme designed for focus and elegance.
-
-### ☀️ Ultra-Clean Light Mode
-> A pure white, high-contrast aesthetic with professional blue highlights.
+### 🌑 Premium Dark Theme
+> A deep, rich zinc-based dark theme designed for focus and elegance.
 
 ---
 

@@ -30,8 +30,8 @@ export default function CountryComparison({
   ];
 
   return (
-    <div className="mt-12 rounded-2xl border border-navy-200 bg-white p-8 shadow-sm dark:border-white/10 dark:bg-navy-900/50">
-      <h3 className="mb-6 text-lg font-bold text-navy-900 dark:text-navy-50">
+    <div className="mt-12 rounded-2xl border border-zinc-200 bg-white p-8 shadow-sm dark:border-white/10 dark:bg-zinc-900/50">
+      <h3 className="mb-6 text-lg font-bold text-zinc-900 dark:text-zinc-50">
         Population Comparison (vs Regional Average)
       </h3>
       <div className="h-[250px] w-full">
@@ -62,7 +62,7 @@ export default function CountryComparison({
           </BarChart>
         </ResponsiveContainer>
       </div>
-      <p className="mt-4 text-center text-sm text-navy-500 dark:text-navy-400">
+      <p className="mt-4 text-center text-sm text-zinc-500 dark:text-zinc-400">
         {countryPopulation > regionAverage 
           ? `${countryName} has a population ${(countryPopulation / regionAverage).toFixed(1)}x larger than the average for ${regionName}.`
           : `${countryName}'s population is ${((countryPopulation / regionAverage) * 100).toFixed(1)}% of the average for ${regionName}.`}
