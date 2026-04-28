@@ -2,10 +2,10 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Globe, Heart, BrainCircuit, Map } from "lucide-react";
+import { Globe, Heart, BrainCircuit, Map, Scale } from "lucide-react";
 
 interface NavbarProps {
-  currentPage?: "dashboard" | "countries" | "quiz" | "favorites";
+  currentPage?: "dashboard" | "countries" | "quiz" | "favorites" | "compare";
 }
 
 export default function Navbar({ currentPage }: NavbarProps) {
@@ -14,6 +14,7 @@ export default function Navbar({ currentPage }: NavbarProps) {
   const navItems = [
     { href: "/", label: "Dashboard", icon: Globe, activeColor: "text-blue-400", activeBg: "bg-blue-400/10", activeDot: "bg-blue-400", page: "dashboard" as const },
     { href: "/countries", label: "Countries", icon: Map, activeColor: "text-zinc-300", activeBg: "bg-zinc-300/10", activeDot: "bg-zinc-300", page: "countries" as const },
+    { href: "/compare", label: "Compare", icon: Scale, activeColor: "text-amber-400", activeBg: "bg-amber-400/10", activeDot: "bg-amber-400", page: "compare" as const },
     { href: "/quiz", label: "Quiz", icon: BrainCircuit, activeColor: "text-indigo-400", activeBg: "bg-indigo-400/10", activeDot: "bg-indigo-400", page: "quiz" as const },
     { href: "/favorites", label: "Favorites", icon: Heart, activeColor: "text-red-400", activeBg: "bg-red-400/10", activeDot: "bg-red-400", page: "favorites" as const },
   ];

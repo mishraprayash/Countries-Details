@@ -1,4 +1,4 @@
-import { Globe, Info, Landmark, Zap } from "lucide-react";
+import { Globe } from "lucide-react";
 
 export default function CountryLoading() {
   return (
@@ -6,8 +6,8 @@ export default function CountryLoading() {
       <header className="sticky top-0 z-50 border-b border-zinc-200 bg-white/80 backdrop-blur-md dark:border-white/10 dark:bg-zinc-950/80">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-2 text-zinc-900 dark:text-zinc-50">
-            <Globe className="h-6 w-6" />
-            <span className="text-xl font-bold">Where in the world?</span>
+            <Globe className="h-6 w-6 text-blue-500" />
+            <span className="text-xl font-bold">World Insights</span>
           </div>
         </div>
       </header>

@@ -13,14 +13,45 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "World Insights | Global Demographic & Geographic Dashboard",
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://world-insights.vercel.app'),
+  title: {
+    default: "World Insights | Global Demographic & Geographic Dashboard",
+    template: "%s | World Insights",
+  },
   description: "Explore comprehensive global statistics, regional demographics, and detailed country profiles with our high-performance interactive dashboard.",
-  keywords: ["countries", "world statistics", "demographics", "geography", "dashboard"],
-  authors: [{ name: "Prayash Mishra" }],
+  keywords: ["countries", "world statistics", "demographics", "geography", "dashboard", "country flags", "capitals", "world map", "population data"],
+  authors: [{ name: "World Insights Team" }],
+  creator: "World Insights",
+  publisher: "World Insights",
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
   openGraph: {
     title: "World Insights Dashboard",
     description: "Explore comprehensive global statistics and detailed country profiles.",
+    url: "/",
+    siteName: "World Insights",
+    locale: "en_US",
     type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "World Insights Dashboard",
+    description: "Explore comprehensive global statistics and detailed country profiles.",
+    creator: "@worldinsights",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
   },
 };
 
