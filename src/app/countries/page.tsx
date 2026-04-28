@@ -3,10 +3,11 @@ import CountryList from "@/components/CountryList";
 import { Globe } from "lucide-react";
 import Link from "next/link";
 import { Metadata } from "next";
+import Navbar from "@/components/Navbar";
 
 export const metadata: Metadata = {
   title: "Explore Countries | World Insights",
-  description: "Browse and filter through all countries of the world. Sort by population, area, and region to find detailed demographic information.",
+  description: "Browse and filter through all countries of the world.",
 };
 
 export default async function CountriesPage() {
@@ -22,14 +23,7 @@ export default async function CountriesPage() {
               World Insights
             </h1>
           </Link>
-          <nav className="flex items-center gap-6">
-            <Link href="/" className="text-sm font-medium text-zinc-400 hover:text-zinc-50 transition-colors">
-              Dashboard
-            </Link>
-            <Link href="/countries" className="text-sm font-bold text-blue-400">
-              Countries
-            </Link>
-          </nav>
+          <Navbar currentPage="countries" />
         </div>
       </header>
 

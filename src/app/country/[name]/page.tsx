@@ -1,16 +1,42 @@
 import Link from "next/link";
 import Image from "next/image";
 import {
-  ArrowLeft, Globe, Info, Landmark, Languages, Zap, Compass, MapPin,
+  ArrowLeft, Globe, Info, Landmark, Zap, Compass, MapPin,
   CheckCircle2, XCircle, Shield, ChevronRight, ExternalLink
 } from "lucide-react";
 import { getCountryByName, getCountriesByCodes, getCountriesByRegion } from "@/lib/api";
 import CountryComparison from "@/components/CountryComparison";
+import Navbar from "@/components/Navbar";
 
 import { Metadata } from "next";
+import { LucideIcon } from "lucide-react";
 
 interface CountryPageProps {
   params: Promise<{ name: string }>;
+}
+
+function DetailSection({ title, icon: Icon, children, delay }: { title: string; icon: LucideIcon; children: React.ReactNode; delay: string }) {
+  return (
+    <div className={`group rounded-2xl border border-white/5 bg-zinc-900/50 shadow-sm transition-all hover:bg-zinc-900 animate-in fade-in slide-in-from-bottom-4 duration-500 ${delay}`}>
+      <div className="flex items-center gap-2.5 border-b border-white/5 bg-white/5 px-5 py-3.5">
+        <Icon className="h-4.5 w-4.5 text-zinc-500 transition-colors group-hover:text-zinc-300" />
+        <h3 className="text-sm font-semibold tracking-tight text-white">{title}</h3>
+      </div>
+      <div className="px-5 py-4">{children}</div>
+    </div>
+  );
+}
+
+function DataRow({ label, value, subValue }: { label: string; value: string | React.ReactNode; subValue?: string }) {
+  return (
+    <div className="flex items-center justify-between border-b border-white/5 py-3 last:border-0">
+      <span className="text-sm font-medium text-zinc-500">{label}</span>
+      <div className="text-right">
+        <span className="text-sm font-bold text-white">{value}</span>
+        {subValue && <p className="text-[10px] uppercase tracking-wider text-zinc-500">{subValue}</p>}
+      </div>
+    </div>
+  );
 }
 
 export async function generateMetadata({ params }: CountryPageProps): Promise<Metadata> {
@@ -31,27 +57,6 @@ export default async function CountryPage({ params }: CountryPageProps) {
   const regionCountries = await getCountriesByRegion(country.region);
   const regionAverage = regionCountries.reduce((acc, c) => acc + c.population, 0) / regionCountries.length;
 
-  // Reusable UI components with consistent spacing
-  const DetailSection = ({ title, icon: Icon, children, delay }: { title: string, icon: any, children: React.ReactNode, delay: string }) => (
-    <div className={`group rounded-2xl border border-white/5 bg-zinc-900/50 shadow-sm transition-all hover:bg-zinc-900 animate-in fade-in slide-in-from-bottom-4 duration-500 ${delay}`}>
-      <div className="flex items-center gap-2.5 border-b border-white/5 bg-white/5 px-5 py-3.5">
-        <Icon className="h-4.5 w-4.5 text-zinc-500 transition-colors group-hover:text-zinc-300" />
-        <h3 className="text-sm font-semibold tracking-tight text-white">{title}</h3>
-      </div>
-      <div className="px-5 py-4">{children}</div>
-    </div>
-  );
-
-  const DataRow = ({ label, value, subValue }: { label: string, value: string | React.ReactNode, subValue?: string }) => (
-    <div className="flex items-center justify-between border-b border-white/5 py-3 last:border-0">
-      <span className="text-sm font-medium text-zinc-500">{label}</span>
-      <div className="text-right">
-        <span className="text-sm font-bold text-white">{value}</span>
-        {subValue && <p className="text-[10px] uppercase tracking-wider text-zinc-500">{subValue}</p>}
-      </div>
-    </div>
-  );
-
   return (
     <main className="flex-1 bg-zinc-950 text-zinc-50">
       <header className="sticky top-0 z-50 border-b border-white/5 bg-zinc-950/80 backdrop-blur-md">
@@ -60,20 +65,7 @@ export default async function CountryPage({ params }: CountryPageProps) {
             <Globe className="h-5.5 w-5.5 text-blue-500" />
             <span className="text-lg font-bold tracking-tight">World Insights</span>
           </Link>
-          <nav className="flex items-center gap-6">
-            <Link
-              href="/"
-              className="text-sm font-medium text-zinc-400 transition-colors hover:text-white"
-            >
-              Dashboard
-            </Link>
-            <Link
-              href="/countries"
-              className="text-sm font-medium text-zinc-400 transition-colors hover:text-white"
-            >
-              Countries
-            </Link>
-          </nav>
+          <Navbar />
         </div>
       </header>
 

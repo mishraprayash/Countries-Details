@@ -15,9 +15,19 @@ import {
   CartesianGrid,
 } from "recharts";
 
+interface RegionData {
+  name: string;
+  value: number;
+}
+
+interface PopulationData {
+  name: string;
+  population: number;
+}
+
 interface StatsChartsProps {
-  regionData: any[];
-  populationData: any[];
+  regionData: RegionData[];
+  populationData: PopulationData[];
 }
 
 const COLORS = ["#3b82f6", "#10b981", "#f59e0b", "#8b5cf6", "#ec4899", "#06b6d4"];
@@ -94,7 +104,7 @@ export default function StatsCharts({ regionData, populationData }: StatsChartsP
                   borderRadius: "12px",
                   color: "#fff",
                 }}
-                formatter={(value: any) => [`${(Number(value) / 1000000).toFixed(1)}M`, "Population"]}
+                formatter={(value) => [`${(Number(value) / 1000000).toFixed(1)}M`, "Population"]}
               />
               <Bar 
                 dataKey="population" 

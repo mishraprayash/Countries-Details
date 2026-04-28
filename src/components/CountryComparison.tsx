@@ -48,7 +48,7 @@ export default function CountryComparison({
                 borderRadius: "8px",
                 color: "#fff" 
               }}
-              formatter={(value: any) => [`${(Number(value) / 1000000).toFixed(1)}M`, "Population"]}
+              formatter={(value) => [`${(Number(value) / 1000000).toFixed(1)}M`, "Population"]}
             />
             <Bar dataKey="population" radius={[8, 8, 0, 0]} barSize={60}>
               {data.map((entry, index) => (
@@ -62,10 +62,11 @@ export default function CountryComparison({
           </BarChart>
         </ResponsiveContainer>
       </div>
-      <p className="mt-4 text-center text-sm text-zinc-500 dark:text-zinc-400">
+<p className="mt-4 text-center text-sm text-zinc-500 dark:text-zinc-400">
         {countryPopulation > regionAverage 
           ? `${countryName} has a population ${(countryPopulation / regionAverage).toFixed(1)}x larger than the average for ${regionName}.`
-          : `${countryName}'s population is ${((countryPopulation / regionAverage) * 100).toFixed(1)}% of the average for ${regionName}.`}
+          : `${countryName} population is ${((countryPopulation / regionAverage) * 100).toFixed(1)}% of the average for ${regionName}.`
+        }
       </p>
     </div>
   );

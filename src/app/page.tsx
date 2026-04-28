@@ -1,10 +1,11 @@
 import { getAllCountries } from "@/lib/api";
 import { 
-  Globe, BarChart3, Users, LayoutDashboard, TrendingUp, Map, Award, Star, 
-  Zap, Shield, Languages, Coins, Compass 
+  Globe, Users, TrendingUp, Map, Award, Star, 
+  Zap, Shield, Coins, Compass 
 } from "lucide-react";
 import Link from "next/link";
 import StatsCharts from "@/components/StatsCharts";
+import Navbar from "@/components/Navbar";
 
 export default async function DashboardPage() {
   const countries = await getAllCountries();
@@ -42,7 +43,6 @@ export default async function DashboardPage() {
   const sortedByArea = [...countries].sort((a, b) => (b.area || 0) - (a.area || 0));
 
   const topByPopulation = sortedByPop.slice(0, 10);
-  const smallestByPop = sortedByPop[sortedByPop.length - 1];
   const largestByArea = sortedByArea[0];
   const smallestByArea = sortedByArea[sortedByArea.length - 1];
 
@@ -62,12 +62,7 @@ export default async function DashboardPage() {
             <span className="text-xl font-bold">World Insights</span>
           </Link>
           <nav className="flex items-center gap-6">
-            <Link href="/" className="text-sm font-bold text-blue-400">
-              Dashboard
-            </Link>
-            <Link href="/countries" className="text-sm font-medium text-zinc-400 hover:text-zinc-50 transition-colors">
-              Countries
-            </Link>
+            <Navbar currentPage="dashboard" />
           </nav>
         </div>
       </header>
@@ -140,7 +135,7 @@ export default async function DashboardPage() {
                 <Award className="h-6 w-6 text-amber-500" />
               </div>
               <h3 className="text-xl font-bold text-white">Most Populous</h3>
-              <p className="mt-2 text-sm text-zinc-400">The world's demographic leader</p>
+              <p className="mt-2 text-sm text-zinc-400">The world&apos;s demographic leader</p>
               <div className="mt-6">
                 <span className="text-3xl font-black text-white">{largestByPop?.name?.common || "N/A"}</span>
               </div>

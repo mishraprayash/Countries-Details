@@ -15,7 +15,7 @@ export default function CountryList({ initialCountries }: CountryListProps) {
   const [sortOrder, setSortOrder] = useState("name");
 
   const filteredCountries = useMemo(() => {
-    let result = initialCountries.filter((country) => {
+    const result = initialCountries.filter((country) => {
       const matchesSearch = country.name.common
         .toLowerCase()
         .includes(searchQuery.toLowerCase());

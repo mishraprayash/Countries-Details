@@ -1,4 +1,4 @@
-import { Globe, ArrowLeft, Info, Landmark, Languages, Zap } from "lucide-react";
+import { Globe, Info, Landmark, Zap } from "lucide-react";
 
 export default function CountryLoading() {
   return (
@@ -33,7 +33,7 @@ export default function CountryLoading() {
             </div>
 
             <div className="grid gap-6 sm:grid-cols-2">
-              {[Info, Landmark, Languages, Zap].map((_, i) => (
+              {[1, 2, 3, 4].map((i) => (
                 <div key={i} className="h-64 rounded-3xl bg-zinc-50 dark:bg-zinc-900/50 animate-pulse"></div>
               ))}
             </div>

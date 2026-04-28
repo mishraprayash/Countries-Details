@@ -1,13 +1,19 @@
+"use client";
+
 import Link from "next/link";
 import Image from "next/image";
 import { Country } from "@/types/country";
-import { Users, MapPin, Building2 } from "lucide-react";
+import { Users, MapPin, Building2, Heart } from "lucide-react";
+import { useFavorites } from "@/hooks/useFavorites";
 
 interface CountryCardProps {
   country: Country;
 }
 
 export default function CountryCard({ country }: CountryCardProps) {
+  const { isFavorite, toggleFavorite, mounted } = useFavorites();
+  const isFav = isFavorite(country.cca3);
+
   return (
     <Link
       href={`/country/${encodeURIComponent(country.name.common.toLowerCase())}`}
@@ -21,6 +27,20 @@ export default function CountryCard({ country }: CountryCardProps) {
           className="object-cover transition-transform duration-700 group-hover:scale-110"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/60 to-transparent opacity-60 transition-opacity duration-500 group-hover:opacity-100" />
+        
+        {mounted && (
+          <button
+            onClick={(e) => toggleFavorite(country.cca3, e)}
+            className="absolute top-3 right-3 z-10 rounded-full bg-zinc-950/40 p-2 backdrop-blur-md transition-all hover:scale-110 hover:bg-zinc-950/60"
+            aria-label={isFav ? "Remove from favorites" : "Add to favorites"}
+          >
+            <Heart
+              className={`h-5 w-5 transition-colors ${
+                isFav ? "fill-red-500 text-red-500" : "text-white"
+              }`}
+            />
+          </button>
+        )}
       </div>
       <div className="flex flex-col p-5.5">
         <h3 className="mb-4 text-lg font-black tracking-tight text-white transition-colors group-hover:text-blue-400">
