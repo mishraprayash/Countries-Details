@@ -231,7 +231,7 @@ export default function QuizClient() {
           <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4">
             <Link href="/" className="flex items-center gap-2">
               <Globe className="h-6 w-6 text-blue-500" />
-              <span className="text-xl font-bold">World Insights</span>
+              <span className="text-xl font-bold hidden md:inline">World Insights</span>
             </Link>
             <Navbar currentPage="quiz" />
           </div>
@@ -251,7 +251,7 @@ export default function QuizClient() {
           <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4">
             <Link href="/" className="flex items-center gap-2">
               <Globe className="h-6 w-6 text-blue-500" />
-              <span className="text-xl font-bold">World Insights</span>
+              <span className="text-xl font-bold hidden md:inline">World Insights</span>
             </Link>
             <Navbar currentPage="quiz" />
           </div>
@@ -332,11 +332,11 @@ export default function QuizClient() {
           </div>
 
           <div className="flex flex-col items-center justify-center py-10 animate-in fade-in duration-500">
-            <div className="mb-8 flex h-24 w-24 items-center justify-center rounded-3xl bg-indigo-500/10 ring-1 ring-indigo-500/20">
-              <BrainCircuit className="h-12 w-12 text-indigo-400" />
+            <div className="mb-6 sm:mb-8 flex h-20 w-20 sm:h-24 sm:w-24 items-center justify-center rounded-3xl bg-indigo-500/10 ring-1 ring-indigo-500/20">
+              <BrainCircuit className="h-10 w-10 sm:h-12 sm:w-12 text-indigo-400" />
             </div>
-            <h2 className="text-4xl font-black text-white mb-4">Test Your Knowledge</h2>
-            <p className="text-zinc-400 mb-8 text-center max-w-md text-lg">
+            <h2 className="text-3xl sm:text-4xl font-black text-white mb-3 sm:mb-4">Test Your Knowledge</h2>
+            <p className="text-zinc-400 mb-6 sm:mb-8 text-center max-w-md text-sm sm:text-lg">
               {settings.questionCount} {settings.questionType === "mixed" ? "mixed" : settings.questionType + "s"} questions
               {settings.timer ? ` • ${settings.timer}s timer` : ""}
             </p>
@@ -407,7 +407,7 @@ export default function QuizClient() {
           <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4">
             <Link href="/" className="flex items-center gap-2">
               <Globe className="h-6 w-6 text-blue-500" />
-              <span className="text-xl font-bold">World Insights</span>
+              <span className="text-xl font-bold hidden md:inline">World Insights</span>
             </Link>
             <Navbar currentPage="quiz" />
           </div>
@@ -556,7 +556,7 @@ export default function QuizClient() {
           <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4">
             <Link href="/" className="flex items-center gap-2">
               <Globe className="h-6 w-6 text-blue-500" />
-              <span className="text-xl font-bold">World Insights</span>
+              <span className="text-xl font-bold hidden md:inline">World Insights</span>
             </Link>
             <Navbar currentPage="quiz" />
           </div>
@@ -577,7 +577,7 @@ export default function QuizClient() {
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4">
           <Link href="/" className="flex items-center gap-2">
             <Globe className="h-6 w-6 text-blue-500" />
-            <span className="text-xl font-bold">World Insights</span>
+            <span className="text-xl font-bold hidden md:inline">World Insights</span>
           </Link>
           <Navbar currentPage="quiz" />
         </div>

@@ -211,12 +211,12 @@ export default function DashboardContent({ countries }: DashboardContentProps) {
   return (
     <>
       <Suspense fallback={<HeroSkeleton />}>
-        <div className="relative mb-6 overflow-hidden rounded-3xl border border-white/5 bg-zinc-900/50 p-8 sm:p-12 shadow-2xl">
+        <div className="relative mb-6 overflow-hidden rounded-3xl border border-white/5 bg-zinc-900/50 p-6 sm:p-12 shadow-2xl">
           <div className="relative z-10 max-w-2xl">
-            <h1 className="text-4xl font-black tracking-tight text-white sm:text-6xl">
+            <h1 className="text-3xl font-black tracking-tight text-white sm:text-5xl lg:text-6xl">
               World Insights Hub
             </h1>
-            <p className="mt-6 text-lg text-zinc-400 sm:text-xl leading-relaxed">
+            <p className="mt-4 text-base text-zinc-400 sm:mt-6 sm:text-lg lg:text-xl leading-relaxed">
               Explore global demographics, population trends, and regional distributions with our interactive data dashboard.
             </p>
           </div>

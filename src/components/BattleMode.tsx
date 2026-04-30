@@ -121,18 +121,18 @@ export default function BattleMode({ countries }: BattleModeProps) {
       </div>
 
       {/* Main Arena */}
-      <div className="flex flex-col md:flex-row h-[600px]">
+      <div className="flex flex-col md:flex-row min-h-[800px] md:min-h-[600px] md:h-[600px]">
         
         {/* Country A */}
-        <div className="flex-1 relative flex flex-col items-center justify-center p-8 bg-zinc-900/30">
+        <div className="flex-1 relative flex flex-col items-center justify-center p-6 pt-24 md:p-8 bg-zinc-900/30">
           <div className="absolute inset-0 bg-gradient-to-b from-blue-500/5 to-transparent pointer-events-none" />
           <div className="relative z-10 text-center">
             <div className="w-48 h-32 relative mx-auto mb-6 rounded-xl overflow-hidden shadow-lg ring-1 ring-white/10">
               <Image src={countryA.flags.svg} alt={countryA.name.common} fill className="object-cover" />
             </div>
-            <h3 className="text-3xl font-black text-white mb-2">{countryA.name.common}</h3>
-            <p className="text-sm font-bold text-zinc-500 uppercase tracking-widest mb-2">has a {statLabel} of</p>
-            <div className="text-4xl font-black text-blue-400 drop-shadow-sm">
+            <h3 className="text-2xl sm:text-3xl font-black text-white mb-2">{countryA.name.common}</h3>
+            <p className="text-xs sm:text-sm font-bold text-zinc-500 uppercase tracking-widest mb-2">has a {statLabel} of</p>
+            <div className="text-3xl sm:text-4xl font-black text-blue-400 drop-shadow-sm">
               {formatStat(countryA[currentStat], currentStat)}
             </div>
           </div>
@@ -150,8 +150,8 @@ export default function BattleMode({ countries }: BattleModeProps) {
             <div className="w-48 h-32 relative mx-auto mb-6 rounded-xl overflow-hidden shadow-lg ring-1 ring-white/10">
               <Image src={countryB.flags.svg} alt={countryB.name.common} fill className="object-cover" />
             </div>
-            <h3 className="text-3xl font-black text-white mb-2">{countryB.name.common}</h3>
-            <p className="text-sm font-bold text-zinc-500 uppercase tracking-widest mb-6">has a {statLabel}</p>
+            <h3 className="text-2xl sm:text-3xl font-black text-white mb-2">{countryB.name.common}</h3>
+            <p className="text-xs sm:text-sm font-bold text-zinc-500 uppercase tracking-widest mb-6">has a {statLabel}</p>
             
             {gameState === "playing" ? (
               <div className="space-y-4">
@@ -173,7 +173,7 @@ export default function BattleMode({ countries }: BattleModeProps) {
               </div>
             ) : (
               <div className="animate-in zoom-in duration-300">
-                <div className={`text-5xl font-black mb-4 ${lastGuessCorrect ? 'text-emerald-400' : 'text-red-400'}`}>
+                <div className={`text-4xl sm:text-5xl font-black mb-4 ${lastGuessCorrect ? 'text-emerald-400' : 'text-red-400'}`}>
                   {formatStat(countryB[currentStat], currentStat)}
                 </div>
                 {gameState === "revealed" && (

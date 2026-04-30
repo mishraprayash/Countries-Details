@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import Image from "next/image";
-import { Lightbulb, RefreshCw, ExternalLink } from "lucide-react";
+import { Lightbulb, ExternalLink } from "lucide-react";
 import Link from "next/link";
 
 interface CountryData {
@@ -26,14 +26,12 @@ const WIKIPEDIA_API = "https://en.wikipedia.org/api/rest_v1/page/summary/";
 export default function CountryOfTheDay({ countries }: CountryOfTheDayProps) {
   const [countryFact, setCountryFact] = useState<CountryFact | null>(null);
   const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
 
   const getCountryOfTheDay = async () => {
     if (!countries.length) return;
 
     setLoading(true);
-    setRefreshing(true);
     setIsExpanded(false);
 
     try {
@@ -82,12 +80,10 @@ export default function CountryOfTheDay({ countries }: CountryOfTheDayProps) {
       });
     } finally {
       setLoading(false);
-      setTimeout(() => setRefreshing(false), 400);
     }
   };
 
   useEffect(() => {
-    // Avoid synchronous state updates in the effect body
     const timeoutId = setTimeout(() => {
       getCountryOfTheDay();
     }, 0);
@@ -107,10 +103,10 @@ export default function CountryOfTheDay({ countries }: CountryOfTheDayProps) {
     <div className="group relative rounded-2xl p-[1px] bg-gradient-to-r from-amber-500/20 via-white/10 to-amber-500/20">
       <div className="rounded-2xl bg-zinc-900/80 backdrop-blur-xl p-4 transition-all duration-300 group-hover:bg-zinc-900/90 group-hover:shadow-xl">
         
-        <div className="flex items-start gap-4">
+        <div className="flex items-start gap-3 sm:gap-4">
           
           {/* Flag */}
-          <div className="relative w-24 h-16 rounded-xl overflow-hidden border border-white/10 shadow-md group-hover:scale-105 transition-transform">
+          <div className="relative w-20 h-14 sm:w-24 sm:h-16 rounded-xl overflow-hidden border border-white/10 shadow-md group-hover:scale-105 transition-transform shrink-0">
             <Image
               src={countryFact.flag}
               alt={`Flag of ${countryFact.name}`}
@@ -118,48 +114,34 @@ export default function CountryOfTheDay({ countries }: CountryOfTheDayProps) {
               className="object-cover"
             />
           </div>
-
+          
           {/* Content */}
           <div className="flex-1 min-w-0">
             
             {/* Header */}
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center gap-2">
-                <div className="p-1.5 rounded-lg bg-amber-500/10">
-                  <Lightbulb className="h-4 w-4 text-amber-400" />
-                </div>
-                <span className="text-xs font-semibold text-amber-400 uppercase tracking-wider">
-                  Fact of the Day
-                </span>
+            <div className="flex items-center gap-2 mb-1">
+              <div className="p-1 rounded-lg bg-amber-500/10 shrink-0">
+                <Lightbulb className="h-3 w-3 sm:h-4 sm:w-4 text-amber-400" />
               </div>
-
-              <button
-                onClick={getCountryOfTheDay}
-                className="p-2 rounded-lg text-zinc-500 hover:text-white hover:bg-white/10 transition"
-                title="Refresh"
-              >
-                <RefreshCw
-                  className={`h-4 w-4 ${
-                    refreshing ? "animate-spin" : ""
-                  }`}
-                />
-              </button>
+              <span className="text-[10px] sm:text-xs font-semibold text-amber-400 uppercase tracking-wider truncate">
+                Fact of the Day
+              </span>
             </div>
 
             {/* Country Name */}
-            <h4 className="text-lg font-semibold text-white leading-tight mb-1">
+            <h4 className="text-base sm:text-lg font-semibold text-white leading-tight mb-1 truncate">
               {countryFact.name}
             </h4>
 
             {/* Description */}
             <div className="relative">
-              <p className={`text-sm text-zinc-400 leading-relaxed transition-all duration-300 ${!isExpanded ? "line-clamp-3" : ""}`}>
+              <p className={`text-xs sm:text-sm text-zinc-400 leading-relaxed transition-all duration-300 ${!isExpanded ? "line-clamp-3" : ""}`}>
                 {countryFact.fact}
               </p>
-              {countryFact.fact.length > 150 && (
+              {countryFact.fact.length > 120 && (
                 <button
                   onClick={() => setIsExpanded(!isExpanded)}
-                  className="text-amber-500 hover:text-amber-400 text-xs font-semibold mt-1 transition-colors focus:outline-none"
+                  className="text-amber-500 hover:text-amber-400 text-[10px] sm:text-xs font-semibold mt-1 transition-colors focus:outline-none"
                 >
                   {isExpanded ? "Show less" : "See more"}
                 </button>
@@ -167,15 +149,24 @@ export default function CountryOfTheDay({ countries }: CountryOfTheDayProps) {
             </div>
           </div>
 
-          {/* Action */}
+          {/* Action - Desktop only, shown on right */}
           <Link
             href={`/country/${countryFact.name.toLowerCase()}`}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-amber-500 text-black text-sm font-semibold hover:bg-amber-400 active:scale-95 transition-all shadow-md"
+            className="hidden sm:flex items-center gap-2 px-4 py-2.5 rounded-xl bg-amber-500 text-black text-sm font-semibold hover:bg-amber-400 active:scale-95 transition-all shadow-md shrink-0"
           >
             <ExternalLink className="h-4 w-4" />
             Explore
           </Link>
         </div>
+
+        {/* Action - Mobile only, full width at bottom */}
+        <Link
+          href={`/country/${countryFact.name.toLowerCase()}`}
+          className="flex sm:hidden items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-amber-500 text-black text-sm font-semibold hover:bg-amber-400 active:scale-95 transition-all shadow-md mt-3"
+        >
+          <ExternalLink className="h-4 w-4" />
+          Explore
+        </Link>
       </div>
     </div>
   );

@@ -123,40 +123,48 @@ export default function ComparePage() {
   return (
     <main className="flex-1 bg-zinc-950 text-zinc-50 min-h-screen">
       <div className="sticky top-0 z-50 border-b border-white/5 bg-zinc-950/80 backdrop-blur-md">
-        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4">
-          <Link href="/" className="flex items-center gap-2">
+        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-2 sm:px-4">
+          <Link href="/" className="flex items-center gap-2 shrink-0 pr-2">
             <Globe className="h-6 w-6 text-blue-500" />
-            <span className="text-xl font-bold">World Insights</span>
+            <span className="text-xl font-bold hidden md:inline">World Insights</span>
           </Link>
           <Navbar />
         </div>
       </div>
 
       <div className="mx-auto max-w-7xl px-4 py-8">
-        <div className="mb-8 flex flex-col sm:flex-row sm:items-end justify-between gap-6">
-          <div>
-            <h1 className="text-3xl font-black text-white">World Arena</h1>
-            <p className="mt-2 text-zinc-400">Compare countries side-by-side, test your knowledge in Battle Mode, or simulate moving abroad.</p>
+        <div className="mb-8 flex flex-col lg:flex-row lg:items-end justify-between gap-6">
+          <div className="max-w-2xl">
+            <h1 className="text-3xl sm:text-4xl font-black text-white">World Arena</h1>
+            <p className="mt-2 text-sm sm:text-base text-zinc-400">Compare countries side-by-side, test your knowledge in Battle Mode, or simulate moving abroad.</p>
           </div>
           
-          <div className="flex flex-wrap bg-zinc-900/80 backdrop-blur rounded-xl p-1 border border-white/5 shadow-sm">
+          {/* Mode Toggle - Proper responsive design */}
+          <div className="flex flex-col sm:flex-row gap-2 w-full lg:w-auto">
             <button
               onClick={() => setMode("compare")}
-              className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-bold transition-all ${mode === "compare" ? "bg-white text-black shadow-sm" : "text-zinc-400 hover:text-white"}`}
+              className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-3 sm:px-4 py-2.5 rounded-xl text-sm font-bold transition-all border ${mode === "compare" ? "bg-white text-black border-white shadow-sm" : "bg-transparent text-zinc-400 border-white/10 hover:text-white hover:border-white/20"}`}
             >
-              <Scale className="h-4 w-4" /> Compare
+              <Scale className="h-4 w-4" /> 
+              <span className="hidden md:inline">Compare</span>
+              <span className="lg:hidden">Compare</span>
+
             </button>
             <button
               onClick={() => setMode("life")}
-              className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-bold transition-all ${mode === "life" ? "bg-emerald-500 text-white shadow-sm" : "text-zinc-400 hover:text-white"}`}
+              className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-3 sm:px-4 py-2.5 rounded-xl text-sm font-bold transition-all border ${mode === "life" ? "bg-emerald-500 text-white border-emerald-500 shadow-sm" : "bg-transparent text-zinc-400 border-white/10 hover:text-white hover:border-white/20"}`}
             >
-              <Globe className="h-4 w-4" /> Move Abroad
+              <Globe className="h-4 w-4" /> 
+              <span className="hidden lg:inline">Move Abroad</span>
+              <span className="lg:hidden">Abroad</span>
             </button>
             <button
               onClick={() => setMode("battle")}
-              className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-bold transition-all ${mode === "battle" ? "bg-indigo-500 text-white shadow-sm" : "text-zinc-400 hover:text-white"}`}
+              className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-3 sm:px-4 py-2.5 rounded-xl text-sm font-bold transition-all border ${mode === "battle" ? "bg-indigo-500 text-white border-indigo-500 shadow-sm" : "bg-transparent text-zinc-400 border-white/10 hover:text-white hover:border-white/20"}`}
             >
-              <Swords className="h-4 w-4" /> Battle Mode
+              <Swords className="h-4 w-4" /> 
+              <span className="hidden lg:inline">Battle Mode</span>
+              <span className="lg:hidden">Battle</span>
             </button>
           </div>
         </div>

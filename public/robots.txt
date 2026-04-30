@@ -1,0 +1,10 @@
+# https://www.robotstxt.org/robotstxt.html
+User-agent: *
+Allow: /
+
+# Disallow specific paths that shouldn't be indexed
+Disallow: /api/
+Disallow: /_next/
+
+# Sitemap
+Sitemap: https://world-insights.vercel.app/sitemap.xml

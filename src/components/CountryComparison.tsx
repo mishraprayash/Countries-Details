@@ -30,7 +30,7 @@ export default function CountryComparison({
   ];
 
   return (
-    <div className="mt-12 rounded-2xl border border-zinc-200 bg-white p-8 shadow-sm dark:border-white/10 dark:bg-zinc-900/50">
+    <div className="mt-12 rounded-2xl border border-zinc-200 bg-white p-4 sm:p-8 shadow-sm dark:border-white/10 dark:bg-zinc-900/50">
       <h3 className="mb-6 text-lg font-bold text-zinc-900 dark:text-zinc-50">
         Population Comparison (vs Regional Average)
       </h3>
