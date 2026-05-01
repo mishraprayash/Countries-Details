@@ -3,8 +3,6 @@ import { Globe } from "lucide-react";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import DashboardContent from "@/components/DashboardContent";
-import { Suspense } from "react";
-import { HeroSkeleton } from "@/components/DashboardSkeletons";
 
 export default async function DashboardPage() {
   const countries = await getAllCountries();
@@ -23,15 +21,9 @@ export default async function DashboardPage() {
         </div>
       </header>
 
-      <Suspense fallback={
-        <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 sm:py-12">
-          <HeroSkeleton />
-        </div>
-      }>
-        <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 sm:py-12">
-          <DashboardContent countries={countries} />
-        </div>
-      </Suspense>
+      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 sm:py-12">
+        <DashboardContent countries={countries} />
+      </div>
     </main>
   );
 }

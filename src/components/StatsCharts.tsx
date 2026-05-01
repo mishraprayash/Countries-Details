@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   PieChart,
   Pie,
@@ -33,6 +33,21 @@ interface StatsChartsProps {
 const COLORS = ["#3b82f6", "#10b981", "#f59e0b", "#8b5cf6", "#ec4899", "#06b6d4"];
 
 export default function StatsCharts({ regionData, populationData }: StatsChartsProps) {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return (
+      <div className="grid gap-8 lg:grid-cols-2">
+        <div className="rounded-2xl border border-white/5 bg-zinc-900/50 p-8 shadow-sm h-[480px] animate-pulse"></div>
+        <div className="rounded-2xl border border-white/5 bg-zinc-900/50 p-8 shadow-sm h-[480px] animate-pulse"></div>
+      </div>
+    );
+  }
+
   return (
     <div className="grid gap-8 lg:grid-cols-2">
       {/* Population by Region Pie Chart */}
@@ -40,8 +55,8 @@ export default function StatsCharts({ regionData, populationData }: StatsChartsP
         <h3 className="mb-6 text-lg font-bold text-white">
           Population Distribution by Region
         </h3>
-        <div className="h-[350px] w-full">
-          <ResponsiveContainer width="100%" height="100%">
+        <div className="h-[350px] w-full" style={{ minWidth: 0, minHeight: 0 }}>
+          <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
             <PieChart>
               <Pie
                 data={regionData}
@@ -77,8 +92,8 @@ export default function StatsCharts({ regionData, populationData }: StatsChartsP
         <h3 className="mb-6 text-lg font-bold text-white">
           Top 10 Countries by Population (Millions)
         </h3>
-        <div className="h-[350px] w-full">
-          <ResponsiveContainer width="100%" height="100%">
+        <div className="h-[350px] w-full" style={{ minWidth: 0, minHeight: 0 }}>
+          <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
             <BarChart data={populationData} layout="vertical" margin={{ left: 40, right: 20 }}>
               <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} stroke="rgba(255,255,255,0.05)" />
               <XAxis 

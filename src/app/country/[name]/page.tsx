@@ -69,10 +69,8 @@ function InfoCard({ icon: Icon, label, value, highlight = false }: { icon: React
 export default async function CountryPage({ params }: CountryPageProps) {
   const { name } = await params;
 
-  const [country, borderCountries] = await Promise.all([
-    getCountryByName(name),
-    getCountryByName(name).then(c => c.borders ? getCountriesByCodes(c.borders) : [])
-  ]);
+  const country = await getCountryByName(name);
+  const borderCountries = country.borders ? await getCountriesByCodes(country.borders) : [];
 
   const jsonLd = {
     "@context": "https://schema.org",

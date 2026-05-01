@@ -342,7 +342,7 @@ export default function ComparePage() {
                         <div className="flex flex-col items-center gap-2">
                           <Image src={country.flags.svg} alt={country.name.common} width={48} height={32} className="rounded shadow" />
                           <span className="font-bold text-white">{country.name.common}</span>
-                          <Link href={`/country/${country.name.common.toLowerCase()}`} className="text-xs text-blue-400 hover:underline">View Details</Link>
+                          <Link href={`/country/${encodeURIComponent(country.name.common.toLowerCase())}`} className="text-xs text-blue-400 hover:underline">View Details</Link>
                         </div>
                       </th>
                     ))}

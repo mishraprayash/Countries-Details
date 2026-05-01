@@ -1,4 +1,4 @@
-import { Users, Map, Coins, ArrowRightLeft, Languages, Clock } from "lucide-react";
+import { Users, Map, Coins, ArrowRightLeft } from "lucide-react";
 import Image from "next/image";
 
 interface CountryData {
@@ -25,11 +25,6 @@ export default function LifeComparator({ countryA, countryB, onSwap }: LifeCompa
   const getDifference = (a: number, b: number) => {
     if (a === 0) return 0;
     return ((b - a) / a) * 100;
-  };
-
-  const getMultiplier = (a: number, b: number) => {
-    if (a === 0 || b === 0) return 0;
-    return b > a ? b / a : a / b;
   };
 
   const popDiff = getDifference(countryA.population || 0, countryB.population || 0);
@@ -150,7 +145,7 @@ export default function LifeComparator({ countryA, countryB, onSwap }: LifeCompa
             </p>
             {countryA.car?.side !== countryB.car?.side && (
               <p className="text-sm text-amber-400 font-bold mt-2">
-                ⚠️ You'll need to learn to drive on the {countryB.car?.side} side of the road!
+              You&apos;ll need to learn to drive on the {countryB.car?.side} side of the road!
               </p>
             )}
           </div>

@@ -7,11 +7,6 @@ import Link from "next/link";
 import StatsCharts from "@/components/StatsCharts";
 import CountryOfTheDay from "@/components/CountryOfTheDay";
 import {
-  HeroSkeleton,
-  StatsCardsSkeleton,
-  ChartsSkeleton,
-  SecondaryStatsSkeleton,
-  SpotlightSkeleton,
   FactOfTheDaySkeleton,
 } from "./DashboardSkeletons";
 
@@ -210,20 +205,18 @@ function DashboardSpotlight({ countries }: DashboardContentProps) {
 export default function DashboardContent({ countries }: DashboardContentProps) {
   return (
     <>
-      <Suspense fallback={<HeroSkeleton />}>
-        <div className="relative mb-6 overflow-hidden rounded-3xl border border-white/5 bg-zinc-900/50 p-6 sm:p-12 shadow-2xl">
-          <div className="relative z-10 max-w-2xl">
-            <h1 className="text-3xl font-black tracking-tight text-white sm:text-5xl lg:text-6xl">
-              World Insights Hub
-            </h1>
-            <p className="mt-4 text-base text-zinc-400 sm:mt-6 sm:text-lg lg:text-xl leading-relaxed">
-              Explore global demographics, population trends, and regional distributions with our interactive data dashboard.
-            </p>
-          </div>
-          <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-blue-500/10 blur-3xl"></div>
-          <div className="absolute -bottom-20 right-0 h-64 w-64 rounded-full bg-indigo-500/10 blur-3xl"></div>
+      <div className="relative mb-6 overflow-hidden rounded-3xl border border-white/5 bg-zinc-900/50 p-6 sm:p-12 shadow-2xl">
+        <div className="relative z-10 max-w-2xl">
+          <h1 className="text-3xl font-black tracking-tight text-white sm:text-5xl lg:text-6xl">
+            World Insights Hub
+          </h1>
+          <p className="mt-4 text-base text-zinc-400 sm:mt-6 sm:text-lg lg:text-xl leading-relaxed">
+            Explore global demographics, population trends, and regional distributions with our interactive data dashboard.
+          </p>
         </div>
-      </Suspense>
+        <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-blue-500/10 blur-3xl"></div>
+        <div className="absolute -bottom-20 right-0 h-64 w-64 rounded-full bg-indigo-500/10 blur-3xl"></div>
+      </div>
 
       <Suspense fallback={<FactOfTheDaySkeleton />}>
         <div className="w-full">
@@ -231,23 +224,15 @@ export default function DashboardContent({ countries }: DashboardContentProps) {
         </div>
       </Suspense>
 
-      <Suspense fallback={<StatsCardsSkeleton />}>
-        <DashboardStats countries={countries} />
-      </Suspense>
+      <DashboardStats countries={countries} />
 
-      <Suspense fallback={<ChartsSkeleton />}>
-        <div className="mt-12">
-          <DashboardCharts countries={countries} />
-        </div>
-      </Suspense>
+      <div className="mt-12">
+        <DashboardCharts countries={countries} />
+      </div>
 
-      <Suspense fallback={<SecondaryStatsSkeleton />}>
-        <DashboardSecondaryStats countries={countries} />
-      </Suspense>
+      <DashboardSecondaryStats countries={countries} />
 
-      <Suspense fallback={<SpotlightSkeleton />}>
-        <DashboardSpotlight countries={countries} />
-      </Suspense>
+      <DashboardSpotlight countries={countries} />
     </>
   );
 }

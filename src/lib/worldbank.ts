@@ -6,7 +6,6 @@ const INDICATORS = {
   LITERACY_ADULT: "SE.ADT.LITR.ZS",
   LITERACY_YOUTH: "SE.ADT.1524.LT.ZS",
   LIFE_EXPECTANCY: "SP.DYN.LE00.IN",
-  MEDIAN_AGE: "SP.POP.TOTL",
 };
 
 export interface ExtendedStats {

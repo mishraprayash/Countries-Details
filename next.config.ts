@@ -14,7 +14,11 @@ const nextConfig: NextConfig = {
       {
         protocol: 'https',
         hostname: 'mainfacts.com',
-      }
+      },
+      {
+        protocol: 'https',
+        hostname: 'restcountries.com',
+      },
     ],
   },
 };

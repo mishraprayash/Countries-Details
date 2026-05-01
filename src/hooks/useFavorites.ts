@@ -10,13 +10,13 @@ export function useFavorites() {
     const stored = localStorage.getItem('world_insights_favorites');
     if (stored) {
       try {
-        // Using setTimeout to avoid triggering the lint rule
-        setTimeout(() => setFavorites(JSON.parse(stored)), 0);
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setFavorites(JSON.parse(stored));
       } catch {
         console.error('Failed to parse favorites');
       }
     }
-    setTimeout(() => setMounted(true), 0);
+    setMounted(true);
   }, []);
 
   const toggleFavorite = (cca3: string, e?: React.MouseEvent) => {

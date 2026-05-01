@@ -1,5 +1,6 @@
 "use client";
 
+import { memo } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Country } from "@/types/country";
@@ -10,7 +11,7 @@ interface CountryCardProps {
   country: Country;
 }
 
-export default function CountryCard({ country }: CountryCardProps) {
+function CountryCard({ country }: CountryCardProps) {
   const { isFavorite, toggleFavorite, mounted } = useFavorites();
   const isFav = isFavorite(country.cca3);
 
@@ -64,3 +65,5 @@ export default function CountryCard({ country }: CountryCardProps) {
     </Link>
   );
 }
+
+export default memo(CountryCard);

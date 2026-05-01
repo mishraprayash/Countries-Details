@@ -52,7 +52,7 @@ export default function SearchAndFilter({
             className="h-12 w-full appearance-none rounded-2xl bg-zinc-900/50 pl-4.5 pr-10 text-sm font-medium shadow-sm ring-1 ring-white/5 transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 text-white cursor-pointer"
           >
             {regions.map((region) => (
-              <option key={region} value={region} className="bg-zinc-900 text-white">
+              <option key={region} value={region === "All" ? "" : region} className="bg-zinc-900 text-white">
                 {region === "All" ? "Filter by Region" : region}
               </option>
             ))}

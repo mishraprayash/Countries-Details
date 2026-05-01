@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import {
   BarChart,
   Bar,
@@ -24,18 +25,31 @@ export default function CountryComparison({
   regionName,
   regionAverage,
 }: CountryComparisonProps) {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const data = [
     { name: countryName, population: countryPopulation, isTarget: true },
     { name: `${regionName} Avg`, population: regionAverage, isTarget: false },
   ];
+
+  if (!mounted) {
+    return (
+      <div className="mt-12 rounded-2xl border border-zinc-200 bg-white p-4 sm:p-8 shadow-sm dark:border-white/10 dark:bg-zinc-900/50 h-[380px] animate-pulse">
+      </div>
+    );
+  }
 
   return (
     <div className="mt-12 rounded-2xl border border-zinc-200 bg-white p-4 sm:p-8 shadow-sm dark:border-white/10 dark:bg-zinc-900/50">
       <h3 className="mb-6 text-lg font-bold text-zinc-900 dark:text-zinc-50">
         Population Comparison (vs Regional Average)
       </h3>
-      <div className="h-[250px] w-full">
-        <ResponsiveContainer width="100%" height="100%">
+      <div className="h-[250px] w-full" style={{ minWidth: 0, minHeight: 0 }}>
+        <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
           <BarChart data={data} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.1)" />
             <XAxis dataKey="name" tick={{ fill: "#a1a1aa" }} />

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { Country } from "@/types/country";
 import CountryCard from "./CountryCard";
 import SearchAndFilter from "./SearchAndFilter";
@@ -9,10 +9,29 @@ interface CountryListProps {
   initialCountries: Country[];
 }
 
+const PAGE_SIZE = 48;
+
 export default function CountryList({ initialCountries }: CountryListProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [regionFilter, setRegionFilter] = useState("");
   const [sortOrder, setSortOrder] = useState("name");
+  const [page, setPage] = useState(1);
+
+  // Reset to page 1 whenever filters change
+  const handleSetSearchQuery = useCallback((q: string) => {
+    setSearchQuery(q);
+    setPage(1);
+  }, []);
+
+  const handleSetRegionFilter = useCallback((r: string) => {
+    setRegionFilter(r);
+    setPage(1);
+  }, []);
+
+  const handleSetSortOrder = useCallback((s: string) => {
+    setSortOrder(s);
+    setPage(1);
+  }, []);
 
   const filteredCountries = useMemo(() => {
     const result = initialCountries.filter((country) => {
@@ -23,7 +42,6 @@ export default function CountryList({ initialCountries }: CountryListProps) {
       return matchesSearch && matchesRegion;
     });
 
-    // Sorting logic
     return result.sort((a, b) => {
       switch (sortOrder) {
         case "pop-desc":
@@ -40,21 +58,24 @@ export default function CountryList({ initialCountries }: CountryListProps) {
     });
   }, [initialCountries, searchQuery, regionFilter, sortOrder]);
 
+  const visibleCountries = filteredCountries.slice(0, page * PAGE_SIZE);
+  const hasMore = visibleCountries.length < filteredCountries.length;
+
   return (
     <div className="space-y-10">
       <div className="rounded-3xl border border-zinc-200 bg-zinc-50/50 p-6 dark:border-white/5 dark:bg-white/5">
         <SearchAndFilter
           searchQuery={searchQuery}
-          setSearchQuery={setSearchQuery}
+          setSearchQuery={handleSetSearchQuery}
           regionFilter={regionFilter}
-          setRegionFilter={setRegionFilter}
+          setRegionFilter={handleSetRegionFilter}
           sortOrder={sortOrder}
-          setSortOrder={setSortOrder}
+          setSortOrder={handleSetSortOrder}
         />
       </div>
 
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 animate-in fade-in slide-in-from-bottom-6 duration-700">
-        {filteredCountries.map((country) => (
+        {visibleCountries.map((country) => (
           <CountryCard key={country.cca3} country={country} />
         ))}
       </div>
@@ -70,11 +91,22 @@ export default function CountryList({ initialCountries }: CountryListProps) {
           <p className="text-sm text-zinc-500 dark:text-zinc-400">
             Try adjusting your search or filter criteria.
           </p>
-          <button 
-            onClick={() => { setSearchQuery(""); setRegionFilter(""); }}
+          <button
+            onClick={() => { handleSetSearchQuery(""); handleSetRegionFilter(""); }}
             className="mt-6 text-sm font-bold text-blue-600 hover:underline dark:text-blue-400"
           >
             Clear all filters
+          </button>
+        </div>
+      )}
+
+      {hasMore && (
+        <div className="flex justify-center pt-4">
+          <button
+            onClick={() => setPage(p => p + 1)}
+            className="px-8 py-3 rounded-xl bg-white/5 border border-white/10 text-sm font-bold text-zinc-300 hover:bg-white/10 hover:text-white transition-all"
+          >
+            Load more ({filteredCountries.length - visibleCountries.length} remaining)
           </button>
         </div>
       )}

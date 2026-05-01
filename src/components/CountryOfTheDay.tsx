@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import { Lightbulb, ExternalLink } from "lucide-react";
 import Link from "next/link";
@@ -28,23 +28,21 @@ export default function CountryOfTheDay({ countries }: CountryOfTheDayProps) {
   const [loading, setLoading] = useState(true);
   const [isExpanded, setIsExpanded] = useState(false);
 
-  const getCountryOfTheDay = async () => {
+  const getCountryOfTheDay = useCallback(async () => {
     if (!countries.length) return;
 
     setLoading(true);
     setIsExpanded(false);
 
+    const today = new Date();
+    const dayOfYear = Math.floor(
+      (today.getTime() - new Date(today.getFullYear(), 0, 0).getTime()) /
+        (1000 * 60 * 60 * 24)
+    );
+    const countryIndex = dayOfYear % countries.length;
+    const country = countries[countryIndex];
+
     try {
-      const today = new Date();
-      const dayOfYear = Math.floor(
-        (today.getTime() -
-          new Date(today.getFullYear(), 0, 0).getTime()) /
-          (1000 * 60 * 60 * 24)
-      );
-
-      const countryIndex = dayOfYear % countries.length;
-      const country = countries[countryIndex];
-
       const response = await fetch(
         `${WIKIPEDIA_API}${encodeURIComponent(country.name.common)}`
       );
@@ -62,16 +60,6 @@ export default function CountryOfTheDay({ countries }: CountryOfTheDayProps) {
         source: data.content_urls?.desktop?.page || "",
       });
     } catch {
-      const today = new Date();
-      const dayOfYear = Math.floor(
-        (today.getTime() -
-          new Date(today.getFullYear(), 0, 0).getTime()) /
-          (1000 * 60 * 60 * 24)
-      );
-
-      const countryIndex = dayOfYear % countries.length;
-      const country = countries[countryIndex];
-
       setCountryFact({
         name: country.name.common,
         flag: country.flags.svg,
@@ -81,15 +69,12 @@ export default function CountryOfTheDay({ countries }: CountryOfTheDayProps) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [countries]);
 
   useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      getCountryOfTheDay();
-    }, 0);
-    return () => clearTimeout(timeoutId);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [countries]);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    getCountryOfTheDay();
+  }, [getCountryOfTheDay]);
 
   if (loading) {
     return (
@@ -98,6 +83,8 @@ export default function CountryOfTheDay({ countries }: CountryOfTheDayProps) {
   }
 
   if (!countryFact) return null;
+
+  const countryHref = `/country/${encodeURIComponent(countryFact.name.toLowerCase())}`;
 
   return (
     <div className="group relative rounded-2xl p-[1px] bg-gradient-to-r from-amber-500/20 via-white/10 to-amber-500/20">
@@ -151,7 +138,7 @@ export default function CountryOfTheDay({ countries }: CountryOfTheDayProps) {
 
           {/* Action - Desktop only, shown on right */}
           <Link
-            href={`/country/${countryFact.name.toLowerCase()}`}
+            href={countryHref}
             className="hidden sm:flex items-center gap-2 px-4 py-2.5 rounded-xl bg-amber-500 text-black text-sm font-semibold hover:bg-amber-400 active:scale-95 transition-all shadow-md shrink-0"
           >
             <ExternalLink className="h-4 w-4" />
@@ -161,7 +148,7 @@ export default function CountryOfTheDay({ countries }: CountryOfTheDayProps) {
 
         {/* Action - Mobile only, full width at bottom */}
         <Link
-          href={`/country/${countryFact.name.toLowerCase()}`}
+          href={countryHref}
           className="flex sm:hidden items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-amber-500 text-black text-sm font-semibold hover:bg-amber-400 active:scale-95 transition-all shadow-md mt-3"
         >
           <ExternalLink className="h-4 w-4" />
