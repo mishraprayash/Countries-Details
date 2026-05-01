@@ -138,7 +138,7 @@ export default function MapBoard({
   const mapRef = useRef<L.Map>(null);
 
   return (
-    <div className="w-full h-[500px] rounded-xl overflow-hidden">
+    <div className="w-full h-[500px] rounded-xl overflow-hidden border border-white/5">
       <MapContainer
         center={center}
         zoom={zoom}
@@ -186,7 +186,7 @@ export default function MapBoard({
                 <Popup>
                   <div className="text-center">
                     <p className="font-bold">#{idx + 1} - {guess.locationName}</p>
-                    <p className="text-sm text-zinc-500">Your guess ({guess.points} pts)</p>
+                    <p className="text-sm text-muted">Your guess ({guess.points} pts)</p>
                   </div>
                 </Popup>
               </Marker>
@@ -196,7 +196,7 @@ export default function MapBoard({
               <Popup>
                 <div className="text-center">
                   <p className="font-bold">#{idx + 1} - {guess.locationName}</p>
-                  <p className="text-sm text-zinc-500">{guess.points} pts • {guess.distance.toLocaleString()} km</p>
+                    <p className="text-sm text-muted">{guess.points} pts • {guess.distance.toLocaleString()} km</p>
                 </div>
               </Popup>
             </Marker>

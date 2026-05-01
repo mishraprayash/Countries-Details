@@ -15,9 +15,9 @@ interface Stats {
 
 function DataRow({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex items-center justify-between border-b border-white/5 py-3 last:border-0">
-      <span className="text-sm font-medium text-zinc-500">{label}</span>
-      <span className="text-sm font-bold text-white">{value}</span>
+    <div className="flex items-center justify-between border-b border-white/5 py-3 last:border-0 font-sora">
+      <span className="text-sm font-medium text-muted">{label}</span>
+      <span className="text-sm font-bold text-text-primary font-dm-mono">{value}</span>
     </div>
   );
 }
@@ -26,7 +26,7 @@ function LoadingSkeleton() {
   return (
     <div className="space-y-2">
       {[1, 2, 3, 4].map((i) => (
-        <div key={i} className="h-5 bg-zinc-800 rounded animate-pulse" />
+        <div key={i} className="h-5 bg-white/[0.05] rounded animate-pulse" />
       ))}
     </div>
   );

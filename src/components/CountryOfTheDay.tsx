@@ -78,7 +78,7 @@ export default function CountryOfTheDay({ countries }: CountryOfTheDayProps) {
 
   if (loading) {
     return (
-      <div className="h-28 rounded-2xl bg-gradient-to-r from-zinc-800 to-zinc-900 animate-pulse" />
+      <div className="h-28 rounded-2xl bg-gradient-to-r from-atlas-800 to-atlas-900 animate-pulse" />
     );
   }
 
@@ -87,48 +87,53 @@ export default function CountryOfTheDay({ countries }: CountryOfTheDayProps) {
   const countryHref = `/country/${encodeURIComponent(countryFact.name.toLowerCase())}`;
 
   return (
-    <div className="group relative rounded-2xl p-[1px] bg-gradient-to-r from-amber-500/20 via-white/10 to-amber-500/20">
-      <div className="rounded-2xl bg-zinc-900/80 backdrop-blur-xl p-4 transition-all duration-300 group-hover:bg-zinc-900/90 group-hover:shadow-xl">
-        
-        <div className="flex items-start gap-3 sm:gap-4">
-          
-          {/* Flag */}
-          <div className="relative w-20 h-14 sm:w-24 sm:h-16 rounded-xl overflow-hidden border border-white/10 shadow-md group-hover:scale-105 transition-transform shrink-0">
+    <div className="stagger-fade-in stagger-delay-2 relative group rounded-2xl overflow-hidden">
+      {/* Shimmer border */}
+      <div className="absolute inset-0 rounded-2xl shimmer-border" />
+
+      {/* Inner card */}
+      <div className="relative z-10 rounded-2xl bg-atlas-900/90 backdrop-blur-xl p-5 sm:p-6">
+        {/* Background glow behind flag */}
+        <div className="absolute top-4 left-4 w-24 h-16 rounded-xl bg-cyan-glow/10 blur-xl" />
+
+        <div className="flex items-start gap-4 sm:gap-5">
+          {/* Flag with glow */}
+          <div className="relative w-20 h-14 sm:w-24 sm:h-16 rounded-xl overflow-hidden border border-white/10 shadow-lg group-hover:scale-105 transition-transform shrink-0 ring-1 ring-white/5">
+            <div className="absolute inset-0 bg-cyan-glow/5 blur-md" />
             <Image
               src={countryFact.flag}
               alt={`Flag of ${countryFact.name}`}
               fill
-              className="object-cover"
+              className="object-cover relative z-10"
             />
           </div>
-          
+
           {/* Content */}
           <div className="flex-1 min-w-0">
-            
             {/* Header */}
-            <div className="flex items-center gap-2 mb-1">
-              <div className="p-1 rounded-lg bg-amber-500/10 shrink-0">
-                <Lightbulb className="h-3 w-3 sm:h-4 sm:w-4 text-amber-400" />
+            <div className="flex items-center gap-2 mb-2">
+              <div className="p-1 rounded-lg bg-cyan-glow/10 shrink-0">
+                <Lightbulb className="h-3 w-3 sm:h-4 sm:w-4 text-cyan-glow" />
               </div>
-              <span className="text-[10px] sm:text-xs font-semibold text-amber-400 uppercase tracking-wider truncate">
+              <span className="text-[10px] sm:text-xs font-semibold text-cyan-glow uppercase tracking-[0.15em]">
                 Fact of the Day
               </span>
             </div>
 
             {/* Country Name */}
-            <h4 className="text-base sm:text-lg font-semibold text-white leading-tight mb-1 truncate">
+            <h4 className="text-base sm:text-lg font-semibold text-text-primary leading-tight mb-1 truncate font-instrument-serif">
               {countryFact.name}
             </h4>
 
             {/* Description */}
             <div className="relative">
-              <p className={`text-xs sm:text-sm text-zinc-400 leading-relaxed transition-all duration-300 ${!isExpanded ? "line-clamp-3" : ""}`}>
+              <p className={`text-xs sm:text-sm text-text-muted leading-relaxed transition-all duration-300 font-sora ${!isExpanded ? "line-clamp-3" : ""}`}>
                 {countryFact.fact}
               </p>
               {countryFact.fact.length > 120 && (
                 <button
                   onClick={() => setIsExpanded(!isExpanded)}
-                  className="text-amber-500 hover:text-amber-400 text-[10px] sm:text-xs font-semibold mt-1 transition-colors focus:outline-none"
+                  className="text-cyan-glow hover:text-cyan-glow/80 text-[10px] sm:text-xs font-semibold mt-1 transition-colors focus:outline-none"
                 >
                   {isExpanded ? "Show less" : "See more"}
                 </button>
@@ -136,20 +141,20 @@ export default function CountryOfTheDay({ countries }: CountryOfTheDayProps) {
             </div>
           </div>
 
-          {/* Action - Desktop only, shown on right */}
+          {/* Action - Desktop */}
           <Link
             href={countryHref}
-            className="hidden sm:flex items-center gap-2 px-4 py-2.5 rounded-xl bg-amber-500 text-black text-sm font-semibold hover:bg-amber-400 active:scale-95 transition-all shadow-md shrink-0"
+            className="hidden sm:flex items-center gap-2 px-4 py-2.5 rounded-xl bg-cyan-glow/10 border border-cyan-glow/20 text-cyan-glow text-sm font-semibold hover:bg-cyan-glow/20 active:scale-95 transition-all shrink-0"
           >
             <ExternalLink className="h-4 w-4" />
             Explore
           </Link>
         </div>
 
-        {/* Action - Mobile only, full width at bottom */}
+        {/* Action - Mobile */}
         <Link
           href={countryHref}
-          className="flex sm:hidden items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-amber-500 text-black text-sm font-semibold hover:bg-amber-400 active:scale-95 transition-all shadow-md mt-3"
+          className="flex sm:hidden items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-cyan-glow/10 border border-cyan-glow/20 text-cyan-glow text-sm font-semibold hover:bg-cyan-glow/20 active:scale-95 transition-all shadow-md mt-4"
         >
           <ExternalLink className="h-4 w-4" />
           Explore

@@ -224,10 +224,10 @@ export default function QuizClient() {
 
   if (loading) {
     return (
-      <main className="flex-1 bg-zinc-950 text-zinc-50 min-h-screen">
+      <main className="flex-1 bg-atlas-950 text-text-primary min-h-screen">
 
         <div className="flex items-center justify-center h-64">
-          <div className="h-8 w-8 animate-spin rounded-full border-2 border-zinc-500 border-t-blue-500" />
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-white/10 border-t-cyan-glow" />
         </div>
       </main>
     );
@@ -236,32 +236,31 @@ export default function QuizClient() {
   // START SCREEN
   if (gameState === "start") {
     return (
-      <main className="flex-1 bg-zinc-950 text-zinc-50 min-h-screen">
+      <main className="flex-1 bg-atlas-950 text-text-primary min-h-screen">
 
         
         <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 sm:py-12">
           <div className="mb-8 border-b border-white/5 pb-8">
-            <h2 className="text-3xl font-black text-white sm:text-4xl">Geography Quiz</h2>
-            <p className="mt-2 text-zinc-400">Test your knowledge of the world&apos;s flags and capitals.</p>
+            <h2 className="text-3xl font-black text-text-primary sm:text-4xl font-instrument-serif">Geography Quiz</h2>
+            <p className="mt-2 text-muted font-sora">Test your knowledge of the world&apos;s flags and capitals.</p>
           </div>
           
-          {/* Settings */}
-          <div className="mb-8 rounded-2xl border border-white/5 bg-zinc-900/50 p-6">
-            <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+          <div className="mb-8 rounded-2xl border border-white/5 bg-white/[0.03] glass-card p-6">
+            <h3 className="text-lg font-semibold text-text-primary mb-4 flex items-center gap-2 font-sora">
               <Clock className="h-5 w-5" /> Quiz Settings
             </h3>
             <div className="grid gap-6 sm:grid-cols-3">
               <div>
-                <label className="block text-sm text-zinc-400 mb-2">Questions</label>
+                <label className="block text-sm text-muted mb-2 font-sora">Questions</label>
                 <div className="flex gap-2">
                   {[10, 20, 30].map(n => (
                     <button
                       key={n}
                       onClick={() => setSettings(s => ({ ...s, questionCount: n }))}
-                      className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all ${
+                      className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all font-sora ${
                         settings.questionCount === n
-                          ? "bg-indigo-500 text-white"
-                          : "bg-white/5 text-zinc-400 hover:bg-white/10"
+                          ? "bg-cyan-glow text-atlas-950"
+                          : "bg-white/[0.03] text-muted hover:bg-white/[0.06]"
                       }`}
                     >
                       {n}
@@ -270,16 +269,16 @@ export default function QuizClient() {
                 </div>
               </div>
               <div>
-                <label className="block text-sm text-zinc-400 mb-2">Question Type</label>
+                <label className="block text-sm text-muted mb-2 font-sora">Question Type</label>
                 <div className="flex gap-2">
                   {(["mixed", "capital", "flag"] as const).map(t => (
                     <button
                       key={t}
                       onClick={() => setSettings(s => ({ ...s, questionType: t }))}
-                      className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all capitalize ${
+                      className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all capitalize font-sora ${
                         settings.questionType === t
-                          ? "bg-indigo-500 text-white"
-                          : "bg-white/5 text-zinc-400 hover:bg-white/10"
+                          ? "bg-cyan-glow text-atlas-950"
+                          : "bg-white/[0.03] text-muted hover:bg-white/[0.06]"
                       }`}
                     >
                       {t === "flag" ? "Flags" : t === "capital" ? "Capitals" : "Mixed"}
@@ -288,7 +287,7 @@ export default function QuizClient() {
                 </div>
               </div>
               <div>
-                <label className="block text-sm text-zinc-400 mb-2">Timer (seconds)</label>
+                <label className="block text-sm text-muted mb-2 font-sora">Timer (seconds)</label>
                 <div className="flex gap-2">
                   {[
                     { value: null, label: "Off" },
@@ -299,10 +298,10 @@ export default function QuizClient() {
                     <button
                       key={t.label}
                       onClick={() => setSettings(s => ({ ...s, timer: t.value }))}
-                      className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all ${
+                      className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all font-sora ${
                         settings.timer === t.value
-                          ? "bg-indigo-500 text-white"
-                          : "bg-white/5 text-zinc-400 hover:bg-white/10"
+                          ? "bg-cyan-glow text-atlas-950"
+                          : "bg-white/[0.03] text-muted hover:bg-white/[0.06]"
                       }`}
                     >
                       {t.label}
@@ -314,56 +313,55 @@ export default function QuizClient() {
           </div>
 
           <div className="flex flex-col items-center justify-center py-10 animate-in fade-in duration-500">
-            <div className="mb-6 sm:mb-8 flex h-20 w-20 sm:h-24 sm:w-24 items-center justify-center rounded-3xl bg-indigo-500/10 ring-1 ring-indigo-500/20">
-              <BrainCircuit className="h-10 w-10 sm:h-12 sm:w-12 text-indigo-400" />
+            <div className="mb-6 sm:mb-8 flex h-20 w-20 sm:h-24 sm:w-24 items-center justify-center rounded-3xl bg-cyan-glow/10 ring-1 ring-cyan-glow/20">
+              <BrainCircuit className="h-10 w-10 sm:h-12 sm:w-12 text-cyan-glow" />
             </div>
-            <h2 className="text-3xl sm:text-4xl font-black text-white mb-3 sm:mb-4">Test Your Knowledge</h2>
-            <p className="text-zinc-400 mb-6 sm:mb-8 text-center max-w-md text-sm sm:text-lg">
+            <h2 className="text-3xl sm:text-4xl font-black text-text-primary mb-3 sm:mb-4 font-instrument-serif">Test Your Knowledge</h2>
+            <p className="text-muted mb-6 sm:mb-8 text-center max-w-md text-sm sm:text-lg font-sora">
               {settings.questionCount} {settings.questionType === "mixed" ? "mixed" : settings.questionType + "s"} questions
               {settings.timer ? ` • ${settings.timer}s timer` : ""}
             </p>
             <button
               onClick={generateQuestions}
-              className="rounded-xl bg-white px-8 py-4 text-base font-bold text-black transition-all hover:bg-zinc-200 hover:scale-105 active:scale-95 shadow-lg shadow-white/10 flex items-center gap-2"
+              className="rounded-xl bg-cyan-glow px-8 py-4 text-base font-bold text-atlas-950 transition-all hover:bg-cyan-glow/80 hover:scale-105 active:scale-95 shadow-lg shadow-cyan-glow/20 flex items-center gap-2 font-sora"
             >
               Start Quiz <ChevronRight className="h-5 w-5" />
             </button>
           </div>
 
-          {/* Leaderboard */}
           {mounted && scores.length > 0 && (
-            <div className="mt-12 rounded-2xl border border-white/5 bg-zinc-900/50 p-6">
+            <div className="mt-12 rounded-2xl border border-white/5 bg-white/[0.03] glass-card p-6">
               <div className="flex items-center justify-between mb-6">
-                <h3 className="text-xl font-bold text-white flex items-center gap-2">
-                  <Award className="h-5 w-5 text-amber-400" />
+                <h3 className="text-xl font-bold text-text-primary flex items-center gap-2 font-sora">
+                  <Award className="h-5 w-5 text-amber-glow" />
                   Your Performance
                 </h3>
-                <div className="flex items-center gap-4 text-sm">
-                  <span className="text-zinc-400">Games: <span className="text-white font-semibold">{getTotalGamesPlayed()}</span></span>
+                <div className="flex items-center gap-4 text-sm font-sora">
+                  <span className="text-muted">Games: <span className="text-text-primary font-semibold">{getTotalGamesPlayed()}</span></span>
                   {getPersonalBest() && (
-                    <span className="text-zinc-400">Best: <span className="text-amber-400 font-semibold">{getPersonalBest()?.percentage}%</span></span>
+                    <span className="text-muted">Best: <span className="text-amber-glow font-semibold">{getPersonalBest()?.percentage}%</span></span>
                   )}
                 </div>
               </div>
               <div className="space-y-2">
                 {scores.slice(0, 5).map((s, idx) => (
-                  <div key={s.id} className="flex items-center justify-between p-3 rounded-lg bg-white/5 group">
+                  <div key={s.id} className="flex items-center justify-between p-3 rounded-lg bg-white/[0.03] group font-sora">
                     <div className="flex items-center gap-3">
                       <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
-                        idx === 0 ? "bg-amber-500/20 text-amber-400" : "bg-zinc-700 text-zinc-400"
+                        idx === 0 ? "bg-amber-glow/20 text-amber-glow" : "bg-white/10 text-muted"
                       }`}>
                         {idx + 1}
                       </span>
-                      <span className="text-white font-medium">{s.score}/{s.totalQuestions}</span>
-                      <span className="text-zinc-500 text-sm">{s.percentage}%</span>
+                      <span className="text-text-primary font-medium font-dm-mono">{s.score}/{s.totalQuestions}</span>
+                      <span className="text-muted text-sm font-dm-mono">{s.percentage}%</span>
                     </div>
                     <div className="flex items-center gap-3">
-                      <span className="text-zinc-500 text-xs">
+                      <span className="text-muted text-xs font-dm-mono">
                         {new Date(s.date).toLocaleDateString()} {new Date(s.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                       </span>
                       <button
                         onClick={() => removeScore(s.id)}
-                        className="opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-red-500/20 text-zinc-500 hover:text-red-400 transition-all"
+                        className="opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-red-500/20 text-muted hover:text-red-400 transition-all"
                         title="Remove entry"
                       >
                         <XCircle className="h-4 w-4" />
@@ -384,36 +382,35 @@ export default function QuizClient() {
     const percentage = Math.round((score / questions.length) * 100);
     
     return (
-      <main className="flex-1 bg-zinc-950 text-zinc-50 min-h-screen">
+      <main className="flex-1 bg-atlas-950 text-text-primary min-h-screen">
 
 
         <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 sm:py-12">
           <div className="mb-8 border-b border-white/5 pb-8 flex justify-between items-start">
             <div>
-              <h2 className="text-3xl font-black text-white sm:text-4xl">Quiz Results</h2>
-              <p className="mt-2 text-zinc-400">
+              <h2 className="text-3xl font-black text-text-primary sm:text-4xl font-instrument-serif">Quiz Results</h2>
+              <p className="mt-2 text-muted font-sora">
                 {isTimeUp ? "Time's up!" : "Quiz completed!"} • {settings.questionType === "mixed" ? "Mixed" : settings.questionType === "flag" ? "Flags" : "Capitals"} • {settings.questionCount} questions
                 {settings.timer && ` • ${settings.timer}s`}
               </p>
             </div>
           </div>
 
-          {/* Score Summary */}
           <div className="flex flex-col items-center justify-center py-8 animate-in zoom-in-95 duration-500">
-            <div className="mb-6 flex h-32 w-32 items-center justify-center rounded-full bg-amber-500/10 ring-4 ring-amber-500/20">
-              <Trophy className="h-16 w-16 text-amber-400" />
+            <div className="mb-6 flex h-32 w-32 items-center justify-center rounded-full bg-amber-glow/10 ring-4 ring-amber-glow/20">
+              <Trophy className="h-16 w-16 text-amber-glow" />
             </div>
-            <h2 className="text-5xl font-black text-white mb-2">{score} / {questions.length}</h2>
-            <p className="text-xl font-medium text-zinc-400 mb-2">{percentage}%</p>
-            <p className="text-lg font-medium mb-8">
-              {percentage >= 80 ? "🌟 Geography Master!" : percentage >= 50 ? "👍 Not bad!" : "📚 Keep practicing!"}
+            <h2 className="text-5xl font-black text-text-primary mb-2 font-dm-mono">{score} / {questions.length}</h2>
+            <p className="text-xl font-medium text-text-secondary mb-2 font-dm-mono">{percentage}%</p>
+            <p className="text-lg font-medium mb-8 font-sora">
+              {percentage >= 80 ? "Geography Master!" : percentage >= 50 ? "Not bad!" : "Keep practicing!"}
             </p>
             
             <div className="flex gap-4">
-              <button onClick={restartQuiz} className="rounded-xl bg-indigo-500 px-8 py-4 text-base font-bold text-white transition-all hover:bg-indigo-400 active:scale-95 flex items-center gap-2">
+              <button onClick={restartQuiz} className="rounded-xl bg-cyan-glow px-8 py-4 text-base font-bold text-atlas-950 transition-all hover:bg-cyan-glow/80 active:scale-95 flex items-center gap-2 font-sora">
                 <RefreshCw className="h-5 w-5" /> Play Again
               </button>
-              <button onClick={exitQuiz} className="rounded-xl bg-white/10 px-8 py-4 text-base font-bold text-white transition-all hover:bg-white/20 active:scale-95 ring-1 ring-white/10 flex items-center gap-2">
+              <button onClick={exitQuiz} className="rounded-xl bg-white/[0.05] px-8 py-4 text-base font-bold text-text-primary transition-all hover:bg-white/[0.08] active:scale-95 ring-1 ring-white/10 flex items-center gap-2 font-sora">
                 Back to Settings
               </button>
             </div>
@@ -421,7 +418,7 @@ export default function QuizClient() {
 
           {/* Question Review */}
           <div className="mt-12">
-            <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+            <h3 className="text-xl font-bold text-text-primary mb-6 flex items-center gap-2 font-sora">
               <Eye className="h-5 w-5" /> Question Review ({questions.length} questions)
             </h3>
             
@@ -432,18 +429,16 @@ export default function QuizClient() {
                 const isFlag = question.type === "flag";
                 
                 return (
-                  <div key={question.id} className={`rounded-2xl border p-6 ${
+                  <div key={question.id} className={`rounded-2xl border p-6 font-sora ${
                     isCorrect 
                       ? "border-emerald-500/30 bg-emerald-500/5" 
                       : "border-red-500/30 bg-red-500/5"
                   }`}>
                     <div className="flex items-start gap-4">
-                      {/* Question number & type */}
-                      <div className="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold bg-zinc-800 text-zinc-400">
+                      <div className="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold bg-white/[0.05] text-muted font-dm-mono">
                         {idx + 1}
                       </div>
                       
-                      {/* Question content */}
                       <div className="flex-1">
                         {isFlag ? (
                           <div className="flex items-center gap-4 mb-4">
@@ -456,8 +451,8 @@ export default function QuizClient() {
                               />
                             </div>
                             <div>
-                              <p className="text-sm text-zinc-500 uppercase tracking-wider mb-1">Which country?</p>
-                              <p className="text-lg font-bold text-white">
+                              <p className="text-sm text-muted uppercase tracking-wider mb-1">Which country?</p>
+                              <p className="text-lg font-bold text-text-primary font-sora">
                                 {isCorrect 
                                   ? question.correctAnswer 
                                   : <span className="text-red-400">{userAnswer?.selectedAnswer}</span>
@@ -470,9 +465,9 @@ export default function QuizClient() {
                           </div>
                         ) : (
                           <div className="mb-4">
-                            <p className="text-sm text-zinc-500 uppercase tracking-wider mb-1">Capital of</p>
-                            <p className="text-xl font-bold text-white">{question.country.name.common}</p>
-                            <p className="text-lg mt-2">
+                            <p className="text-sm text-muted uppercase tracking-wider mb-1">Capital of</p>
+                            <p className="text-xl font-bold text-text-primary font-sora">{question.country.name.common}</p>
+                            <p className="text-lg mt-2 font-sora">
                               {isCorrect 
                                 ? question.correctAnswer 
                                 : <span className="text-red-400">{userAnswer?.selectedAnswer}</span>
@@ -484,13 +479,12 @@ export default function QuizClient() {
                           </div>
                         )}
                         
-                        {/* Options preview */}
                         <div className="grid grid-cols-2 gap-2 mt-3">
                           {question.options.map((opt, optIdx) => {
                             const isSelected = userAnswer?.selectedAnswer === opt;
                             const isCorrectOption = opt === question.correctAnswer;
                             
-                            let optClass = "bg-white/5 text-zinc-400 text-sm py-2 px-3 rounded-lg flex items-center justify-center text-center";
+                            let optClass = "bg-white/[0.03] text-text-secondary text-sm py-2 px-3 rounded-lg flex items-center justify-center text-center";
                             if (isCorrectOption) {
                               optClass = "bg-emerald-500/20 text-emerald-400 font-medium flex items-center justify-center text-center rounded-lg ring-2 ring-emerald-500/50";
                             } else if (isSelected && !isCorrect) {
@@ -525,12 +519,12 @@ export default function QuizClient() {
 
   if (!question || questions.length === 0) {
     return (
-      <main className="flex-1 bg-zinc-950 text-zinc-50 min-h-screen">
+      <main className="flex-1 bg-atlas-950 text-text-primary min-h-screen">
 
         <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 sm:py-12">
           <div className="flex flex-col items-center justify-center py-20">
-            <div className="mb-4 h-8 w-8 animate-spin rounded-full border-2 border-zinc-500 border-t-blue-500" />
-            <p className="text-zinc-400">Preparing quiz...</p>
+            <div className="mb-4 h-8 w-8 animate-spin rounded-full border-2 border-white/10 border-t-cyan-glow" />
+            <p className="text-muted font-sora">Preparing quiz...</p>
           </div>
         </div>
       </main>
@@ -538,18 +532,18 @@ export default function QuizClient() {
   }
 
   return (
-    <main className="flex-1 bg-zinc-950 text-zinc-50 min-h-screen">
+    <main className="flex-1 bg-atlas-950 text-text-primary min-h-screen">
 
 
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 sm:py-12">
         <div className="mb-8 border-b border-white/5 pb-8 flex justify-between items-start">
           <div>
-            <h2 className="text-3xl font-black text-white sm:text-4xl">Geography Quiz</h2>
-            <p className="mt-2 text-zinc-400">Test your knowledge of the world&apos;s flags and capitals.</p>
+            <h2 className="text-3xl font-black text-text-primary sm:text-4xl font-instrument-serif">Geography Quiz</h2>
+            <p className="mt-2 text-muted font-sora">Test your knowledge of the world&apos;s flags and capitals.</p>
           </div>
           <button 
             onClick={exitQuiz}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-zinc-400 hover:text-white hover:bg-white/10 transition-colors"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-muted hover:text-text-primary hover:bg-white/10 transition-colors font-sora"
           >
             <ArrowLeft className="h-4 w-4" /> Exit Quiz
           </button>
@@ -557,12 +551,12 @@ export default function QuizClient() {
 
         <div className="max-w-2xl mx-auto py-8">
           <div className="mb-8">
-            <div className="flex justify-between items-center text-sm font-bold text-zinc-400 mb-2">
+            <div className="flex justify-between items-center text-sm font-bold text-text-secondary mb-2 font-sora">
               <span>Question {currentIndex + 1} of {questions.length}</span>
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-4 font-dm-mono">
                 {settings.timer && timeLeft !== null && (
-                  <span className={`flex items-center gap-1.5 font-mono text-lg ${
-                    timeLeft <= 30 ? "text-red-400" : "text-indigo-400"
+                  <span className={`flex items-center gap-1.5 text-lg ${
+                    timeLeft <= 30 ? "text-red-400" : "text-cyan-glow"
                   }`}>
                     <Clock className="h-4 w-4" />
                     <span className={timeLeft <= 30 ? "animate-pulse" : ""}>
@@ -570,22 +564,22 @@ export default function QuizClient() {
                     </span>
                   </span>
                 )}
-                <span className="text-indigo-400">Score: {score}</span>
+                <span className="text-cyan-glow">Score: {score}</span>
               </div>
             </div>
-            <div className="h-2.5 w-full bg-zinc-900 rounded-full overflow-hidden">
+            <div className="h-2.5 w-full bg-white/[0.05] rounded-full overflow-hidden">
               <div 
-                className="h-full bg-indigo-500 transition-all duration-500 ease-out rounded-full" 
+                className="h-full bg-cyan-glow transition-all duration-500 ease-out rounded-full" 
                 style={{ width: `${((currentIndex + 1) / questions.length) * 100}%` }} 
               />
             </div>
           </div>
 
-          <div className="rounded-3xl border border-white/5 bg-zinc-900/50 p-6 sm:p-10 shadow-2xl">
+          <div className="rounded-3xl border border-white/5 bg-white/[0.03] glass-card p-6 sm:p-10 shadow-2xl">
             <div className="text-center mb-8">
               {question.type === "flag" ? (
                 <div className="flex flex-col items-center">
-                  <span className="flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-zinc-500 mb-6">
+                  <span className="flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-muted mb-6 font-sora">
                     <Flag className="h-4 w-4" /> Guess the Country
                   </span>
                   <div className="relative h-40 w-64 sm:h-56 sm:w-80 rounded-xl overflow-hidden shadow-md ring-1 ring-white/10">
@@ -594,11 +588,11 @@ export default function QuizClient() {
                 </div>
               ) : (
                 <div className="flex flex-col items-center">
-                  <span className="flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-zinc-500 mb-4">
+                  <span className="flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-muted mb-4 font-sora">
                     <MapPin className="h-4 w-4" /> Guess the Capital
                   </span>
-                  <h3 className="text-3xl sm:text-4xl font-black text-white leading-tight">
-                    What is the capital of <span className="text-indigo-400">{question.country.name.common}</span>?
+                  <h3 className="text-3xl sm:text-4xl font-black text-text-primary leading-tight font-instrument-serif">
+                    What is the capital of <span className="text-cyan-glow">{question.country.name.common}</span>?
                   </h3>
                 </div>
               )}
@@ -608,7 +602,7 @@ export default function QuizClient() {
               {question.options.map((opt, i) => {
                 const isSelected = selectedAnswer === opt;
                 const isCorrect = opt === question.correctAnswer;
-                let btnClass = "border-white/5 bg-white/5 hover:bg-white/10 text-white";
+                let btnClass = "border-white/5 bg-white/[0.03] hover:bg-white/[0.06] text-text-primary";
                 
                 if (isAnswered) {
                   if (isCorrect) {
@@ -616,7 +610,7 @@ export default function QuizClient() {
                   } else if (isSelected) {
                     btnClass = "border-red-500/50 bg-red-500/20 text-red-400";
                   } else {
-                    btnClass = "border-white/5 bg-zinc-950/50 text-zinc-500 opacity-50";
+                    btnClass = "border-white/5 bg-atlas-950/50 text-muted opacity-50";
                   }
                 }
                 
@@ -625,7 +619,7 @@ export default function QuizClient() {
                     key={i}
                     onClick={() => handleAnswer(opt)}
                     disabled={isAnswered}
-                    className={`relative flex items-center justify-center rounded-xl border p-4 text-center font-bold transition-all ${btnClass} ${!isAnswered && 'hover:scale-[1.02] active:scale-[0.98]'}`}
+                    className={`relative flex items-center justify-center rounded-xl border p-4 text-center font-bold transition-all font-sora ${btnClass} ${!isAnswered && 'hover:scale-[1.02] active:scale-[0.98]'}`}
                   >
                     <span className="truncate">{opt}</span>
                     {isAnswered && isCorrect && <CheckCircle2 className="h-5 w-5 text-emerald-400 flex-shrink-0 ml-2" />}
@@ -639,7 +633,7 @@ export default function QuizClient() {
               <div className="mt-8 flex justify-center animate-in fade-in slide-in-from-bottom-4">
                 <button 
                   onClick={handleNext} 
-                  className="rounded-xl bg-indigo-500 px-8 py-3.5 text-sm font-bold text-white transition-all hover:bg-indigo-400 active:scale-95 shadow-lg shadow-indigo-500/20 flex items-center gap-2"
+                  className="rounded-xl bg-cyan-glow px-8 py-3.5 text-sm font-bold text-atlas-950 transition-all hover:bg-cyan-glow/80 active:scale-95 shadow-lg shadow-cyan-glow/20 flex items-center gap-2 font-sora"
                 >
                   {currentIndex < questions.length - 1 ? "Next Question" : "Finish Quiz"} <ChevronRight className="h-4 w-4" />
                 </button>

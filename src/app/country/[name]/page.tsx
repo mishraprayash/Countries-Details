@@ -54,13 +54,13 @@ export async function generateMetadata({ params }: CountryPageProps): Promise<Me
 
 function InfoCard({ icon: Icon, label, value, highlight = false }: { icon: React.ElementType; label: string; value: string; highlight?: boolean }) {
   return (
-    <div className={`flex items-center gap-3 p-4 rounded-xl ${highlight ? "bg-blue-500/10 border border-blue-500/20" : "bg-white/5 border border-white/5"}`}>
-      <div className={`p-2 rounded-lg ${highlight ? "bg-blue-500/20" : "bg-white/10"}`}>
-        <Icon className={`h-5 w-5 ${highlight ? "text-blue-400" : "text-zinc-400"}`} />
+    <div className={`flex items-center gap-3 p-4 rounded-xl glass-card ${highlight ? "bg-cyan-glow/10 border border-cyan-glow/20" : "bg-white/[0.03] border border-white/5"}`}>
+      <div className={`p-2 rounded-lg ${highlight ? "bg-cyan-glow/20" : "bg-white/10"}`}>
+        <Icon className={`h-5 w-5 ${highlight ? "text-cyan-glow" : "text-muted"}`} />
       </div>
       <div>
-        <p className="text-xs text-zinc-500 uppercase tracking-wider">{label}</p>
-        <p className={`text-sm font-bold ${highlight ? "text-blue-400" : "text-white"}`}>{value}</p>
+        <p className="text-xs text-muted uppercase tracking-wider font-sora">{label}</p>
+        <p className={`text-sm font-bold font-dm-mono ${highlight ? "text-cyan-glow" : "text-text-primary"}`}>{value}</p>
       </div>
     </div>
   );
@@ -95,7 +95,7 @@ export default async function CountryPage({ params }: CountryPageProps) {
   };
 
   return (
-    <main className="flex-1 bg-zinc-950 text-zinc-50 min-h-screen">
+    <main className="flex-1 bg-atlas-950 text-text-primary min-h-screen">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
@@ -103,7 +103,6 @@ export default async function CountryPage({ params }: CountryPageProps) {
 
 
       <div className="relative">
-        {/* Hero Banner */}
         <div className="relative h-64 sm:h-80 overflow-hidden">
           <Image
             src={country.flags.svg}
@@ -112,37 +111,34 @@ export default async function CountryPage({ params }: CountryPageProps) {
             className="object-cover"
             priority
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/70 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-atlas-950 via-atlas-950/70 to-transparent" />
           
-          {/* Back Button */}
           <div className="absolute top-4 left-4">
             <Link
               href="/countries"
-              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-black/30 backdrop-blur-sm text-white text-sm font-medium hover:bg-black/50 transition-colors"
+              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-black/30 backdrop-blur-sm text-text-primary text-sm font-medium hover:bg-black/50 transition-colors font-sora"
             >
               <ArrowLeft className="h-4 w-4" />
               Back to Countries
             </Link>
           </div>
 
-          {/* Country Title */}
           <div className="absolute bottom-0 left-0 right-0 p-6 sm:p-8">
             <div className="max-w-7xl mx-auto">
               <div className="flex items-end gap-4">
                 <div className="flex-1">
-                  <h1 className="text-3xl sm:text-5xl font-black text-white mb-2">{country.name.common}</h1>
-                  <p className="text-lg text-zinc-300">{country.name.official}</p>
+                  <h1 className="text-3xl sm:text-5xl font-black text-text-primary mb-2 font-instrument-serif">{country.name.common}</h1>
+                  <p className="text-lg text-text-secondary font-sora">{country.name.official}</p>
                 </div>
                 
-                {/* Status Badges */}
                 <div className="flex gap-2">
                   {country.unMember && (
-                    <span className="px-3 py-1.5 rounded-full bg-blue-500/20 text-blue-400 text-sm font-medium border border-blue-500/30">
+                    <span className="px-3 py-1.5 rounded-full bg-cyan-glow/20 text-cyan-glow text-sm font-medium border border-cyan-glow/30 font-sora">
                       UN Member
                     </span>
                   )}
                   {country.independent && (
-                    <span className="px-3 py-1.5 rounded-full bg-emerald-500/20 text-emerald-400 text-sm font-medium border border-emerald-500/30">
+                    <span className="px-3 py-1.5 rounded-full bg-amber-glow/20 text-amber-glow text-sm font-medium border border-amber-glow/30 font-sora">
                       Independent
                     </span>
                   )}
@@ -154,7 +150,6 @@ export default async function CountryPage({ params }: CountryPageProps) {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Quick Stats Grid */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
           <InfoCard icon={Users} label="Population" value={country.population > 1e6 ? `${(country.population / 1e6).toFixed(1)}M` : country.population.toLocaleString()} highlight />
           <InfoCard icon={MapPin} label="Capital" value={country.capital?.[0] || "N/A"} />
@@ -162,11 +157,8 @@ export default async function CountryPage({ params }: CountryPageProps) {
           <InfoCard icon={Calendar} label="Area" value={country.area > 1e6 ? `${(country.area / 1e6).toFixed(1)}M km²` : `${country.area.toLocaleString()} km²`} />
         </div>
 
-        {/* Main Content Grid */}
         <div className="grid gap-8 lg:grid-cols-3">
-          {/* Left Column - Details */}
           <div className="lg:col-span-2 space-y-6">
-            {/* Live Weather (Moved to top of main content) */}
             {country.capitalInfo?.latlng ? (
               <LiveWeather
                 lat={country.capitalInfo.latlng[0]}
@@ -181,49 +173,46 @@ export default async function CountryPage({ params }: CountryPageProps) {
               />
             )}
 
-            {/* Geography & Identity */}
             <div className="grid gap-6 sm:grid-cols-2">
-              <div className="rounded-2xl border border-white/10 bg-zinc-900/50 p-6">
-                <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-                  <Map className="h-5 w-5 text-blue-400" />
+              <div className="rounded-2xl border border-white/10 bg-white/[0.03] glass-card p-6">
+                <h3 className="text-lg font-bold text-text-primary mb-4 flex items-center gap-2 font-sora">
+                  <Map className="h-5 w-5 text-cyan-glow" />
                   Geography
                 </h3>
-                <div className="space-y-3">
-                  <div className="flex justify-between"><span className="text-zinc-500">Continent</span><span className="font-medium">{country.continents.join(", ")}</span></div>
-                  <div className="flex justify-between"><span className="text-zinc-500">Subregion</span><span className="font-medium">{country.subregion || "N/A"}</span></div>
-                  <div className="flex justify-between"><span className="text-zinc-500">Timezone</span><span className="font-medium">{country.timezones[0]}</span></div>
-                  <div className="flex justify-between"><span className="text-zinc-500">Start of Week</span><span className="font-medium capitalize">{country.startOfWeek}</span></div>
+                <div className="space-y-3 font-sora">
+                  <div className="flex justify-between"><span className="text-muted">Continent</span><span className="font-medium text-text-secondary">{country.continents.join(", ")}</span></div>
+                  <div className="flex justify-between"><span className="text-muted">Subregion</span><span className="font-medium text-text-secondary">{country.subregion || "N/A"}</span></div>
+                  <div className="flex justify-between"><span className="text-muted">Timezone</span><span className="font-medium text-text-secondary font-dm-mono">{country.timezones[0]}</span></div>
+                  <div className="flex justify-between"><span className="text-muted">Start of Week</span><span className="font-medium text-text-secondary capitalize">{country.startOfWeek}</span></div>
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-white/10 bg-zinc-900/50 p-6">
-                <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-                  <Landmark className="h-5 w-5 text-emerald-400" />
+              <div className="rounded-2xl border border-white/10 bg-white/[0.03] glass-card p-6">
+                <h3 className="text-lg font-bold text-text-primary mb-4 flex items-center gap-2 font-sora">
+                  <Landmark className="h-5 w-5 text-amber-glow" />
                   Identity
                 </h3>
-                <div className="space-y-3">
-                  <div className="flex justify-between"><span className="text-zinc-500">Languages</span><span className="font-medium">{country.languages ? Object.values(country.languages).join(", ") : "N/A"}</span></div>
-                  <div className="flex justify-between"><span className="text-zinc-500">Currencies</span><span className="font-medium">{country.currencies ? Object.values(country.currencies).map(c => `${c.name} (${c.symbol})`).join(", ") : "N/A"}</span></div>
-                  <div className="flex justify-between"><span className="text-zinc-500">Driving Side</span><span className="font-medium capitalize">{country.car.side}</span></div>
-                  <div className="flex justify-between"><span className="text-zinc-500">Calling Code</span><span className="font-medium">{`${country.idd.root}${country.idd.suffixes?.[0] || ""}`}</span></div>
+                <div className="space-y-3 font-sora">
+                  <div className="flex justify-between"><span className="text-muted">Languages</span><span className="font-medium text-text-secondary">{country.languages ? Object.values(country.languages).join(", ") : "N/A"}</span></div>
+                  <div className="flex justify-between"><span className="text-muted">Currencies</span><span className="font-medium text-text-secondary">{country.currencies ? Object.values(country.currencies).map(c => `${c.name} (${c.symbol})`).join(", ") : "N/A"}</span></div>
+                  <div className="flex justify-between"><span className="text-muted">Driving Side</span><span className="font-medium text-text-secondary capitalize">{country.car.side}</span></div>
+                  <div className="flex justify-between"><span className="text-muted">Calling Code</span><span className="font-medium text-text-secondary font-dm-mono">{`${country.idd.root}${country.idd.suffixes?.[0] || ""}`}</span></div>
                 </div>
               </div>
             </div>
 
-            {/* Economy Stats */}
-            <div className="rounded-2xl border border-white/10 bg-zinc-900/50 p-6">
-              <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-                <TrendingUp className="h-5 w-5 text-amber-400" />
+            <div className="rounded-2xl border border-white/10 bg-white/[0.03] glass-card p-6">
+              <h3 className="text-lg font-bold text-text-primary mb-4 flex items-center gap-2 font-sora">
+                <TrendingUp className="h-5 w-5 text-amber-glow" />
                 Economy & Demographics
               </h3>
               <ExtendedStats cca3={country.cca3} />
             </div>
 
-            {/* Neighboring Countries */}
             {borderCountries.length > 0 && (
-              <div className="rounded-2xl border border-white/10 bg-zinc-900/50 p-6">
-                <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-                  <Flag className="h-5 w-5 text-purple-400" />
+              <div className="rounded-2xl border border-white/10 bg-white/[0.03] glass-card p-6">
+                <h3 className="text-lg font-bold text-text-primary mb-4 flex items-center gap-2 font-sora">
+                  <Flag className="h-5 w-5 text-violet-glow" />
                   Neighboring Countries ({borderCountries.length})
                 </h3>
                 <div className="flex flex-wrap gap-2">
@@ -231,10 +220,10 @@ export default async function CountryPage({ params }: CountryPageProps) {
                     <Link
                       key={border.cca3}
                       href={`/country/${encodeURIComponent(border.name.common.toLowerCase())}`}
-                      className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 transition-colors"
+                      className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/[0.03] hover:bg-white/[0.06] border border-white/10 transition-colors font-sora"
                     >
                       <Image src={border.flags.svg} alt={border.name.common} width={24} height={16} className="rounded-sm" />
-                      <span className="text-sm font-medium">{border.name.common}</span>
+                      <span className="text-sm font-medium text-text-secondary">{border.name.common}</span>
                     </Link>
                   ))}
                 </div>
@@ -242,12 +231,10 @@ export default async function CountryPage({ params }: CountryPageProps) {
             )}
           </div>
 
-          {/* Right Column - Sidebar */}
           <div className="space-y-6">
-            {/* Coat of Arms */}
             {country.coatOfArms?.svg && (
-              <div className="rounded-2xl border border-white/10 bg-zinc-900/50 p-6">
-                <h3 className="text-sm font-bold text-zinc-500 uppercase tracking-wider mb-4">Coat of Arms</h3>
+              <div className="rounded-2xl border border-white/10 bg-white/[0.03] glass-card p-6">
+                <h3 className="text-sm font-bold text-muted uppercase tracking-wider mb-4 font-sora">Coat of Arms</h3>
                 <div className="relative h-32 w-full">
                   <Image
                     src={country.coatOfArms.svg}
@@ -259,21 +246,19 @@ export default async function CountryPage({ params }: CountryPageProps) {
               </div>
             )}
 
-            {/* Codes */}
-            <div className="rounded-2xl border border-white/10 bg-zinc-900/50 p-6">
-              <h3 className="text-sm font-bold text-zinc-500 uppercase tracking-wider mb-4">Country Codes</h3>
-              <div className="space-y-3">
-                <div className="flex justify-between items-center"><span className="text-zinc-500">ISO 3166-1</span><span className="font-mono font-bold">{country.cca3}</span></div>
-                {country.fifa && <div className="flex justify-between items-center"><span className="text-zinc-500">FIFA</span><span className="font-mono font-bold">{country.fifa}</span></div>}
-                {country.tld && <div className="flex justify-between items-center"><span className="text-zinc-500">TLD</span><span className="font-mono font-bold">{country.tld.join(", ")}</span></div>}
-                {country.car.signs && <div className="flex justify-between items-center"><span className="text-zinc-500">Car Signs</span><span className="font-mono font-bold">{country.car.signs.join(", ")}</span></div>}
+            <div className="rounded-2xl border border-white/10 bg-white/[0.03] glass-card p-6">
+              <h3 className="text-sm font-bold text-muted uppercase tracking-wider mb-4 font-sora">Country Codes</h3>
+              <div className="space-y-3 font-sora">
+                <div className="flex justify-between items-center"><span className="text-muted">ISO 3166-1</span><span className="font-dm-mono font-bold text-text-secondary">{country.cca3}</span></div>
+                {country.fifa && <div className="flex justify-between items-center"><span className="text-muted">FIFA</span><span className="font-dm-mono font-bold text-text-secondary">{country.fifa}</span></div>}
+                {country.tld && <div className="flex justify-between items-center"><span className="text-muted">TLD</span><span className="font-dm-mono font-bold text-text-secondary">{country.tld.join(", ")}</span></div>}
+                {country.car.signs && <div className="flex justify-between items-center"><span className="text-muted">Car Signs</span><span className="font-dm-mono font-bold text-text-secondary">{country.car.signs.join(", ")}</span></div>}
               </div>
             </div>
 
-            {/* Map */}
-            <div className="rounded-2xl border border-white/10 bg-zinc-900/50 overflow-hidden">
+            <div className="rounded-2xl border border-white/10 bg-white/[0.03] glass-card overflow-hidden">
               <div className="p-4 border-b border-white/5">
-                <h3 className="text-sm font-bold text-zinc-500 uppercase tracking-wider">Location</h3>
+                <h3 className="text-sm font-bold text-muted uppercase tracking-wider font-sora">Location</h3>
               </div>
               <div className="relative h-48">
                 <iframe
@@ -286,9 +271,9 @@ export default async function CountryPage({ params }: CountryPageProps) {
                   className="grayscale invert hue-rotate-180"
                 />
               </div>
-              <div className="p-3 flex justify-between items-center bg-white/5">
-                <span className="text-xs text-zinc-500">{country.latlng[0].toFixed(2)}°, {country.latlng[1].toFixed(2)}°</span>
-                <a href={country.maps.googleMaps} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-400 hover:underline flex items-center gap-1">
+              <div className="p-3 flex justify-between items-center bg-white/[0.03]">
+                <span className="text-xs text-muted font-dm-mono">{country.latlng[0].toFixed(2)}°, {country.latlng[1].toFixed(2)}°</span>
+                <a href={country.maps.googleMaps} target="_blank" rel="noopener noreferrer" className="text-xs text-cyan-glow hover:underline flex items-center gap-1 font-sora">
                   Open in Maps <ExternalLink className="h-3 w-3" />
                 </a>
               </div>

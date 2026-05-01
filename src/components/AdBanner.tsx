@@ -31,8 +31,8 @@ export default function AdBanner({ adSlot, format = "auto", className = "" }: Ad
 
   if (!loaded) {
     return (
-      <div className={`flex items-center justify-center border border-dashed border-zinc-800 bg-zinc-900/30 rounded-xl ${className}`}>
-        <span className="text-xs text-zinc-600">Ad</span>
+      <div className={`flex items-center justify-center border border-dashed border-white/10 bg-white/[0.02] rounded-xl ${className}`}>
+        <span className="text-xs text-muted">Ad</span>
       </div>
     );
   }

@@ -11,8 +11,8 @@ import type { Achievement } from "@/types";
 const MapBoard = dynamic(() => import("./MapBoard"), { 
   ssr: false,
   loading: () => (
-    <div className="w-full h-[500px] bg-zinc-900 rounded-2xl flex items-center justify-center">
-      <div className="text-zinc-500">Loading map...</div>
+    <div className="w-full h-[500px] bg-atlas-900 rounded-2xl flex items-center justify-center">
+      <div className="text-muted font-sora">Loading map...</div>
     </div>
   )
 });
@@ -291,11 +291,11 @@ export default function MapExplorer() {
     return (
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 sm:py-12">
         <div className="text-center mb-12">
-          <div className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-gradient-to-br from-emerald-500/20 to-blue-500/20 ring-2 ring-emerald-500/30 mb-6">
-            <Compass className="h-10 w-10 text-emerald-400" />
+          <div className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-gradient-to-br from-cyan-glow/20 to-violet-glow/20 ring-2 ring-cyan-glow/30 mb-6">
+            <Compass className="h-10 w-10 text-cyan-glow" />
           </div>
-          <h1 className="text-3xl sm:text-4xl font-black text-white mb-4">Map Explorer</h1>
-          <p className="text-zinc-400 max-w-xl mx-auto text-base sm:text-lg">
+          <h1 className="text-3xl sm:text-4xl font-black text-text-primary mb-4 font-instrument-serif">Map Explorer</h1>
+          <p className="text-text-secondary max-w-xl mx-auto text-base sm:text-lg font-sora">
             Select a continent and test your geography skills! Find famous locations on the map and earn points based on accuracy.
           </p>
         </div>
@@ -305,14 +305,14 @@ export default function MapExplorer() {
             <button
               key={region.key}
               onClick={() => setSelectedRegion(region.key)}
-              className={`flex flex-col items-center justify-center p-6 rounded-2xl border transition-all hover:scale-105 ${
+              className={`flex flex-col items-center justify-center p-6 rounded-2xl border transition-all hover:scale-105 font-sora ${
                 selectedRegion === region.key
-                  ? "bg-emerald-500/20 border-emerald-500/50"
-                  : "bg-zinc-900/50 border-white/5 hover:border-white/20"
+                  ? "bg-cyan-glow/20 border-cyan-glow/50"
+                  : "bg-white/[0.03] glass-card border-white/5 hover:border-white/20"
               }`}
             >
               <span className="text-4xl mb-3">{region.icon}</span>
-              <span className="font-bold text-white">{region.name}</span>
+              <span className="font-bold text-text-primary">{region.name}</span>
             </button>
           ))}
         </div>
@@ -321,7 +321,7 @@ export default function MapExplorer() {
           <div className="flex justify-center">
             <button
               onClick={() => setPhase("settings")}
-              className="flex items-center gap-2 px-8 py-4 rounded-xl bg-emerald-500 text-black font-bold hover:bg-emerald-400 transition-all hover:scale-105 active:scale-95 shadow-lg shadow-emerald-500/20"
+              className="flex items-center gap-2 px-8 py-4 rounded-xl bg-cyan-glow text-atlas-950 font-bold hover:bg-cyan-glow/80 transition-all hover:scale-105 active:scale-95 shadow-lg shadow-cyan-glow/20 font-sora"
             >
               Continue <ChevronRight className="h-5 w-5" />
             </button>
@@ -338,52 +338,50 @@ export default function MapExplorer() {
         <div className="max-w-2xl mx-auto">
           <button
             onClick={() => setPhase("select")}
-            className="flex items-center gap-2 text-zinc-400 hover:text-white mb-8 transition-colors"
+            className="flex items-center gap-2 text-muted hover:text-text-primary mb-8 transition-colors font-sora"
           >
             <ChevronRight className="h-4 w-4 rotate-180" /> Back to regions
           </button>
 
           <div className="text-center mb-8">
             <span className="text-4xl mb-4 block">{regionData?.icon}</span>
-            <h2 className="text-2xl sm:text-3xl font-black text-white">Game Settings</h2>
-            <p className="text-zinc-400 mt-2">Configure your {selectedRegion} exploration</p>
+            <h2 className="text-2xl sm:text-3xl font-black text-text-primary font-instrument-serif">Game Settings</h2>
+            <p className="text-muted mt-2 font-sora">Configure your {selectedRegion} exploration</p>
           </div>
 
-          <div className="rounded-2xl border border-white/5 bg-zinc-900/50 p-6 sm:p-8 space-y-8">
-            {/* Difficulty */}
+          <div className="rounded-2xl border border-white/5 bg-white/[0.03] glass-card p-6 sm:p-8 space-y-8">
             <div>
-              <label className="block text-sm font-semibold text-zinc-300 mb-4">Difficulty</label>
+              <label className="block text-sm font-semibold text-text-secondary mb-4 font-sora">Difficulty</label>
               <div className="flex gap-3">
                 <button
                   onClick={() => setDifficulty("easy")}
-                  className={`flex-1 py-3 rounded-xl font-bold transition-all ${
+                  className={`flex-1 py-3 rounded-xl font-bold transition-all font-sora ${
                     difficulty === "easy"
-                      ? "bg-emerald-500 text-black"
-                      : "bg-white/5 text-zinc-400 hover:bg-white/10"
+                      ? "bg-cyan-glow text-atlas-950"
+                      : "bg-white/[0.03] text-muted hover:bg-white/[0.06]"
                   }`}
                 >
                   Easy
                 </button>
                 <button
                   onClick={() => setDifficulty("hard")}
-                  className={`flex-1 py-3 rounded-xl font-bold transition-all ${
+                  className={`flex-1 py-3 rounded-xl font-bold transition-all font-sora ${
                     difficulty === "hard"
-                      ? "bg-amber-500 text-black"
-                      : "bg-white/5 text-zinc-400 hover:bg-white/10"
+                      ? "bg-amber-glow text-atlas-950"
+                      : "bg-white/[0.03] text-muted hover:bg-white/[0.06]"
                   }`}
                 >
                   Hard
                 </button>
               </div>
-              <p className="text-xs text-zinc-500 mt-2">
+              <p className="text-xs text-muted mt-2 font-sora">
                 {difficulty === "easy" ? "Well-known famous locations" : "Lesser-known hidden gems"}
               </p>
             </div>
 
-            {/* Place Count */}
             <div>
-              <label className="block text-sm font-semibold text-zinc-300 mb-4">
-                Number of places: <span className="text-emerald-400">{placeCount}</span>
+              <label className="block text-sm font-semibold text-text-secondary mb-4 font-sora">
+                Number of places: <span className="text-cyan-glow">{placeCount}</span>
               </label>
               <input
                 type="range"
@@ -392,9 +390,9 @@ export default function MapExplorer() {
                 step="5"
                 value={placeCount}
                 onChange={(e) => setPlaceCount(parseInt(e.target.value))}
-                className="w-full h-2 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-emerald-500"
+                className="w-full h-2 bg-white/[0.05] rounded-lg appearance-none cursor-pointer accent-cyan-glow"
               />
-              <div className="flex justify-between text-xs text-zinc-500 mt-2">
+              <div className="flex justify-between text-xs text-muted mt-2 font-dm-mono">
                 <span>5</span>
                 <span>10</span>
                 <span>15</span>
@@ -403,10 +401,9 @@ export default function MapExplorer() {
               </div>
             </div>
 
-            {/* Start Button */}
             <button
               onClick={startGame}
-              className="w-full flex items-center justify-center gap-2 py-4 rounded-xl bg-emerald-500 text-black font-bold hover:bg-emerald-400 transition-all hover:scale-[1.02] active:scale-95 shadow-lg shadow-emerald-500/20 text-lg"
+              className="w-full flex items-center justify-center gap-2 py-4 rounded-xl bg-cyan-glow text-atlas-950 font-bold hover:bg-cyan-glow/80 transition-all hover:scale-[1.02] active:scale-95 shadow-lg shadow-cyan-glow/20 text-lg font-sora"
             >
               <MapPin className="h-5 w-5" />
               Start Exploration
@@ -428,41 +425,39 @@ export default function MapExplorer() {
     
     return (
       <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-        {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
           <div>
-            <h2 className="text-xl sm:text-2xl font-black text-white">
+            <h2 className="text-xl sm:text-2xl font-black text-text-primary font-instrument-serif">
               Location {currentIndex + 1} of {locations.length}
             </h2>
-            <p className="text-zinc-400 text-sm">
-              Click on the map where you think <span className="text-emerald-400 font-semibold">{currentLocation?.name}</span> is located
+            <p className="text-muted text-sm font-sora">
+              Click on the map where you think <span className="text-cyan-glow font-semibold font-sora">{currentLocation?.name}</span> is located
             </p>
           </div>
-          <div className="flex items-center gap-2 flex-wrap">
+          <div className="flex items-center gap-2 flex-wrap font-sora">
             {currentCombo >= 2 && (
-              <div className="px-3 py-1 rounded-full bg-orange-500/20 border border-orange-500/30 flex items-center gap-1">
-                <Zap className="h-3 w-3 text-orange-400" />
-                <span className="text-orange-400 font-bold text-sm">{currentCombo}x</span>
+              <div className="px-3 py-1 rounded-full bg-amber-glow/20 border border-amber-glow/30 flex items-center gap-1">
+                <Zap className="h-3 w-3 text-amber-glow" />
+                <span className="text-amber-glow font-bold text-sm font-dm-mono">{currentCombo}x</span>
               </div>
             )}
-            <div className="px-3 py-1 rounded-lg bg-zinc-800 flex items-center gap-1">
-              <Clock className="h-3 w-3 text-zinc-400" />
-              <span className="text-zinc-400 font-mono text-sm">{formatTime(elapsedTime)}</span>
+            <div className="px-3 py-1 rounded-lg bg-white/[0.05] flex items-center gap-1">
+              <Clock className="h-3 w-3 text-muted" />
+              <span className="text-muted font-dm-mono text-sm">{formatTime(elapsedTime)}</span>
             </div>
             <button
               onClick={skipLocation}
-              className="px-4 py-2 rounded-lg text-sm font-medium text-zinc-400 hover:text-white hover:bg-white/10 transition-colors"
+              className="px-4 py-2 rounded-lg text-sm font-medium text-muted hover:text-text-primary hover:bg-white/10 transition-colors"
             >
               Skip
             </button>
-            <div className="px-4 py-2 rounded-lg bg-emerald-500/20 border border-emerald-500/30">
-              <span className="text-emerald-400 font-bold">{totalScore}</span>
-              <span className="text-zinc-500 text-sm ml-1">pts</span>
+            <div className="px-4 py-2 rounded-lg bg-cyan-glow/20 border border-cyan-glow/30">
+              <span className="text-cyan-glow font-bold font-dm-mono">{totalScore}</span>
+              <span className="text-muted text-sm ml-1 font-sora">pts</span>
             </div>
           </div>
         </div>
 
-        {/* Map */}
         <div className="relative rounded-2xl overflow-hidden border border-white/10">
           <MapBoard
             center={mapCenter}
@@ -474,26 +469,24 @@ export default function MapExplorer() {
             regionKey={selectedRegion || undefined}
           />
           
-          {/* Location hint */}
           <div className="absolute top-4 left-4 right-4 sm:left-auto sm:right-4 sm:w-auto z-[1000]">
-            <div className="bg-zinc-950/90 backdrop-blur-md rounded-xl px-4 py-3 border border-white/10 inline-flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-emerald-500/20">
-                <MapPin className="h-4 w-4 text-emerald-400" />
+            <div className="bg-atlas-950/90 backdrop-blur-md rounded-xl px-4 py-3 border border-white/10 inline-flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-cyan-glow/20">
+                <MapPin className="h-4 w-4 text-cyan-glow" />
               </div>
               <div>
-                <p className="text-xs text-zinc-500 uppercase tracking-wider">Find this place</p>
-                <p className="font-bold text-white">{currentLocation?.name}</p>
+                <p className="text-xs text-muted uppercase tracking-wider font-sora">Find this place</p>
+                <p className="font-bold text-text-primary font-sora">{currentLocation?.name}</p>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Confirm Button */}
         {currentGuess && showResult && (
           <div className="mt-4 flex justify-center animate-in fade-in slide-in-from-bottom-4">
             <button
               onClick={handleNext}
-              className="flex items-center gap-2 px-8 py-3 rounded-xl bg-emerald-500 text-black font-bold hover:bg-emerald-400 transition-all hover:scale-105 active:scale-95 shadow-lg shadow-emerald-500/20"
+              className="flex items-center gap-2 px-8 py-3 rounded-xl bg-cyan-glow text-atlas-950 font-bold hover:bg-cyan-glow/80 transition-all hover:scale-105 active:scale-95 shadow-lg shadow-cyan-glow/20 font-sora"
             >
               {currentIndex < locations.length - 1 ? "Next Location" : "See Results"}
               <ChevronRight className="h-5 w-5" />
@@ -516,58 +509,55 @@ export default function MapExplorer() {
     return (
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 sm:py-12">
         <div className="max-w-4xl mx-auto">
-          {/* Score Header */}
           <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-24 h-24 rounded-full bg-amber-500/20 ring-4 ring-amber-500/30 mb-4">
-              <Trophy className="h-12 w-12 text-amber-400" />
+            <div className="inline-flex items-center justify-center w-24 h-24 rounded-full bg-amber-glow/20 ring-4 ring-amber-glow/30 mb-4">
+              <Trophy className="h-12 w-12 text-amber-glow" />
             </div>
-            <h2 className="text-3xl sm:text-4xl font-black text-white mb-2">
+            <h2 className="text-3xl sm:text-4xl font-black text-text-primary mb-2 font-instrument-serif">
               {percentage >= 80 ? "Outstanding!" : percentage >= 50 ? "Good Try!" : "Keep Practicing!"}
             </h2>
-            <p className="text-zinc-400">
-              You scored <span className="text-amber-400 font-bold text-xl">{totalScore}</span> points ({percentage}%)
+            <p className="text-text-secondary font-sora">
+              You scored <span className="text-amber-glow font-bold text-xl font-dm-mono">{totalScore}</span> points ({percentage}%)
             </p>
           </div>
 
-          {/* Stats Summary */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
-            <div className="bg-zinc-900/50 rounded-xl p-4 border border-white/5 text-center">
-              <div className="text-2xl font-black text-emerald-400">{stats.gamesPlayed}</div>
-              <div className="text-xs text-zinc-500">Games Played</div>
+            <div className="bg-white/[0.03] glass-card rounded-xl p-4 border border-white/5 text-center">
+              <div className="text-2xl font-black text-cyan-glow font-dm-mono">{stats.gamesPlayed}</div>
+              <div className="text-xs text-muted font-sora">Games Played</div>
             </div>
-            <div className="bg-zinc-900/50 rounded-xl p-4 border border-white/5 text-center">
-              <div className="text-2xl font-black text-orange-400">{stats.currentStreak}</div>
-              <div className="text-xs text-zinc-500">Day Streak</div>
+            <div className="bg-white/[0.03] glass-card rounded-xl p-4 border border-white/5 text-center">
+              <div className="text-2xl font-black text-amber-glow font-dm-mono">{stats.currentStreak}</div>
+              <div className="text-xs text-muted font-sora">Day Streak</div>
             </div>
-            <div className="bg-zinc-900/50 rounded-xl p-4 border border-white/5 text-center">
-              <div className="text-2xl font-black text-blue-400">{bestCombo}</div>
-              <div className="text-xs text-zinc-500">Best Combo</div>
+            <div className="bg-white/[0.03] glass-card rounded-xl p-4 border border-white/5 text-center">
+              <div className="text-2xl font-black text-violet-glow font-dm-mono">{bestCombo}</div>
+              <div className="text-xs text-muted font-sora">Best Combo</div>
             </div>
-            <div className="bg-zinc-900/50 rounded-xl p-4 border border-white/5 text-center">
-              <div className="text-2xl font-black text-purple-400">{stats.bestScore}</div>
-              <div className="text-xs text-zinc-500">Best Score</div>
+            <div className="bg-white/[0.03] glass-card rounded-xl p-4 border border-white/5 text-center">
+              <div className="text-2xl font-black text-cyan-glow font-dm-mono">{stats.bestScore}</div>
+              <div className="text-xs text-muted font-sora">Best Score</div>
             </div>
           </div>
 
-          {/* Achievements */}
           {unlockedNow.length > 0 && (
             <div className="mb-8">
               <button
                 onClick={() => setShowAchievements(!showAchievements)}
-                className="w-full flex items-center justify-center gap-2 p-4 rounded-xl bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-500/30 hover:border-amber-500/50 transition-all"
+                className="w-full flex items-center justify-center gap-2 p-4 rounded-xl bg-gradient-to-r from-amber-glow/20 to-violet-glow/20 border border-amber-glow/30 hover:border-amber-glow/50 transition-all font-sora"
               >
-                <Award className="h-5 w-5 text-amber-400" />
-                <span className="font-bold text-amber-400">{unlockedNow.length} New Achievement{unlockedNow.length > 1 ? 's' : ''} Unlocked!</span>
-                <ChevronRight className={`h-4 w-4 text-amber-400 transition-transform ${showAchievements ? 'rotate-90' : ''}`} />
+                <Award className="h-5 w-5 text-amber-glow" />
+                <span className="font-bold text-amber-glow">{unlockedNow.length} New Achievement{unlockedNow.length > 1 ? 's' : ''} Unlocked!</span>
+                <ChevronRight className={`h-4 w-4 text-amber-glow transition-transform ${showAchievements ? 'rotate-90' : ''}`} />
               </button>
               {showAchievements && (
                 <div className="mt-3 grid grid-cols-2 sm:grid-cols-3 gap-3">
                   {unlockedNow.map(achievement => (
-                    <div key={achievement.id} className="flex items-center gap-3 p-3 rounded-xl bg-zinc-900/50 border border-amber-500/20">
+                    <div key={achievement.id} className="flex items-center gap-3 p-3 rounded-xl bg-white/[0.03] glass-card border border-amber-glow/20">
                       <span className="text-2xl">{achievement.icon}</span>
                       <div>
-                        <div className="font-bold text-white text-sm">{achievement.name}</div>
-                        <div className="text-xs text-zinc-500">{achievement.description}</div>
+                        <div className="font-bold text-text-primary text-sm font-sora">{achievement.name}</div>
+                        <div className="text-xs text-muted font-sora">{achievement.description}</div>
                       </div>
                     </div>
                   ))}
@@ -576,7 +566,6 @@ export default function MapExplorer() {
             </div>
           )}
 
-          {/* Results Map */}
           <div className="rounded-2xl overflow-hidden border border-white/10 mb-8">
             <MapBoard
               center={mapCenter}
@@ -590,7 +579,6 @@ export default function MapExplorer() {
             />
           </div>
 
-          {/* Results List */}
           <div className="space-y-3 mb-8">
             {userGuesses.map((guess, idx) => {
               const prevTime = idx > 0 ? userGuesses[idx - 1].timeSpent : 0;
@@ -600,28 +588,28 @@ export default function MapExplorer() {
               return (
                 <div
                   key={guess.locationId}
-                  className={`flex items-center justify-between p-4 rounded-xl border ${
+                  className={`flex items-center justify-between p-4 rounded-xl border font-sora ${
                     guess.points > 500
                       ? "bg-emerald-500/5 border-emerald-500/20"
                       : guess.points > 0
-                      ? "bg-amber-500/5 border-amber-500/20"
+                      ? "bg-amber-glow/5 border-amber-glow/20"
                       : "bg-red-500/5 border-red-500/20"
                   }`}
                 >
                   <div className="flex items-center gap-3">
-                    <span className="w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center text-sm font-bold text-zinc-400">
+                    <span className="w-8 h-8 rounded-full bg-white/[0.05] flex items-center justify-center text-sm font-bold text-muted font-dm-mono">
                       {idx + 1}
                     </span>
                     <div>
-                      <p className="font-bold text-white">{guess.locationName}</p>
-                      <p className="text-xs text-zinc-500">
+                      <p className="font-bold text-text-primary font-sora">{guess.locationName}</p>
+                      <p className="text-xs text-muted font-dm-mono">
                         {guess.distance > 9000 ? "Skipped" : `${guess.distance.toLocaleString()} km away`}
-                        <span className="ml-2 text-blue-400">• {formatSec(timeForThis)}</span>
+                        <span className="ml-2 text-cyan-glow">• {formatSec(timeForThis)}</span>
                       </p>
                     </div>
                   </div>
-                  <div className={`font-bold ${
-                    guess.points > 500 ? "text-emerald-400" : guess.points > 0 ? "text-amber-400" : "text-red-400"
+                  <div className={`font-bold font-dm-mono ${
+                    guess.points > 500 ? "text-emerald-400" : guess.points > 0 ? "text-amber-glow" : "text-red-400"
                   }`}>
                     {guess.points} pts
                   </div>
@@ -630,20 +618,19 @@ export default function MapExplorer() {
             })}
           </div>
 
-          {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <button
               onClick={() => {
                 setPhase("settings");
               }}
-              className="flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-white/10 text-white font-bold hover:bg-white/20 transition-all border border-white/10"
+              className="flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-white/[0.05] text-text-primary font-bold hover:bg-white/[0.08] transition-all border border-white/10 font-sora"
             >
               <RotateCcw className="h-4 w-4" />
               Play Again
             </button>
             <button
               onClick={resetGame}
-              className="flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-emerald-500 text-black font-bold hover:bg-emerald-400 transition-all"
+              className="flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-cyan-glow text-atlas-950 font-bold hover:bg-cyan-glow/80 transition-all font-sora"
             >
               Change Region
             </button>

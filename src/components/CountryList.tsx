@@ -63,7 +63,7 @@ export default function CountryList({ initialCountries }: CountryListProps) {
 
   return (
     <div className="space-y-10">
-      <div className="rounded-3xl border border-zinc-200 bg-zinc-50/50 p-6 dark:border-white/5 dark:bg-white/5">
+      <div className="rounded-3xl border border-white/5 bg-white/[0.03] glass-card p-6">
         <SearchAndFilter
           searchQuery={searchQuery}
           setSearchQuery={handleSetSearchQuery}
@@ -82,18 +82,18 @@ export default function CountryList({ initialCountries }: CountryListProps) {
 
       {filteredCountries.length === 0 && (
         <div className="flex flex-col items-center justify-center py-32 animate-in fade-in duration-500">
-          <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-zinc-100 dark:bg-zinc-900">
+          <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full border border-white/5 bg-white/[0.03] glass-card">
             <span className="text-2xl">🌍</span>
           </div>
-          <p className="text-lg font-bold text-zinc-900 dark:text-zinc-50">
+          <p className="text-lg font-bold text-text-primary font-sora">
             No countries found
           </p>
-          <p className="text-sm text-zinc-500 dark:text-zinc-400">
+          <p className="text-sm text-muted">
             Try adjusting your search or filter criteria.
           </p>
           <button
             onClick={() => { handleSetSearchQuery(""); handleSetRegionFilter(""); }}
-            className="mt-6 text-sm font-bold text-blue-600 hover:underline dark:text-blue-400"
+            className="mt-6 text-sm font-bold text-cyan-glow hover:text-cyan-glow/80 transition-colors"
           >
             Clear all filters
           </button>
@@ -104,7 +104,7 @@ export default function CountryList({ initialCountries }: CountryListProps) {
         <div className="flex justify-center pt-4">
           <button
             onClick={() => setPage(p => p + 1)}
-            className="px-8 py-3 rounded-xl bg-white/5 border border-white/10 text-sm font-bold text-zinc-300 hover:bg-white/10 hover:text-white transition-all"
+            className="px-8 py-3 rounded-xl bg-white/[0.03] border border-white/10 text-sm font-bold text-text-secondary hover:bg-white/[0.06] hover:text-text-primary transition-all font-sora"
           >
             Load more ({filteredCountries.length - visibleCountries.length} remaining)
           </button>
