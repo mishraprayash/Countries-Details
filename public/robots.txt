@@ -7,4 +7,4 @@ Disallow: /api/
 Disallow: /_next/
 
 # Sitemap
-Sitemap: https://world-insights.vercel.app/sitemap.xml
+Sitemap: https://countries-details-steel.vercel.app/sitemap.xml

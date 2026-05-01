@@ -4,9 +4,8 @@ import { useEffect, useState } from "react";
 import { Country } from "@/types/country";
 import { useFavorites } from "@/hooks/useFavorites";
 import CountryList from "@/components/CountryList";
-import { Heart, Globe } from "lucide-react";
+import { Heart } from "lucide-react";
 import Link from "next/link";
-import Navbar from "@/components/Navbar";
 
 export default function FavoritesClient() {
   const [countries, setCountries] = useState<Country[]>([]);
@@ -43,16 +42,6 @@ export default function FavoritesClient() {
 
   return (
     <main className="flex-1 bg-zinc-950 text-zinc-50 min-h-screen">
-      <div className="sticky top-0 z-50 border-b border-white/5 bg-zinc-950/80 backdrop-blur-md">
-        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-          <Link href="/" className="flex items-center gap-2">
-            <Globe className="h-6 w-6 text-blue-500" />
-            <h1 className="text-xl font-bold text-white">World Insights</h1>
-          </Link>
-          <Navbar currentPage="favorites" />
-        </div>
-      </div>
-
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 sm:py-12">
         <div className="mb-8 border-b border-white/5 pb-8">
           <h2 className="text-3xl font-black text-white sm:text-4xl">My Favorites</h2>

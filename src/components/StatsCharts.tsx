@@ -36,6 +36,7 @@ export default function StatsCharts({ regionData, populationData }: StatsChartsP
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
   }, []);
 

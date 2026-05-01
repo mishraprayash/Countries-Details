@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Globe, X, Search, Plus, Loader2, Swords, Scale } from "lucide-react";
-import Navbar from "@/components/Navbar";
+
 import BattleMode from "@/components/BattleMode";
 import LifeComparator from "@/components/LifeComparator";
 
@@ -122,16 +122,6 @@ export default function ComparePage() {
 
   return (
     <main className="flex-1 bg-zinc-950 text-zinc-50 min-h-screen">
-      <div className="sticky top-0 z-50 border-b border-white/5 bg-zinc-950/80 backdrop-blur-md">
-        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-2 sm:px-4">
-          <Link href="/" className="flex items-center gap-2 shrink-0 pr-2">
-            <Globe className="h-6 w-6 text-blue-500" />
-            <span className="text-xl font-bold hidden md:inline">World Insights</span>
-          </Link>
-          <Navbar />
-        </div>
-      </div>
-
       <div className="mx-auto max-w-7xl px-4 py-8">
         <div className="mb-8 flex flex-col lg:flex-row lg:items-end justify-between gap-6">
           <div className="max-w-2xl">

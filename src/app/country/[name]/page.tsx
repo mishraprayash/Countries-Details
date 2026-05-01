@@ -5,7 +5,7 @@ import {
   Map, Flag, Landmark, ExternalLink, TrendingUp
 } from "lucide-react";
 import { getCountryByName, getCountriesByCodes } from "@/lib/api";
-import Navbar from "@/components/Navbar";
+
 import ExtendedStats from "@/components/ExtendedStats";
 import LiveWeather from "@/components/LiveWeather";
 
@@ -100,15 +100,7 @@ export default async function CountryPage({ params }: CountryPageProps) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <header className="sticky top-0 z-50 border-b border-white/5 bg-zinc-950/90 backdrop-blur-md">
-        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-          <Link href="/" className="flex items-center gap-2 text-white hover:opacity-80">
-            <Globe className="h-6 w-6 text-blue-500" />
-            <span className="text-lg font-bold tracking-tight">World Insights</span>
-          </Link>
-          <Navbar />
-        </div>
-      </header>
+
 
       <div className="relative">
         {/* Hero Banner */}

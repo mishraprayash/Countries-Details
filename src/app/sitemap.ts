@@ -2,7 +2,7 @@ import { MetadataRoute } from 'next';
 import { getAllCountries } from '@/lib/api';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://world-insights.vercel.app';
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://countries-details-steel.vercel.app';
   
   // Get all countries for dynamic routes
   const countries = await getAllCountries().catch(() => []);
