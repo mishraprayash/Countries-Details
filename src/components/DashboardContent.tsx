@@ -8,11 +8,14 @@ import StatsCharts from "@/components/StatsCharts";
 import CountryOfTheDay from "@/components/CountryOfTheDay";
 import AnimatedCounter from "@/components/AnimatedCounter";
 import GlobeBackground from "@/components/GlobeBackground";
+import RecentlyViewedSection from "@/components/RecentlyViewedSection";
+import TravelMiniSection from "@/components/TravelMiniSection";
 import {
   FactOfTheDaySkeleton,
 } from "./DashboardSkeletons";
 
 interface Country {
+  cca3: string;
   name: { common: string; official: string };
   population: number;
   area: number;
@@ -305,6 +308,15 @@ export default function DashboardContent({ countries }: DashboardContentProps) {
           </p>
         </div>
       </div>
+
+      {/* Recently Viewed */}
+      <RecentlyViewedSection />
+
+      {/* Latest Travels */}
+      <TravelMiniSection />
+
+      {/* Divider */}
+      <div className="section-divider" />
 
       {/* Fact of the Day */}
       <Suspense fallback={<FactOfTheDaySkeleton />}>

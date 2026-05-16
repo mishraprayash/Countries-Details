@@ -8,6 +8,8 @@ import { getCountryByName, getCountriesByCodes } from "@/lib/api";
 
 import ExtendedStats from "@/components/ExtendedStats";
 import LiveWeather from "@/components/LiveWeather";
+import CountryActions from "@/components/CountryActions";
+import TrackView from "@/components/TrackView";
 
 import { Metadata } from "next";
 
@@ -101,9 +103,15 @@ export default async function CountryPage({ params }: CountryPageProps) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
+      <TrackView
+        cca3={country.cca3}
+        name={country.name.common}
+        flag={country.flags.svg}
+      />
 
-      <div className="relative">
-        <div className="relative h-64 sm:h-80 overflow-hidden">
+
+      <div className="relative h-64 sm:h-80">
+        <div className="absolute inset-0 overflow-hidden">
           <Image
             src={country.flags.svg}
             alt={country.name.common}
@@ -112,7 +120,9 @@ export default async function CountryPage({ params }: CountryPageProps) {
             priority
           />
           <div className="absolute inset-0 bg-gradient-to-t from-atlas-950 via-atlas-950/70 to-transparent" />
-          
+        </div>
+        
+        <div className="relative h-full">
           <div className="absolute top-4 left-4">
             <Link
               href="/countries"
@@ -131,18 +141,12 @@ export default async function CountryPage({ params }: CountryPageProps) {
                   <p className="text-lg text-text-secondary font-sora">{country.name.official}</p>
                 </div>
                 
-                <div className="flex gap-2">
-                  {country.unMember && (
-                    <span className="px-3 py-1.5 rounded-full bg-cyan-glow/20 text-cyan-glow text-sm font-medium border border-cyan-glow/30 font-sora">
-                      UN Member
-                    </span>
-                  )}
-                  {country.independent && (
-                    <span className="px-3 py-1.5 rounded-full bg-amber-glow/20 text-amber-glow text-sm font-medium border border-amber-glow/30 font-sora">
-                      Independent
-                    </span>
-                  )}
-                </div>
+                <CountryActions
+                  cca3={country.cca3}
+                  name={country.name.common}
+                  unMember={country.unMember}
+                  independent={country.independent}
+                />
               </div>
             </div>
           </div>
@@ -182,7 +186,7 @@ export default async function CountryPage({ params }: CountryPageProps) {
                 <div className="space-y-3 font-sora">
                   <div className="flex justify-between"><span className="text-muted">Continent</span><span className="font-medium text-text-secondary">{country.continents.join(", ")}</span></div>
                   <div className="flex justify-between"><span className="text-muted">Subregion</span><span className="font-medium text-text-secondary">{country.subregion || "N/A"}</span></div>
-                  <div className="flex justify-between"><span className="text-muted">Timezone</span><span className="font-medium text-text-secondary font-dm-mono">{country.timezones[0]}</span></div>
+                  <div className="flex justify-between"><span className="text-muted">Timezones</span><span className="font-medium text-text-secondary text-right font-dm-mono">{country.timezones.length > 2 ? `${country.timezones[0]} +${country.timezones.length - 1} more` : country.timezones.join(", ")}</span></div>
                   <div className="flex justify-between"><span className="text-muted">Start of Week</span><span className="font-medium text-text-secondary capitalize">{country.startOfWeek}</span></div>
                 </div>
               </div>

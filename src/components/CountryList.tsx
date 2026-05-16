@@ -14,10 +14,9 @@ const PAGE_SIZE = 48;
 export default function CountryList({ initialCountries }: CountryListProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [regionFilter, setRegionFilter] = useState("");
-  const [sortOrder, setSortOrder] = useState("name");
+  const [sortOrder, setSortOrder] = useState("default");
   const [page, setPage] = useState(1);
 
-  // Reset to page 1 whenever filters change
   const handleSetSearchQuery = useCallback((q: string) => {
     setSearchQuery(q);
     setPage(1);
@@ -34,12 +33,16 @@ export default function CountryList({ initialCountries }: CountryListProps) {
   }, []);
 
   const filteredCountries = useMemo(() => {
+    const query = searchQuery.toLowerCase().trim();
     const result = initialCountries.filter((country) => {
-      const matchesSearch = country.name.common
-        .toLowerCase()
-        .includes(searchQuery.toLowerCase());
-      const matchesRegion = regionFilter === "" || country.region === regionFilter;
-      return matchesSearch && matchesRegion;
+      if (query) {
+        const matchesName = country.name.common.toLowerCase().includes(query);
+        const matchesOfficialName = country.name.official.toLowerCase().includes(query);
+        
+        if (!(matchesName || matchesOfficialName)) return false;
+      }
+      if (regionFilter && country.region !== regionFilter) return false;
+      return true;
     });
 
     return result.sort((a, b) => {
@@ -52,6 +55,12 @@ export default function CountryList({ initialCountries }: CountryListProps) {
           return (b.area || 0) - (a.area || 0);
         case "area-asc":
           return (a.area || 0) - (b.area || 0);
+        case "name-desc":
+          return b.name.common.localeCompare(a.name.common);
+        case "density-desc":
+          return (b.population / (b.area || 1)) - (a.population / (a.area || 1));
+        case "density-asc":
+          return (a.population / (a.area || 1)) - (b.population / (b.area || 1));
         default:
           return a.name.common.localeCompare(b.name.common);
       }

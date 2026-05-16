@@ -3,10 +3,11 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Country } from "@/types/country";
 import Image from "next/image";
-import { BrainCircuit, Flag, MapPin, Trophy, RefreshCw, ChevronRight, XCircle, CheckCircle2, Award, Clock, ArrowLeft, Eye } from "lucide-react";
+import { BrainCircuit, Flag, MapPin, Trophy, RefreshCw, ChevronRight, XCircle, CheckCircle2, Award, Clock, ArrowLeft, Eye, Flame, HelpCircle } from "lucide-react";
 import { useQuizLeaderboard } from "@/hooks/useQuizLeaderboard";
 
 type QuestionType = "capital" | "flag" | "mixed";
+type Difficulty = "easy" | "medium" | "hard";
 
 interface Question {
   id: string;
@@ -14,12 +15,14 @@ interface Question {
   country: Country;
   options: string[];
   correctAnswer: string;
+  eliminatedOptions?: string[];
 }
 
 interface QuizSettings {
   questionCount: number;
   questionType: QuestionType;
   timer: number | null;
+  difficulty: Difficulty;
 }
 
 interface UserAnswer {
@@ -41,9 +44,15 @@ export default function QuizClient() {
     questionCount: 10,
     questionType: "mixed",
     timer: null,
+    difficulty: "medium",
   });
   const [timeLeft, setTimeLeft] = useState<number | null>(null);
   const [isTimeUp, setIsTimeUp] = useState(false);
+  const [hintsUsed, setHintsUsed] = useState(0);
+  const [currentStreak, setCurrentStreak] = useState(0);
+  const [bestStreak, setBestStreak] = useState(0);
+  const [eliminatedOptions, setEliminatedOptions] = useState<Set<string>>(new Set());
+  const [showHintUsed, setShowHintUsed] = useState(false);
   
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const scoreRef = useRef(0);
@@ -117,9 +126,18 @@ export default function QuizClient() {
     return shuffled.slice(0, count);
   };
 
+  const getWrongOptionCount = (difficulty: Difficulty): number => {
+    switch (difficulty) {
+      case "easy": return 2;
+      case "medium": return 3;
+      case "hard": return 4;
+    }
+  };
+
   const generateQuestions = () => {
     const validCountries = countries.filter(c => c.capital?.length && c.flags?.svg);
     const selectedCountries = getRandomItems(validCountries, settings.questionCount);
+    const wrongCount = getWrongOptionCount(settings.difficulty);
     
     const newQuestions = selectedCountries.map((country, idx): Question => {
       let type: QuestionType;
@@ -136,12 +154,12 @@ export default function QuizClient() {
       if (type === "capital") {
         correctAnswer = country.capital![0];
         const wrongCountries = validCountries.filter(c => c.cca3 !== country.cca3 && c.capital?.[0]);
-        const wrongOptions = getRandomItems(wrongCountries, 3).map(c => c.capital![0]);
+        const wrongOptions = getRandomItems(wrongCountries, wrongCount).map(c => c.capital![0]);
         options = [...wrongOptions, correctAnswer].sort(() => 0.5 - Math.random());
       } else {
         correctAnswer = country.name.common;
         const wrongCountries = validCountries.filter(c => c.cca3 !== country.cca3);
-        const wrongOptions = getRandomItems(wrongCountries, 3).map(c => c.name.common);
+        const wrongOptions = getRandomItems(wrongCountries, wrongCount).map(c => c.name.common);
         options = [...wrongOptions, correctAnswer].sort(() => 0.5 - Math.random());
       }
 
@@ -155,8 +173,16 @@ export default function QuizClient() {
     setSelectedAnswer(null);
     setUserAnswers([]);
     setIsTimeUp(false);
+    setHintsUsed(0);
+    setCurrentStreak(0);
+    setBestStreak(0);
+    setEliminatedOptions(new Set());
+    setShowHintUsed(false);
     if (settings.timer) {
-      setTimeLeft(settings.timer);
+      const timerByDifficulty = settings.difficulty === "easy" ? (settings.timer || 30) * 1.5 : 
+                               settings.difficulty === "hard" ? (settings.timer || 30) * 0.7 : 
+                               settings.timer;
+      setTimeLeft(timerByDifficulty);
     } else {
       setTimeLeft(null);
     }
@@ -168,6 +194,19 @@ export default function QuizClient() {
     setScore(val);
   };
 
+  const useHint = () => {
+    if (selectedAnswer !== null || eliminatedOptions.size >= 2) return;
+    
+    const currentQuestion = questions[currentIndex];
+    const wrongOptions = currentQuestion.options.filter(opt => opt !== currentQuestion.correctAnswer);
+    const toEliminate = wrongOptions.slice(0, 2);
+    
+    setEliminatedOptions(prev => new Set([...prev, ...toEliminate]));
+    setHintsUsed(prev => prev + 1);
+    setShowHintUsed(true);
+    setTimeout(() => setShowHintUsed(false), 1500);
+  };
+
   const handleAnswer = (answer: string) => {
     if (selectedAnswer !== null) return;
     
@@ -175,7 +214,18 @@ export default function QuizClient() {
     const isCorrect = answer === currentQuestion.correctAnswer;
     
     setSelectedAnswer(answer);
-    setScoreRef(scoreRef.current + (isCorrect ? 1 : 0));
+    
+    if (isCorrect) {
+      const streakBonus = currentStreak > 0 ? Math.min(currentStreak, 3) : 0;
+      setScoreRef(scoreRef.current + 1 + streakBonus);
+      setCurrentStreak(prev => {
+        const newStreak = prev + 1;
+        setBestStreak(best => Math.max(best, newStreak));
+        return newStreak;
+      });
+    } else {
+      setCurrentStreak(0);
+    }
     
     setUserAnswers(prev => [
       ...prev,
@@ -210,6 +260,10 @@ export default function QuizClient() {
     setUserAnswers([]);
     setTimeLeft(null);
     setIsTimeUp(false);
+    setHintsUsed(0);
+    setCurrentStreak(0);
+    setBestStreak(0);
+    setEliminatedOptions(new Set());
   };
 
   const restartQuiz = () => {
@@ -249,7 +303,7 @@ export default function QuizClient() {
             <h3 className="text-lg font-semibold text-text-primary mb-4 flex items-center gap-2 font-sora">
               <Clock className="h-5 w-5" /> Quiz Settings
             </h3>
-            <div className="grid gap-6 sm:grid-cols-3">
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
               <div>
                 <label className="block text-sm text-muted mb-2 font-sora">Questions</label>
                 <div className="flex gap-2">
@@ -264,6 +318,24 @@ export default function QuizClient() {
                       }`}
                     >
                       {n}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm text-muted mb-2 font-sora">Difficulty</label>
+                <div className="flex gap-2">
+                  {(["easy", "medium", "hard"] as const).map(d => (
+                    <button
+                      key={d}
+                      onClick={() => setSettings(s => ({ ...s, difficulty: d }))}
+                      className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all capitalize font-sora ${
+                        settings.difficulty === d
+                          ? "bg-cyan-glow text-atlas-950"
+                          : "bg-white/[0.03] text-muted hover:bg-white/[0.06]"
+                      }`}
+                    >
+                      {d}
                     </button>
                   ))}
                 </div>
@@ -293,7 +365,6 @@ export default function QuizClient() {
                     { value: null, label: "Off" },
                     { value: 30, label: "30s" },
                     { value: 60, label: "60s" },
-                    { value: 120, label: "120s" }
                   ].map(t => (
                     <button
                       key={t.label}
@@ -319,6 +390,7 @@ export default function QuizClient() {
             <h2 className="text-3xl sm:text-4xl font-black text-text-primary mb-3 sm:mb-4 font-instrument-serif">Test Your Knowledge</h2>
             <p className="text-muted mb-6 sm:mb-8 text-center max-w-md text-sm sm:text-lg font-sora">
               {settings.questionCount} {settings.questionType === "mixed" ? "mixed" : settings.questionType + "s"} questions
+              {" • " + settings.difficulty.charAt(0).toUpperCase() + settings.difficulty.slice(1)}
               {settings.timer ? ` • ${settings.timer}s timer` : ""}
             </p>
             <button
@@ -391,6 +463,7 @@ export default function QuizClient() {
               <h2 className="text-3xl font-black text-text-primary sm:text-4xl font-instrument-serif">Quiz Results</h2>
               <p className="mt-2 text-muted font-sora">
                 {isTimeUp ? "Time's up!" : "Quiz completed!"} • {settings.questionType === "mixed" ? "Mixed" : settings.questionType === "flag" ? "Flags" : "Capitals"} • {settings.questionCount} questions
+                {" • " + settings.difficulty.charAt(0).toUpperCase() + settings.difficulty.slice(1)}
                 {settings.timer && ` • ${settings.timer}s`}
               </p>
             </div>
@@ -402,9 +475,24 @@ export default function QuizClient() {
             </div>
             <h2 className="text-5xl font-black text-text-primary mb-2 font-dm-mono">{score} / {questions.length}</h2>
             <p className="text-xl font-medium text-text-secondary mb-2 font-dm-mono">{percentage}%</p>
-            <p className="text-lg font-medium mb-8 font-sora">
+            <p className="text-lg font-medium mb-4 font-sora">
               {percentage >= 80 ? "Geography Master!" : percentage >= 50 ? "Not bad!" : "Keep practicing!"}
             </p>
+            
+            <div className="flex gap-6 mb-8 text-sm font-sora">
+              {hintsUsed > 0 && (
+                <div className="flex items-center gap-2 text-amber-glow">
+                  <HelpCircle className="h-4 w-4" />
+                  <span>{hintsUsed} hint{hintsUsed > 1 ? "s" : ""} used</span>
+                </div>
+              )}
+              {bestStreak > 0 && (
+                <div className="flex items-center gap-2 text-cyan-glow">
+                  <Flame className="h-4 w-4" />
+                  <span>Best streak: {bestStreak}</span>
+                </div>
+              )}
+            </div>
             
             <div className="flex gap-4">
               <button onClick={restartQuiz} className="rounded-xl bg-cyan-glow px-8 py-4 text-base font-bold text-atlas-950 transition-all hover:bg-cyan-glow/80 active:scale-95 flex items-center gap-2 font-sora">
@@ -564,6 +652,12 @@ export default function QuizClient() {
                     </span>
                   </span>
                 )}
+                {currentStreak > 0 && (
+                  <span className="flex items-center gap-1 text-amber-glow">
+                    <Flame className="h-4 w-4" />
+                    <span>{currentStreak}</span>
+                  </span>
+                )}
                 <span className="text-cyan-glow">Score: {score}</span>
               </div>
             </div>
@@ -574,6 +668,23 @@ export default function QuizClient() {
               />
             </div>
           </div>
+          
+          {!isAnswered && eliminatedOptions.size < 2 && (
+            <div className="flex justify-center mb-4">
+              <button 
+                onClick={useHint}
+                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-amber-glow/10 text-amber-glow border border-amber-glow/20 hover:bg-amber-glow/20 transition-all text-sm font-medium font-sora"
+              >
+                <HelpCircle className="h-4 w-4" />
+                Use Hint ({2 - eliminatedOptions.size} left)
+              </button>
+            </div>
+          )}
+          {showHintUsed && (
+            <div className="text-center text-sm text-amber-glow animate-in fade-in mb-2 font-sora">
+              Removed 2 wrong answers!
+            </div>
+          )}
 
           <div className="rounded-3xl border border-white/5 bg-white/[0.03] glass-card p-6 sm:p-10 shadow-2xl">
             <div className="text-center mb-8">
@@ -600,11 +711,14 @@ export default function QuizClient() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {question.options.map((opt, i) => {
+                const isEliminated = eliminatedOptions.has(opt);
                 const isSelected = selectedAnswer === opt;
                 const isCorrect = opt === question.correctAnswer;
                 let btnClass = "border-white/5 bg-white/[0.03] hover:bg-white/[0.06] text-text-primary";
                 
-                if (isAnswered) {
+                if (isEliminated) {
+                  btnClass = "border-white/5 bg-transparent text-muted opacity-30 line-through";
+                } else if (isAnswered) {
                   if (isCorrect) {
                     btnClass = "border-emerald-500/50 bg-emerald-500/20 text-emerald-400";
                   } else if (isSelected) {
@@ -618,8 +732,8 @@ export default function QuizClient() {
                   <button
                     key={i}
                     onClick={() => handleAnswer(opt)}
-                    disabled={isAnswered}
-                    className={`relative flex items-center justify-center rounded-xl border p-4 text-center font-bold transition-all font-sora ${btnClass} ${!isAnswered && 'hover:scale-[1.02] active:scale-[0.98]'}`}
+                    disabled={isAnswered || isEliminated}
+                    className={`relative flex items-center justify-center rounded-xl border p-4 text-center font-bold transition-all font-sora ${btnClass} ${!isAnswered && !isEliminated && 'hover:scale-[1.02] active:scale-[0.98]'}`}
                   >
                     <span className="truncate">{opt}</span>
                     {isAnswered && isCorrect && <CheckCircle2 className="h-5 w-5 text-emerald-400 flex-shrink-0 ml-2" />}

@@ -1,4 +1,6 @@
-import React from "react";
+"use client";
+
+import React, { useRef, useEffect } from "react";
 import { Search, ChevronDown } from "lucide-react";
 
 interface SearchAndFilterProps {
@@ -16,7 +18,11 @@ const sortOptions = [
   { label: "Population (High to Low)", value: "pop-desc" },
   { label: "Population (Low to High)", value: "pop-asc" },
   { label: "Area (High to Low)", value: "area-desc" },
+  { label: "Area (Low to High)", value: "area-asc" },
   { label: "Name (A-Z)", value: "name-asc" },
+  { label: "Name (Z-A)", value: "name-desc" },
+  { label: "Density (High to Low)", value: "density-desc" },
+  { label: "Density (Low to High)", value: "density-asc" },
 ];
 
 export default function SearchAndFilter({
@@ -27,22 +33,36 @@ export default function SearchAndFilter({
   sortOrder,
   setSortOrder,
 }: SearchAndFilterProps) {
+  const searchInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+        e.preventDefault();
+        searchInputRef.current?.focus();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
   return (
-    <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+    <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
       <div className="relative w-full max-w-md">
         <div className="absolute inset-y-0 left-4.5 flex items-center pointer-events-none">
           <Search className="h-4.5 w-4.5 text-muted" />
         </div>
         <input
+          ref={searchInputRef}
           type="text"
-          placeholder="Search for a country..."
+          placeholder="Search for a country... (⌘K)"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           className="h-12 w-full rounded-2xl bg-white/[0.03] pl-12 pr-5 text-sm font-medium shadow-sm ring-1 ring-white/5 transition-all focus:outline-none focus:ring-2 focus:ring-cyan-glow/50 text-text-primary placeholder:text-muted font-sora"
         />
       </div>
 
-      <div className="flex flex-col sm:flex-row gap-4">
+      <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative w-full sm:w-48">
           <select
             value={regionFilter}

@@ -4,10 +4,10 @@ import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Globe, Heart, BrainCircuit, Map, Scale, Menu, X, Compass } from "lucide-react";
+import { Globe, Heart, BrainCircuit, Map, Scale, Menu, X, Compass, MapPin } from "lucide-react";
 
 interface NavbarProps {
-  currentPage?: "dashboard" | "countries" | "quiz" | "favorites" | "compare" | "explore";
+  currentPage?: "dashboard" | "countries" | "quiz" | "favorites" | "compare" | "explore" | "travel-map";
 }
 
 export default function Navbar({ currentPage }: NavbarProps) {
@@ -41,6 +41,7 @@ export default function Navbar({ currentPage }: NavbarProps) {
     { href: "/countries", label: "Countries", icon: Map, activeColor: "text-text-primary", activeBg: "bg-white/10", activeDot: "bg-text-primary", page: "countries" as const },
     { href: "/compare", label: "Compare", icon: Scale, activeColor: "text-amber-glow", activeBg: "bg-amber-glow/10", activeDot: "bg-amber-glow", page: "compare" as const },
     { href: "/explore", label: "Explore", icon: Compass, activeColor: "text-emerald-400", activeBg: "bg-emerald-400/10", activeDot: "bg-emerald-400", page: "explore" as const },
+    { href: "/travel-map", label: "Travel Map", icon: MapPin, activeColor: "text-emerald-400", activeBg: "bg-emerald-400/10", activeDot: "bg-emerald-400", page: "travel-map" as const },
     { href: "/quiz", label: "Quiz", icon: BrainCircuit, activeColor: "text-violet-glow", activeBg: "bg-violet-glow/10", activeDot: "bg-violet-glow", page: "quiz" as const },
     { href: "/favorites", label: "Favorites", icon: Heart, activeColor: "text-red-400", activeBg: "bg-red-400/10", activeDot: "bg-red-400", page: "favorites" as const },
   ];
