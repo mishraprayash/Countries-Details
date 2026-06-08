@@ -1,12 +1,14 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { X, Search, Plus, Loader2, BarChart3 } from "lucide-react";
+import { X, Search, Plus, Loader2, BarChart3, Sparkles } from "lucide-react";
 import { createPortal } from "react-dom";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from "recharts";
+import { COMPARE_PRESETS, type ComparePreset } from "@/constants/comparePresets";
+import { getClientCountries } from "@/lib/clientCache";
 
 interface CountryData {
   name: { common: string };
@@ -36,6 +38,7 @@ interface DropdownPos {
 
 export default function ComparePage() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const [countries, setCountries] = useState<CountryData[]>([]);
   const [selectedCountries, setSelectedCountries] = useState<CountryData[]>([]);
   const [loading, setLoading] = useState(true);
@@ -43,6 +46,7 @@ export default function ComparePage() {
   const [showDropdown, setShowDropdown] = useState(false);
   const [fetching, setFetching] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [activePreset, setActivePreset] = useState<string | null>(null);
   const [dropdownPos, setDropdownPos] = useState<DropdownPos>({ top: 0, left: 0 });
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -84,10 +88,9 @@ export default function ComparePage() {
   };
 
   useEffect(() => {
-    fetch("https://restcountries.com/v3.1/all?fields=name,cca3,flags,population,area")
-      .then(res => res.json())
-      .then((data: CountryData[]) => {
-        const sorted = data.sort((a, b) => a.name.common.localeCompare(b.name.common));
+    getClientCountries()
+      .then((data) => {
+        const sorted = [...data].sort((a, b) => a.name.common.localeCompare(b.name.common));
         setCountries(sorted);
 
         const urlCountries = searchParams.get("countries");
@@ -103,6 +106,22 @@ export default function ComparePage() {
       .finally(() => setLoading(false));
   }, [searchParams]);
 
+  useEffect(() => {
+    if (!activePreset) return;
+    const codes = selectedCountries.map((c) => c.cca3).sort();
+    const match = COMPARE_PRESETS.find((p) => {
+      const pCodes = [...p.cca3].sort();
+      return pCodes.length === codes.length && pCodes.every((c, i) => c === codes[i]);
+    });
+    /* eslint-disable react-hooks/set-state-in-effect */
+    if (!match) {
+      setActivePreset(null);
+    } else if (match.id !== activePreset) {
+      setActivePreset(match.id);
+    }
+    /* eslint-enable react-hooks/set-state-in-effect */
+  }, [selectedCountries, activePreset]);
+
   const addCountry = async (country: CountryData) => {
     if (selectedCountries.length >= 3 || fetching) return;
 
@@ -113,6 +132,7 @@ export default function ComparePage() {
     setFetching(false);
     setShowDropdown(false);
     setSearchQuery("");
+    setActivePreset(null);
   };
 
   const removeCountry = (cca3: string) => {
@@ -122,7 +142,18 @@ export default function ComparePage() {
     } else {
       setSelectedCountries([]);
     }
+    setActivePreset(null);
   };
+
+  const applyPreset = useCallback(async (preset: ComparePreset) => {
+    if (fetching) return;
+    setFetching(true);
+    setActivePreset(preset.id);
+    const details = await fetchCountryDetails(preset.cca3);
+    setSelectedCountries(details);
+    setFetching(false);
+    router.replace(`/compare?countries=${preset.cca3.join(",")}`, { scroll: false });
+  }, [fetching, router]);
 
   const comparisonFields = [
     { key: "population", label: "Population", format: (v: unknown) => v ? (v as number).toLocaleString() : "N/A" },
@@ -256,6 +287,44 @@ export default function ComparePage() {
         <div className="mb-8">
           <h1 className="text-3xl sm:text-4xl font-black text-text-primary font-instrument-serif">Compare Countries</h1>
           <p className="mt-2 text-sm sm:text-base text-muted font-sora">Select 2-3 countries to compare side-by-side with visual charts.</p>
+        </div>
+
+        <div className="mb-6 rounded-2xl border border-white/5 bg-white/[0.03] glass-card p-6">
+          <div className="flex items-center gap-2 mb-4">
+            <Sparkles className="h-4 w-4 text-amber-glow" />
+            <h2 className="text-base font-semibold text-text-primary font-sora">Quick Presets</h2>
+            <span className="text-xs text-muted font-sora">— one-click comparisons</span>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {COMPARE_PRESETS.map((preset) => {
+              const isActive = activePreset === preset.id;
+              const accentMap: Record<ComparePreset["accent"], string> = {
+                cyan: "border-cyan-glow/40 bg-cyan-glow/10 text-cyan-glow",
+                amber: "border-amber-glow/40 bg-amber-glow/10 text-amber-glow",
+                violet: "border-violet-glow/40 bg-violet-glow/10 text-violet-glow",
+                emerald: "border-emerald-400/40 bg-emerald-400/10 text-emerald-400",
+                pink: "border-pink-400/40 bg-pink-400/10 text-pink-400",
+              };
+              return (
+                <button
+                  key={preset.id}
+                  onClick={() => applyPreset(preset)}
+                  disabled={fetching}
+                  className={`text-left p-3 rounded-xl border transition-all font-sora disabled:opacity-50 ${
+                    isActive
+                      ? accentMap[preset.accent]
+                      : "border-white/5 bg-white/[0.02] hover:bg-white/[0.05] text-text-primary"
+                  }`}
+                >
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-sm font-semibold">{preset.name}</span>
+                    {isActive && <span className="text-[10px] uppercase tracking-wider">Active</span>}
+                  </div>
+                  <span className={`text-xs ${isActive ? "opacity-90" : "text-muted"}`}>{preset.description}</span>
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         {countryPicker}

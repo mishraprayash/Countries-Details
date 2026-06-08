@@ -117,9 +117,13 @@ export default function RootLayout({
           enableSystem={false}
           disableTransitionOnChange
         >
-          <Header />
+          <div className="print:hidden">
+            <Header />
+          </div>
           {children}
-          <Footer />
+          <div className="print:hidden">
+            <Footer />
+          </div>
         </ThemeProvider>
       </body>
     </html>

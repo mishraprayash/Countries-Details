@@ -202,3 +202,122 @@ body::before {
 .metric-glow:hover::before {
   opacity: 1;
 }
+
+/* Print Styles — for /country/[name] */
+@media print {
+  @page {
+    size: A4;
+    margin: 14mm 14mm 16mm 14mm;
+  }
+
+  html, body {
+    background: #ffffff !important;
+    color: #0a0a0a !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  body::before {
+    display: none !important;
+  }
+
+  .glass-card,
+  .recharts-wrapper {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+  }
+
+  .recharts-surface {
+    display: none !important;
+  }
+
+  .print-page {
+    color: #0a0a0a;
+    font-family: ui-sans-serif, system-ui, sans-serif;
+  }
+
+  .print-page h1,
+  .print-page h2,
+  .print-page h3,
+  .print-page p,
+  .print-page td,
+  .print-page th,
+  .print-page li {
+    color: #0a0a0a !important;
+  }
+
+  .print-page table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .print-page th,
+  .print-page td {
+    text-align: left;
+    padding: 6px 8px;
+    border-bottom: 1px solid #d4d4d8;
+    font-size: 11pt;
+  }
+
+  .print-page th {
+    color: #52525b !important;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-size: 9pt;
+    width: 30%;
+  }
+
+  .print-page a {
+    color: #0a0a0a !important;
+    text-decoration: none !important;
+  }
+
+  a[href]::after {
+    content: "";
+  }
+}
+
+/* Leaflet Popup overrides for Dark Theme */
+.leaflet-popup-content-wrapper {
+  background: rgba(12, 16, 32, 0.95) !important;
+  color: #F0F4FF !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 14px !important;
+  backdrop-filter: blur(12px) !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
+}
+
+.leaflet-popup-tip {
+  background: rgba(12, 16, 32, 0.95) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+.leaflet-popup-content {
+  margin: 12px 14px !important;
+  color: #F0F4FF !important;
+}
+
+.leaflet-popup-close-button {
+  color: #5A6A8A !important;
+  padding: 6px !important;
+}
+
+.leaflet-popup-close-button:hover {
+  color: #F0F4FF !important;
+  background: transparent !important;
+}
+
+/* Performance & Hardware Acceleration Enhancements for smooth transitions */
+.glass-card,
+.leaflet-container,
+.recharts-wrapper {
+  will-change: transform, opacity;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+}
+
+
+

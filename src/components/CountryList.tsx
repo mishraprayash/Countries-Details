@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useEffect, useRef } from "react";
 import { Country } from "@/types/country";
 import CountryCard from "./CountryCard";
 import SearchAndFilter from "./SearchAndFilter";
@@ -16,6 +16,7 @@ export default function CountryList({ initialCountries }: CountryListProps) {
   const [regionFilter, setRegionFilter] = useState("");
   const [sortOrder, setSortOrder] = useState("default");
   const [page, setPage] = useState(1);
+  const observerTarget = useRef<HTMLDivElement>(null);
 
   const handleSetSearchQuery = useCallback((q: string) => {
     setSearchQuery(q);
@@ -70,6 +71,25 @@ export default function CountryList({ initialCountries }: CountryListProps) {
   const visibleCountries = filteredCountries.slice(0, page * PAGE_SIZE);
   const hasMore = visibleCountries.length < filteredCountries.length;
 
+  useEffect(() => {
+    const currentTarget = observerTarget.current;
+    if (!currentTarget) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasMore) {
+          setPage((p) => p + 1);
+        }
+      },
+      { threshold: 0.1, rootMargin: "300px" }
+    );
+
+    observer.observe(currentTarget);
+    return () => {
+      if (currentTarget) observer.unobserve(currentTarget);
+    };
+  }, [hasMore]);
+
   return (
     <div className="space-y-10">
       <div className="rounded-3xl border border-white/5 bg-white/[0.03] glass-card p-6">
@@ -110,13 +130,8 @@ export default function CountryList({ initialCountries }: CountryListProps) {
       )}
 
       {hasMore && (
-        <div className="flex justify-center pt-4">
-          <button
-            onClick={() => setPage(p => p + 1)}
-            className="px-8 py-3 rounded-xl bg-white/[0.03] border border-white/10 text-sm font-bold text-text-secondary hover:bg-white/[0.06] hover:text-text-primary transition-all font-sora"
-          >
-            Load more ({filteredCountries.length - visibleCountries.length} remaining)
-          </button>
+        <div ref={observerTarget} className="flex justify-center pt-8 pb-12">
+          <div className="h-6 w-6 animate-spin rounded-full border-2 border-white/10 border-t-cyan-glow" />
         </div>
       )}
     </div>

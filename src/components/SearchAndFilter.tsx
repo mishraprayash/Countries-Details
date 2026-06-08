@@ -33,7 +33,21 @@ export default function SearchAndFilter({
   sortOrder,
   setSortOrder,
 }: SearchAndFilterProps) {
+  const [localQuery, setLocalQuery] = React.useState(searchQuery);
   const searchInputRef = useRef<HTMLInputElement>(null);
+
+  /* eslint-disable react-hooks/set-state-in-effect */
+  useEffect(() => {
+    setLocalQuery(searchQuery);
+  }, [searchQuery]);
+  /* eslint-enable react-hooks/set-state-in-effect */
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setSearchQuery(localQuery);
+    }, 150);
+    return () => clearTimeout(timer);
+  }, [localQuery, setSearchQuery]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -56,8 +70,8 @@ export default function SearchAndFilter({
           ref={searchInputRef}
           type="text"
           placeholder="Search for a country... (⌘K)"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
+          value={localQuery}
+          onChange={(e) => setLocalQuery(e.target.value)}
           className="h-12 w-full rounded-2xl bg-white/[0.03] pl-12 pr-5 text-sm font-medium shadow-sm ring-1 ring-white/5 transition-all focus:outline-none focus:ring-2 focus:ring-cyan-glow/50 text-text-primary placeholder:text-muted font-sora"
         />
       </div>

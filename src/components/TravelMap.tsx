@@ -4,6 +4,7 @@ import { useEffect, useState, useMemo } from "react";
 import dynamic from "next/dynamic";
 import { MapPin, Loader2 } from "lucide-react";
 import { UserCountryEntry, CountryStatus } from "@/types/user";
+import { getClientCountries } from "@/lib/clientCache";
 
 const MapContent = dynamic(() => import("./TravelMapContent"), {
   ssr: false,
@@ -20,14 +21,6 @@ interface CountryCoord {
   flag: string;
   lat: number;
   lng: number;
-  region: string;
-}
-
-interface RawCoordApiItem {
-  cca3: string;
-  name: { common: string };
-  flags: { svg: string };
-  latlng: [number, number];
   region: string;
 }
 
@@ -56,23 +49,21 @@ export default function TravelMap({ data, statusFilter, onStatusFilterChange }: 
       setLoading(false);
       return;
     }
-    fetch(`https://restcountries.com/v3.1/alpha?codes=${tracked.join(",")}&fields=cca3,name,flags,latlng,region`)
-      .then((r) => r.json())
-      .then((list: RawCoordApiItem[]) => {
-        setCoords(
-          list
-            .filter((c) => c.latlng)
-            .map((c) => ({
-              cca3: c.cca3,
-              name: c.name.common,
-              flag: c.flags.svg,
-              lat: c.latlng[0],
-              lng: c.latlng[1],
-              region: c.region,
-            }))
-        );
+    getClientCountries()
+      .then((allCountries) => {
+        const matched = allCountries
+          .filter((c) => tracked.includes(c.cca3) && c.latlng)
+          .map((c) => ({
+            cca3: c.cca3,
+            name: c.name.common,
+            flag: c.flags.svg,
+            lat: c.latlng![0],
+            lng: c.latlng![1],
+            region: c.region,
+          }));
+        setCoords(matched);
       })
-      .catch(() => {})
+      .catch(console.error)
       .finally(() => setLoading(false));
   }, [data]);
   /* eslint-enable react-hooks/set-state-in-effect */

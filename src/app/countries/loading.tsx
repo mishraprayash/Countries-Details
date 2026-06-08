@@ -1,20 +1,8 @@
 import LoadingSpinner from "@/components/LoadingSpinner";
-import { Globe } from "lucide-react";
 
 export default function Loading() {
   return (
     <main className="flex-1 bg-atlas-950 min-h-screen">
-      <header className="sticky top-0 z-50 border-b border-white/10 bg-atlas-950/80 backdrop-blur-md">
-        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center gap-2">
-            <Globe className="h-6 w-6 text-cyan-glow" />
-            <h1 className="text-xl font-bold text-text-primary font-sora">
-              World Insights
-            </h1>
-          </div>
-        </div>
-      </header>
-
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 sm:py-12">
         <div className="space-y-12">
           {/* Skeleton Search and Filter */}

@@ -1,20 +1,31 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Heart, Share2, Scale, Check, MapPin } from "lucide-react";
+import { Heart, Share2, Scale, Check, MapPin, Printer } from "lucide-react";
 import Link from "next/link";
 import { CountryStatus } from "@/types/user";
+import ShareCard from "@/components/ShareCard";
 
 interface CountryActionsProps {
   cca3: string;
   name: string;
   unMember?: boolean;
   independent?: boolean;
+  shareCardData?: {
+    name: { common: string; official: string };
+    flags: { svg: string; png?: string };
+    population: number;
+    area: number;
+    region: string;
+    subregion?: string;
+    capital?: string[];
+  };
 }
 
-export default function CountryActions({ cca3, name, unMember, independent }: CountryActionsProps) {
+export default function CountryActions({ cca3, name, unMember, independent, shareCardData }: CountryActionsProps) {
   const [isFav, setIsFav] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [showShareCard, setShowShareCard] = useState(false);
   const [travelStatus, setTravelStatus] = useState<CountryStatus | null>(null);
   const [showStatusPicker, setShowStatusPicker] = useState(false);
 
@@ -76,16 +87,22 @@ export default function CountryActions({ cca3, name, unMember, independent }: Co
   };
 
   const shareCountry = async () => {
+    if (shareCardData) {
+      setShowShareCard(true);
+      return;
+    }
     const url = window.location.href;
     try {
-      await navigator.share({ title: `${name} | World Insights`, url });
-    } catch {
-      try {
-        await navigator.clipboard.writeText(url);
-        setCopied(true);
-        setTimeout(() => setCopied(false), 2000);
-      } catch {}
-    }
+      if (typeof navigator !== "undefined" && typeof navigator.share === "function") {
+        await navigator.share({ title: `${name} | World Insights`, url });
+        return;
+      }
+    } catch {}
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {}
   };
 
   return (
@@ -115,6 +132,14 @@ export default function CountryActions({ cca3, name, unMember, independent }: Co
       >
         <Scale className="h-4 w-4" />
       </Link>
+
+      <button
+        onClick={() => window.print()}
+        className="p-2.5 rounded-lg bg-black/30 backdrop-blur-sm text-text-primary hover:bg-white/10 transition-all border border-white/10"
+        aria-label="Print"
+      >
+        <Printer className="h-4 w-4" />
+      </button>
 
       <div className="relative">
         <button
@@ -187,6 +212,14 @@ export default function CountryActions({ cca3, name, unMember, independent }: Co
         <span className="px-3 py-1.5 rounded-full bg-amber-glow/20 text-amber-glow text-sm font-medium border border-amber-glow/30 font-sora">
           Independent
         </span>
+      )}
+
+      {shareCardData && (
+        <ShareCard
+          isOpen={showShareCard}
+          onClose={() => setShowShareCard(false)}
+          country={shareCardData}
+        />
       )}
     </div>
   );

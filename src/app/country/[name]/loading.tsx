@@ -1,17 +1,6 @@
-import { Globe } from "lucide-react";
-
 export default function CountryLoading() {
   return (
     <main className="flex-1 pb-24 bg-atlas-950 min-h-screen">
-      <header className="sticky top-0 z-50 border-b border-white/10 bg-atlas-950/80 backdrop-blur-md">
-        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center gap-2 text-text-primary">
-            <Globe className="h-6 w-6 text-cyan-glow" />
-            <span className="text-xl font-bold font-sora">World Insights</span>
-          </div>
-        </div>
-      </header>
-
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 sm:py-12">
         <div className="flex items-center justify-between mb-12">
           <div className="h-12 w-40 rounded-2xl bg-white/[0.05] animate-pulse"></div>

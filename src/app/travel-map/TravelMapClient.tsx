@@ -2,11 +2,13 @@
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
-import { MapPin, Trash2 } from "lucide-react";
+import { MapPin, Trash2, Share2 } from "lucide-react";
 import { useTravelMap } from "@/hooks/useTravelMap";
 import TravelStats from "@/components/TravelStats";
 import TravelMapView from "@/components/TravelMap";
+import TravelStatsCertificate from "@/components/TravelStatsCertificate";
 import { CountryStatus } from "@/types/user";
+import { getClientCountries } from "@/lib/clientCache";
 
 interface CountryListItem {
   cca3: string;
@@ -16,17 +18,11 @@ interface CountryListItem {
   status: CountryStatus;
 }
 
-interface RawCountryApiItem {
-  cca3: string;
-  name: { common: string };
-  flags: { svg: string };
-  region: string;
-}
-
 export default function TravelMapClient() {
   const { data, mounted, getStats, clearAll, removeCountry } = useTravelMap();
   const [statusFilter, setStatusFilter] = useState<CountryStatus | "all">("all");
   const [showGrid, setShowGrid] = useState(false);
+  const [showCertificate, setShowCertificate] = useState(false);
 
   if (!mounted) {
     return (
@@ -53,13 +49,22 @@ export default function TravelMapClient() {
         </div>
 
         {hasData && (
-          <button
-            onClick={clearAll}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium text-muted hover:text-red-400 hover:bg-red-500/10 transition-all border border-white/5 hover:border-red-500/20 font-sora"
-          >
-            <Trash2 className="h-4 w-4" />
-            Clear All
-          </button>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setShowCertificate(true)}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 transition-all border border-emerald-500/20 hover:border-emerald-500/30 font-sora cursor-pointer"
+            >
+              <Share2 className="h-4 w-4" />
+              Share Stats Card
+            </button>
+            <button
+              onClick={clearAll}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium text-muted hover:text-red-400 hover:bg-red-500/10 transition-all border border-white/5 hover:border-red-500/20 font-sora cursor-pointer"
+            >
+              <Trash2 className="h-4 w-4" />
+              Clear All
+            </button>
+          </div>
         )}
       </div>
 
@@ -74,6 +79,102 @@ export default function TravelMapClient() {
       ) : (
         <div className="space-y-8">
           <TravelStats stats={stats} />
+
+          {/* Continent Breakdown & Achievements Grid */}
+          <div className="grid gap-6 md:grid-cols-2">
+            {/* Continent Breakdown Card */}
+            <div className="rounded-2xl border border-white/5 bg-white/[0.03] glass-card p-6">
+              <h2 className="text-base font-bold text-text-primary mb-4 font-sora flex items-center gap-2">
+                <span>🌍</span> Exploration by Continent
+              </h2>
+              <div className="space-y-4">
+                {Object.entries(stats.continentBreakdown || {})
+                  .filter(([name]) => name !== "Unknown")
+                  .sort((a, b) => b[1].visited - a[1].visited)
+                  .map(([name, data]) => {
+                    const percent = data.total > 0 ? Math.round((data.visited / data.total) * 100) : 0;
+                    return (
+                      <div key={name} className="space-y-1.5 font-sora">
+                        <div className="flex justify-between text-xs font-semibold">
+                          <span className="text-text-secondary">{name}</span>
+                          <span className="text-muted font-dm-mono">
+                            {data.visited} / {data.total} <span className="text-cyan-glow ml-1">({percent}%)</span>
+                          </span>
+                        </div>
+                        <div className="h-2 w-full bg-white/[0.05] rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-cyan-glow rounded-full transition-all duration-500 ease-out"
+                            style={{ width: `${percent}%` }}
+                          />
+                        </div>
+                      </div>
+                    );
+                  })}
+              </div>
+            </div>
+
+            {/* Achievements Card */}
+            <div className="rounded-2xl border border-white/5 bg-white/[0.03] glass-card p-6">
+              <h2 className="text-base font-bold text-text-primary mb-4 font-sora flex items-center gap-2">
+                <span>🏆</span> Travel Achievements
+              </h2>
+              <div className="grid gap-3 sm:grid-cols-2">
+                {[
+                  {
+                    title: "First Steps",
+                    desc: "Visit or live in 1 country",
+                    unlocked: stats.visitedCount + stats.livedInCount >= 1,
+                    icon: "🧭",
+                  },
+                  {
+                    title: "Globetrotter",
+                    desc: "Visit 5+ countries",
+                    unlocked: stats.visitedCount + stats.livedInCount >= 5,
+                    icon: "✈️",
+                  },
+                  {
+                    title: "World Citizen",
+                    desc: "Visit 15+ countries",
+                    unlocked: stats.visitedCount + stats.livedInCount >= 15,
+                    icon: "🌍",
+                  },
+                  {
+                    title: "Local Life",
+                    desc: "Live in at least 1 country",
+                    unlocked: stats.livedInCount >= 1,
+                    icon: "🏠",
+                  },
+                  {
+                    title: "Wanderlust",
+                    desc: "Add 5+ wishlist countries",
+                    unlocked: stats.wantToVisitCount >= 5,
+                    icon: "✨",
+                  },
+                  {
+                    title: "Hop Skipper",
+                    desc: "Visit 3+ continents",
+                    unlocked: stats.continentsVisited >= 3,
+                    icon: "⛵",
+                  },
+                ].map((ach) => (
+                  <div
+                    key={ach.title}
+                    className={`flex items-center gap-3 p-3 rounded-xl border transition-all ${
+                      ach.unlocked
+                        ? "bg-cyan-glow/5 border-cyan-glow/20 text-text-primary"
+                        : "bg-white/[0.01] border-white/5 opacity-40"
+                    }`}
+                  >
+                    <div className="text-2xl shrink-0">{ach.icon}</div>
+                    <div className="min-w-0">
+                      <span className="block text-xs font-bold font-sora truncate">{ach.title}</span>
+                      <span className="block text-[10px] text-text-muted font-sora leading-tight">{ach.desc}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
 
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-bold text-text-primary font-sora">World Map</h2>
@@ -90,6 +191,12 @@ export default function TravelMapClient() {
           ) : (
             <TravelMapView data={data} statusFilter={statusFilter} onStatusFilterChange={setStatusFilter} />
           )}
+
+          <TravelStatsCertificate
+            isOpen={showCertificate}
+            onClose={() => setShowCertificate(false)}
+            stats={stats}
+          />
         </div>
       )}
     </div>
@@ -111,12 +218,11 @@ function GridView({
     const codes = Object.keys(data);
     if (codes.length === 0) { setLoading(false); return; }
     let cancelled = false;
-    fetch(`https://restcountries.com/v3.1/alpha?codes=${codes.join(",")}&fields=cca3,name,flags,region`)
-      .then((r) => r.json())
-      .then((list: RawCountryApiItem[]) => {
+    getClientCountries()
+      .then((list) => {
         if (cancelled) return;
         const mapped = list
-          .filter((c) => data[c.cca3])
+          .filter((c) => codes.includes(c.cca3))
           .map((c) => ({
             cca3: c.cca3,
             name: c.name.common,

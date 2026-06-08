@@ -1,10 +1,10 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
-import { Country } from "@/types/country";
 import Image from "next/image";
 import { BrainCircuit, Flag, MapPin, Trophy, RefreshCw, ChevronRight, XCircle, CheckCircle2, Award, Clock, ArrowLeft, Eye, Flame, HelpCircle } from "lucide-react";
 import { useQuizLeaderboard } from "@/hooks/useQuizLeaderboard";
+import { getClientCountries, type CachedCountry } from "@/lib/clientCache";
 
 type QuestionType = "capital" | "flag" | "mixed";
 type Difficulty = "easy" | "medium" | "hard";
@@ -12,7 +12,7 @@ type Difficulty = "easy" | "medium" | "hard";
 interface Question {
   id: string;
   type: QuestionType;
-  country: Country;
+  country: CachedCountry;
   options: string[];
   correctAnswer: string;
   eliminatedOptions?: string[];
@@ -32,7 +32,7 @@ interface UserAnswer {
 }
 
 export default function QuizClient() {
-  const [countries, setCountries] = useState<Country[]>([]);
+  const [countries, setCountries] = useState<CachedCountry[]>([]);
   const [loading, setLoading] = useState(true);
   const [gameState, setGameState] = useState<"start" | "playing" | "results">("start");
   const [questions, setQuestions] = useState<Question[]>([]);
@@ -51,11 +51,13 @@ export default function QuizClient() {
   const [hintsUsed, setHintsUsed] = useState(0);
   const [currentStreak, setCurrentStreak] = useState(0);
   const [bestStreak, setBestStreak] = useState(0);
+  const [bonusPoints, setBonusPoints] = useState(0);
   const [eliminatedOptions, setEliminatedOptions] = useState<Set<string>>(new Set());
   const [showHintUsed, setShowHintUsed] = useState(false);
   
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const scoreRef = useRef(0);
+  const bonusRef = useRef(0);
   const { scores, addScore, getPersonalBest, getTotalGamesPlayed, mounted, removeScore } = useQuizLeaderboard();
 
   // Keep scoreRef in sync with score state
@@ -63,10 +65,13 @@ export default function QuizClient() {
     scoreRef.current = score;
   }, [score]);
 
-  // Fetch countries on mount
   useEffect(() => {
-    fetch("https://restcountries.com/v3.1/all?fields=name,capital,flags,cca3")
-      .then(r => r.ok ? r.json() : Promise.reject("Failed"))
+    bonusRef.current = bonusPoints;
+  }, [bonusPoints]);
+
+  // Fetch countries on mount using cache
+  useEffect(() => {
+    getClientCountries()
       .then(setCountries)
       .catch(console.error)
       .finally(() => setLoading(false));
@@ -105,7 +110,7 @@ export default function QuizClient() {
       timerRef.current = null;
     }
     const finalScore = scoreRef.current;
-    addScore(finalScore, questions.length, settings.questionType);
+    addScore(finalScore, questions.length, settings.questionType, bonusRef.current);
     setGameState("results");
   }, [addScore, questions.length, settings.questionType]);
 
@@ -176,6 +181,7 @@ export default function QuizClient() {
     setHintsUsed(0);
     setCurrentStreak(0);
     setBestStreak(0);
+    setBonusPoints(0);
     setEliminatedOptions(new Set());
     setShowHintUsed(false);
     if (settings.timer) {
@@ -217,7 +223,8 @@ export default function QuizClient() {
     
     if (isCorrect) {
       const streakBonus = currentStreak > 0 ? Math.min(currentStreak, 3) : 0;
-      setScoreRef(scoreRef.current + 1 + streakBonus);
+      setScoreRef(scoreRef.current + 1);
+      setBonusPoints(b => b + streakBonus);
       setCurrentStreak(prev => {
         const newStreak = prev + 1;
         setBestStreak(best => Math.max(best, newStreak));
@@ -263,6 +270,7 @@ export default function QuizClient() {
     setHintsUsed(0);
     setCurrentStreak(0);
     setBestStreak(0);
+    setBonusPoints(0);
     setEliminatedOptions(new Set());
   };
 
@@ -475,6 +483,11 @@ export default function QuizClient() {
             </div>
             <h2 className="text-5xl font-black text-text-primary mb-2 font-dm-mono">{score} / {questions.length}</h2>
             <p className="text-xl font-medium text-text-secondary mb-2 font-dm-mono">{percentage}%</p>
+            {bonusPoints > 0 && (
+              <p className="text-sm font-medium text-amber-glow mb-2 font-sora">
+                +{bonusPoints} streak bonus
+              </p>
+            )}
             <p className="text-lg font-medium mb-4 font-sora">
               {percentage >= 80 ? "Geography Master!" : percentage >= 50 ? "Not bad!" : "Keep practicing!"}
             </p>

@@ -1,9 +1,12 @@
+"use client";
+
 import { Suspense } from "react";
 import {
   Globe, Users, TrendingUp, Map, Award, Star,
-  Zap, Shield, Coins, Compass
+  Zap, Shield, Coins, Compass, Shuffle
 } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import StatsCharts from "@/components/StatsCharts";
 import CountryOfTheDay from "@/components/CountryOfTheDay";
 import AnimatedCounter from "@/components/AnimatedCounter";
@@ -292,6 +295,14 @@ function DashboardSpotlight({ countries }: DashboardContentProps) {
 }
 
 export default function DashboardContent({ countries }: DashboardContentProps) {
+  const router = useRouter();
+
+  const surpriseMe = () => {
+    if (!countries.length) return;
+    const random = countries[Math.floor(Math.random() * countries.length)];
+    router.push(`/country/${encodeURIComponent(random.name.common.toLowerCase())}`);
+  };
+
   return (
     <>
       {/* Hero Section */}
@@ -306,6 +317,22 @@ export default function DashboardContent({ countries }: DashboardContentProps) {
           <p className="mt-6 text-base text-text-muted sm:mt-8 sm:text-lg lg:text-xl leading-relaxed font-sora">
             Explore global demographics, population trends, and regional distributions through our interactive data dashboard.
           </p>
+          <div className="mt-8 flex flex-wrap items-center gap-3">
+            <button
+              onClick={surpriseMe}
+              className="inline-flex items-center gap-2 rounded-xl bg-cyan-glow px-5 py-3 text-sm font-bold text-atlas-950 transition-all hover:bg-cyan-glow/80 hover:scale-[1.02] active:scale-95 shadow-lg shadow-cyan-glow/20 font-sora"
+            >
+              <Shuffle className="h-4 w-4" />
+              Surprise Me
+            </button>
+            <Link
+              href="/countries"
+              className="inline-flex items-center gap-2 rounded-xl bg-white/[0.05] px-5 py-3 text-sm font-bold text-text-primary transition-all hover:bg-white/[0.08] active:scale-95 ring-1 ring-white/10 font-sora"
+            >
+              <Map className="h-4 w-4" />
+              Browse Countries
+            </Link>
+          </div>
         </div>
       </div>
 

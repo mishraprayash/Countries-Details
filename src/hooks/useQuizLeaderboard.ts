@@ -9,6 +9,7 @@ export interface QuizScore {
   percentage: number;
   date: string;
   mode: string;
+  bonusPoints?: number;
 }
 
 const STORAGE_KEY = "world_insights_quiz_leaderboard";
@@ -33,7 +34,7 @@ export function useQuizLeaderboard() {
     return () => clearTimeout(timeoutId);
   }, []);
 
-  const addScore = (score: number, totalQuestions: number, mode: string): number => {
+  const addScore = (score: number, totalQuestions: number, mode: string, bonusPoints: number = 0): number => {
     const percentage = Math.round((score / totalQuestions) * 100);
     const newScore: QuizScore = {
       id: Date.now().toString(),
@@ -42,6 +43,7 @@ export function useQuizLeaderboard() {
       percentage,
       date: new Date().toISOString(),
       mode,
+      bonusPoints,
     };
 
     const updatedScores = [newScore, ...scores]

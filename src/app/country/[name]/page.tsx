@@ -109,8 +109,62 @@ export default async function CountryPage({ params }: CountryPageProps) {
         flag={country.flags.svg}
       />
 
+      {/* Print-only summary (hidden on screen, visible on print) */}
+      <div className="hidden print:block print-page">
+        <header className="mb-6 pb-4 border-b-2 border-zinc-900">
+          <p className="text-xs uppercase tracking-[0.2em] text-zinc-600 font-sora">World Insights · Country Sheet</p>
+          <h1 className="mt-2 text-3xl font-black">{country.name.common}</h1>
+          <p className="mt-1 text-sm text-zinc-700">{country.name.official}</p>
+        </header>
 
-      <div className="relative h-64 sm:h-80">
+        <section className="mb-6 flex gap-6 items-start">
+          <div className="shrink-0 w-32 h-20 border border-zinc-300 rounded overflow-hidden">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={country.flags.svg} alt={`Flag of ${country.name.common}`} className="w-full h-full object-cover" />
+          </div>
+          <p className="text-sm leading-relaxed text-zinc-800">
+            {country.name.common} is a {country.independent ? "sovereign" : "non-sovereign"} {country.unMember ? "UN member" : "non-UN member"} country located in {country.subregion ? country.subregion + ", " : ""}{country.region}, with {country.capital?.[0] ? `${country.capital[0]} as its capital` : "no recognized capital"}.
+          </p>
+        </section>
+
+        <section className="mb-6">
+          <h2 className="text-sm font-bold uppercase tracking-wider mb-2 text-zinc-900">Quick Facts</h2>
+          <table>
+            <tbody>
+              <tr><th>Capital</th><td>{country.capital?.[0] || "N/A"}</td></tr>
+              <tr><th>Region</th><td>{country.region}{country.subregion ? ` (${country.subregion})` : ""}</td></tr>
+              <tr><th>Continent</th><td>{country.continents.join(", ")}</td></tr>
+              <tr><th>Population</th><td>{country.population.toLocaleString()}</td></tr>
+              <tr><th>Area</th><td>{country.area.toLocaleString()} km²</td></tr>
+              <tr><th>Languages</th><td>{country.languages ? Object.values(country.languages).join(", ") : "N/A"}</td></tr>
+              <tr><th>Currencies</th><td>{country.currencies ? Object.values(country.currencies).map(c => `${c.name} (${c.symbol})`).join(", ") : "N/A"}</td></tr>
+              <tr><th>Calling Code</th><td>{`${country.idd.root}${country.idd.suffixes?.[0] || ""}`}</td></tr>
+              <tr><th>Driving Side</th><td>{country.car.side.charAt(0).toUpperCase() + country.car.side.slice(1)}</td></tr>
+              <tr><th>Start of Week</th><td>{country.startOfWeek.charAt(0).toUpperCase() + country.startOfWeek.slice(1)}</td></tr>
+              <tr><th>ISO 3166-1</th><td>{country.cca2} / {country.cca3}{country.ccn3 ? ` / ${country.ccn3}` : ""}</td></tr>
+              {country.tld && <tr><th>TLD</th><td>{country.tld.join(", ")}</td></tr>}
+              {country.fifa && <tr><th>FIFA</th><td>{country.fifa}</td></tr>}
+              <tr><th>UN Member</th><td>{country.unMember ? "Yes" : "No"}</td></tr>
+              <tr><th>Independent</th><td>{country.independent ? "Yes" : "No"}</td></tr>
+              <tr><th>Landlocked</th><td>{country.landlocked ? "Yes" : "No"}</td></tr>
+            </tbody>
+          </table>
+        </section>
+
+        {borderCountries.length > 0 && (
+          <section className="mb-6">
+            <h2 className="text-sm font-bold uppercase tracking-wider mb-2 text-zinc-900">Neighboring Countries ({borderCountries.length})</h2>
+            <p className="text-sm text-zinc-800">{borderCountries.map(b => b.name.common).join(", ")}</p>
+          </section>
+        )}
+
+        <footer className="pt-4 mt-6 border-t border-zinc-300 text-xs text-zinc-600 flex justify-between">
+          <span>Printed from World Insights</span>
+          <span>{new Date().toLocaleDateString()}</span>
+        </footer>
+      </div>
+
+      <div className="relative h-64 sm:h-80 print:hidden">
         <div className="absolute inset-0 overflow-hidden">
           <Image
             src={country.flags.svg}
@@ -146,6 +200,15 @@ export default async function CountryPage({ params }: CountryPageProps) {
                   name={country.name.common}
                   unMember={country.unMember}
                   independent={country.independent}
+                  shareCardData={{
+                    name: country.name,
+                    flags: country.flags,
+                    population: country.population,
+                    area: country.area,
+                    region: country.region,
+                    subregion: country.subregion,
+                    capital: country.capital,
+                  }}
                 />
               </div>
             </div>
@@ -153,7 +216,7 @@ export default async function CountryPage({ params }: CountryPageProps) {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 print:hidden">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
           <InfoCard icon={Users} label="Population" value={country.population > 1e6 ? `${(country.population / 1e6).toFixed(1)}M` : country.population.toLocaleString()} highlight />
           <InfoCard icon={MapPin} label="Capital" value={country.capital?.[0] || "N/A"} />
@@ -162,7 +225,7 @@ export default async function CountryPage({ params }: CountryPageProps) {
         </div>
 
         <div className="grid gap-8 lg:grid-cols-3">
-          <div className="lg:col-span-2 space-y-6">
+          <div className="lg:col-span-2 space-y-6 print:hidden">
             {country.capitalInfo?.latlng ? (
               <LiveWeather
                 lat={country.capitalInfo.latlng[0]}
@@ -235,7 +298,7 @@ export default async function CountryPage({ params }: CountryPageProps) {
             )}
           </div>
 
-          <div className="space-y-6">
+          <div className="space-y-6 print:hidden">
             {country.coatOfArms?.svg && (
               <div className="rounded-2xl border border-white/10 bg-white/[0.03] glass-card p-6">
                 <h3 className="text-sm font-bold text-muted uppercase tracking-wider mb-4 font-sora">Coat of Arms</h3>

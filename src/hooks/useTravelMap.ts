@@ -35,9 +35,19 @@ function createTravelStats(data: Record<string, UserCountryEntry>, continents: C
   const visitedContinents = new Set<string>();
   const continentCount: Record<string, { visited: number; total: number }> = {};
 
+  // Initialize all continents from mapping
+  for (const cont of Object.values(continents)) {
+    if (!continentCount[cont]) {
+      continentCount[cont] = { visited: 0, total: 0 };
+    }
+    continentCount[cont].total += 1;
+  }
+
   for (const [cca3, entry] of Object.entries(data)) {
     const cont = continents[cca3] || "Unknown";
-    if (!continentCount[cont]) continentCount[cont] = { visited: 0, total: 0 };
+    if (!continentCount[cont]) {
+      continentCount[cont] = { visited: 0, total: 0 };
+    }
 
     if (entry.status === "visited") {
       visited.add(cca3);
