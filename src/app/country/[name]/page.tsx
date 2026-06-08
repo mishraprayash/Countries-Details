@@ -2,7 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import {
   ArrowLeft, Globe, MapPin, Users, Calendar, 
-  Map, Flag, Landmark, ExternalLink, TrendingUp
+  Map, Flag, Landmark, ExternalLink, TrendingUp, Calculator
 } from "lucide-react";
 import { getCountryByName, getCountriesByCodes } from "@/lib/api";
 
@@ -14,6 +14,7 @@ import CurrencyConverter from "@/components/CurrencyConverter";
 import CountryLocationMapWrapper from "@/components/CountryLocationMapWrapper";
 import ClimographWrapper from "@/components/ClimographWrapper";
 import SeismicMonitorWrapper from "@/components/SeismicMonitorWrapper";
+import PopularDestinations from "@/components/PopularDestinations";
 
 import { Metadata } from "next";
 
@@ -358,6 +359,18 @@ export default async function CountryPage({ params }: CountryPageProps) {
 
             <CurrencyConverter currencies={country.currencies} />
 
+            <div className="rounded-2xl border border-white/10 bg-white/[0.03] glass-card p-6">
+              <h3 className="text-sm font-bold text-muted uppercase tracking-wider mb-2 font-sora">Travel Utilities</h3>
+              <p className="text-xs text-text-muted mb-4 leading-relaxed font-sora">Estimate lodging, dining, activities, and transit costs in {country.name.common}.</p>
+              <Link
+                href={`/budget-planner?country=${encodeURIComponent(country.name.common)}`}
+                className="flex items-center justify-center gap-2 w-full py-2.5 px-4 rounded-xl bg-cyan-glow/10 border border-cyan-glow/20 text-cyan-glow hover:bg-cyan-glow/20 transition-all font-sora text-sm font-semibold"
+              >
+                <Calculator className="h-4 w-4" />
+                Calculate Trip Budget
+              </Link>
+            </div>
+
             <SeismicMonitorWrapper lat={country.latlng[0]} lng={country.latlng[1]} countryName={country.name.common} />
 
             <div className="rounded-2xl border border-white/10 bg-white/[0.03] glass-card p-6">
@@ -371,6 +384,20 @@ export default async function CountryPage({ params }: CountryPageProps) {
             </div>
 
           </div>
+        </div>
+
+        {/* Top Curated Destinations */}
+        <div className="mt-8 rounded-2xl border border-white/10 bg-white/[0.03] glass-card p-6 print:hidden">
+          <div className="mb-6">
+            <h3 className="text-xl font-bold text-text-primary flex items-center gap-2.5 font-sora">
+              <Landmark className="h-6 w-6 text-cyan-glow" />
+              Popular Destinations & Landmarks
+            </h3>
+            <p className="text-xs text-text-muted mt-1">
+              Explore curated historical landmarks, natural wonders, and popular cities to visit in {country.name.common}.
+            </p>
+          </div>
+          <PopularDestinations countryName={country.name.common} />
         </div>
 
         {/* Full-width Interactive Leaflet Map */}

@@ -6,11 +6,11 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   Globe, Heart, BrainCircuit, Map, Scale, Menu, X, Compass,
-  MapPin, Route, Calculator, ChevronDown, Gamepad2, Wrench
+  MapPin, Route, Calculator, ChevronDown, Gamepad2, Wrench, Landmark
 } from "lucide-react";
 
 interface NavbarProps {
-  currentPage?: "dashboard" | "countries" | "quiz" | "favorites" | "compare" | "explore" | "travel-map" | "border-escape" | "gis-calculator";
+  currentPage?: "dashboard" | "countries" | "quiz" | "favorites" | "compare" | "explore" | "travel-map" | "border-escape" | "gis-calculator" | "destinations" | "budget-planner";
 }
 
 interface NavLink {
@@ -81,8 +81,10 @@ export default function Navbar({ currentPage }: NavbarProps) {
     { href: "/compare", label: "Compare", icon: Scale, activeColor: "text-amber-glow", activeBg: "bg-amber-glow/10", activeDot: "bg-amber-glow", page: "compare" as const },
     { href: "/explore", label: "Explore", icon: Compass, activeColor: "text-emerald-400", activeBg: "bg-emerald-400/10", activeDot: "bg-emerald-400", page: "explore" as const },
     { href: "/travel-map", label: "Travel Map", icon: MapPin, activeColor: "text-emerald-400", activeBg: "bg-emerald-400/10", activeDot: "bg-emerald-400", page: "travel-map" as const },
+    { href: "/destinations", label: "Destinations", icon: Landmark, activeColor: "text-amber-glow", activeBg: "bg-amber-glow/10", activeDot: "bg-amber-glow", page: "destinations" as const },
     { href: "/border-escape", label: "Border Escape", icon: Route, activeColor: "text-cyan-glow", activeBg: "bg-cyan-glow/10", activeDot: "bg-cyan-glow", page: "border-escape" as const },
     { href: "/gis-calculator", label: "GIS Calc", icon: Calculator, activeColor: "text-cyan-glow", activeBg: "bg-cyan-glow/10", activeDot: "bg-cyan-glow", page: "gis-calculator" as const },
+    { href: "/budget-planner", label: "Budget Planner", icon: Calculator, activeColor: "text-cyan-glow", activeBg: "bg-cyan-glow/10", activeDot: "bg-cyan-glow", page: "budget-planner" as const },
     { href: "/quiz", label: "Quiz", icon: BrainCircuit, activeColor: "text-violet-glow", activeBg: "bg-violet-glow/10", activeDot: "bg-violet-glow", page: "quiz" as const },
     { href: "/favorites", label: "Favorites", icon: Heart, activeColor: "text-red-400", activeBg: "bg-red-400/10", activeDot: "bg-red-400", page: "favorites" as const },
   ];
@@ -112,20 +114,22 @@ export default function Navbar({ currentPage }: NavbarProps) {
     {
       label: "Explore",
       icon: Compass,
-      pages: ["countries", "explore", "travel-map"],
+      pages: ["countries", "explore", "travel-map", "destinations"],
       items: [
         { href: "/countries", label: "Countries List", icon: Map, activeColor: "text-text-primary", activeBg: "bg-white/10", activeDot: "bg-text-primary", page: "countries" },
         { href: "/explore", label: "Map Explorer", icon: Compass, activeColor: "text-emerald-400", activeBg: "bg-emerald-400/10", activeDot: "bg-emerald-400", page: "explore" },
         { href: "/travel-map", label: "My Travel Map", icon: MapPin, activeColor: "text-emerald-400", activeBg: "bg-emerald-400/10", activeDot: "bg-emerald-400", page: "travel-map" },
+        { href: "/destinations", label: "Top Destinations", icon: Landmark, activeColor: "text-amber-glow", activeBg: "bg-amber-glow/10", activeDot: "bg-amber-glow", page: "destinations" },
       ],
     },
     {
       label: "Tools",
       icon: Wrench,
-      pages: ["compare", "gis-calculator"],
+      pages: ["compare", "gis-calculator", "budget-planner"],
       items: [
         { href: "/compare", label: "Compare Countries", icon: Scale, activeColor: "text-amber-glow", activeBg: "bg-amber-glow/10", activeDot: "bg-amber-glow", page: "compare" },
         { href: "/gis-calculator", label: "GIS Calculator", icon: Calculator, activeColor: "text-cyan-glow", activeBg: "bg-cyan-glow/10", activeDot: "bg-cyan-glow", page: "gis-calculator" },
+        { href: "/budget-planner", label: "Travel Budget", icon: Calculator, activeColor: "text-cyan-glow", activeBg: "bg-cyan-glow/10", activeDot: "bg-cyan-glow", page: "budget-planner" },
       ],
     },
     {
