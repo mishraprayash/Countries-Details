@@ -10,6 +10,7 @@ import ExtendedStats from "@/components/ExtendedStats";
 import LiveWeather from "@/components/LiveWeather";
 import CountryActions from "@/components/CountryActions";
 import TrackView from "@/components/TrackView";
+import CurrencyConverter from "@/components/CurrencyConverter";
 
 import { Metadata } from "next";
 
@@ -312,6 +313,8 @@ export default async function CountryPage({ params }: CountryPageProps) {
                 </div>
               </div>
             )}
+
+            <CurrencyConverter currencies={country.currencies} />
 
             <div className="rounded-2xl border border-white/10 bg-white/[0.03] glass-card p-6">
               <h3 className="text-sm font-bold text-muted uppercase tracking-wider mb-4 font-sora">Country Codes</h3>
