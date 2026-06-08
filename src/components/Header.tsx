@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Globe } from "lucide-react";
 import Navbar from "@/components/Navbar";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 export default function Header() {
   return (
@@ -14,9 +15,12 @@ export default function Header() {
             World Insights
           </span>
         </Link>
-        <nav className="flex items-center gap-6">
-          <Navbar />
-        </nav>
+        <div className="flex items-center gap-3">
+          <nav className="flex items-center gap-6">
+            <Navbar />
+          </nav>
+          <ThemeToggle />
+        </div>
       </div>
     </header>
   );
