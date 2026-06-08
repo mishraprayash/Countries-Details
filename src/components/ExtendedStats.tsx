@@ -17,6 +17,10 @@ interface Stats {
   gdp: number | null;
   literacyAdult: number | null;
   lifeExpectancy: number | null;
+  co2: number | null;
+  gini: number | null;
+  forest: number | null;
+  agriculture: number | null;
   gdpHistory: TrendPoint[];
   lifeExpectancyHistory: TrendPoint[];
 }
@@ -43,7 +47,7 @@ function LoadingSkeleton() {
 export default function ExtendedStats({ cca3 }: ExtendedStatsProps) {
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<"metrics" | "gdp" | "life">("metrics");
+  const [activeTab, setActiveTab] = useState<"metrics" | "sustainability" | "gdp" | "life">("metrics");
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -53,18 +57,25 @@ export default function ExtendedStats({ cca3 }: ExtendedStatsProps) {
           { key: "gdp", code: "NY.GDP.MKTP.CD" },
           { key: "literacyAdult", code: "SE.ADT.LITR.ZS" },
           { key: "lifeExpectancy", code: "SP.DYN.LE00.IN" },
+          { key: "co2", code: "EN.ATM.CO2E.PC" },
+          { key: "gini", code: "SI.POV.GINI" },
+          { key: "forest", code: "AG.LND.FRST.ZS" },
+          { key: "agriculture", code: "AG.LND.AGRI.ZS" },
         ];
 
-        // Fetch single year for metrics
+        // Fetch metrics (omit date for latest available point)
         const results = await Promise.all(
           indicators.map(async ({ key, code }) => {
             try {
               const res = await fetch(
-                `https://api.worldbank.org/v2/country/${cca3}/indicator/${code}?format=json&date=2023&per_page=1`,
+                `https://api.worldbank.org/v2/country/${cca3}/indicator/${code}?format=json&per_page=10`,
                 { next: { revalidate: 86400 } }
               );
               const data = await res.json();
-              return { key, value: data[1]?.[0]?.value ?? null };
+              const dataPoints = data[1] || [];
+              // Find the first non-null value
+              const latestVal = dataPoints.find((p: { value: number | null }) => p.value !== null)?.value ?? null;
+              return { key, value: latestVal };
             } catch {
               return { key, value: null };
             }
@@ -121,33 +132,43 @@ export default function ExtendedStats({ cca3 }: ExtendedStatsProps) {
       <div className="flex border-b border-white/5">
         <button
           onClick={() => setActiveTab("metrics")}
-          className={`flex-1 pb-3 text-sm font-semibold transition-all border-b-2 cursor-pointer font-sora ${
+          className={`flex-1 pb-3 text-center text-xs sm:text-sm font-semibold transition-all border-b-2 cursor-pointer font-sora ${
             activeTab === "metrics"
               ? "border-cyan-glow text-cyan-glow"
               : "border-transparent text-muted hover:text-text-primary"
           }`}
         >
-          Metrics
+          Key Metrics
+        </button>
+        <button
+          onClick={() => setActiveTab("sustainability")}
+          className={`flex-1 pb-3 text-center text-xs sm:text-sm font-semibold transition-all border-b-2 cursor-pointer font-sora ${
+            activeTab === "sustainability"
+              ? "border-cyan-glow text-cyan-glow"
+              : "border-transparent text-muted hover:text-text-primary"
+          }`}
+        >
+          Sustainability
         </button>
         <button
           onClick={() => setActiveTab("gdp")}
-          className={`flex-1 pb-3 text-sm font-semibold transition-all border-b-2 cursor-pointer font-sora ${
+          className={`flex-1 pb-3 text-center text-xs sm:text-sm font-semibold transition-all border-b-2 cursor-pointer font-sora ${
             activeTab === "gdp"
               ? "border-cyan-glow text-cyan-glow"
               : "border-transparent text-muted hover:text-text-primary"
           }`}
         >
-          GDP Per Capita Trend
+          GDP Trend
         </button>
         <button
           onClick={() => setActiveTab("life")}
-          className={`flex-1 pb-3 text-sm font-semibold transition-all border-b-2 cursor-pointer font-sora ${
+          className={`flex-1 pb-3 text-center text-xs sm:text-sm font-semibold transition-all border-b-2 cursor-pointer font-sora ${
             activeTab === "life"
               ? "border-cyan-glow text-cyan-glow"
               : "border-transparent text-muted hover:text-text-primary"
           }`}
         >
-          Life Expectancy Trend
+          Life Trend
         </button>
       </div>
 
@@ -155,7 +176,7 @@ export default function ExtendedStats({ cca3 }: ExtendedStatsProps) {
         <div className="divide-y divide-white/5">
           <DataRow 
             label="GDP per Capita (Current USD)" 
-            value={stats?.gdpPerCapita ? `$${stats.gdpPerCapita.toLocaleString()}` : "Not available"} 
+            value={stats?.gdpPerCapita ? `$${Math.round(stats.gdpPerCapita).toLocaleString()}` : "Not available"} 
           />
           <DataRow 
             label="GDP (Total Market Value)" 
@@ -168,6 +189,27 @@ export default function ExtendedStats({ cca3 }: ExtendedStatsProps) {
           <DataRow 
             label="Life Expectancy at Birth" 
             value={stats?.lifeExpectancy ? `${stats.lifeExpectancy.toFixed(1)} years` : "Not available"} 
+          />
+        </div>
+      )}
+
+      {activeTab === "sustainability" && (
+        <div className="divide-y divide-white/5 animate-in fade-in duration-300">
+          <DataRow 
+            label="CO₂ Emissions (Metric Tons/Capita)" 
+            value={stats?.co2 ? `${stats.co2.toFixed(2)} t` : "Not available"} 
+          />
+          <DataRow 
+            label="GINI Income Inequality Index" 
+            value={stats?.gini ? `${stats.gini.toFixed(1)}` : "Not available"} 
+          />
+          <DataRow 
+            label="Forest Area Coverage" 
+            value={stats?.forest ? `${stats.forest.toFixed(1)}% of land` : "Not available"} 
+          />
+          <DataRow 
+            label="Agricultural Land Usage" 
+            value={stats?.agriculture ? `${stats.agriculture.toFixed(1)}% of land` : "Not available"} 
           />
         </div>
       )}

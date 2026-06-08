@@ -11,6 +11,7 @@ import LiveWeather from "@/components/LiveWeather";
 import CountryActions from "@/components/CountryActions";
 import TrackView from "@/components/TrackView";
 import CurrencyConverter from "@/components/CurrencyConverter";
+import CountryLocationMapWrapper from "@/components/CountryLocationMapWrapper";
 
 import { Metadata } from "next";
 
@@ -74,6 +75,17 @@ export default async function CountryPage({ params }: CountryPageProps) {
 
   const country = await getCountryByName(name);
   const borderCountries = country.borders ? await getCountriesByCodes(country.borders) : [];
+
+  let wikiSummary: { extract: string; description?: string } | null = null;
+  try {
+    const wikiRes = await fetch(
+      `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(country.name.common)}`,
+      { next: { revalidate: 86400 } }
+    );
+    if (wikiRes.ok) {
+      wikiSummary = await wikiRes.json();
+    }
+  } catch {}
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -225,6 +237,20 @@ export default async function CountryPage({ params }: CountryPageProps) {
           <InfoCard icon={Calendar} label="Area" value={country.area > 1e6 ? `${(country.area / 1e6).toFixed(1)}M km²` : `${country.area.toLocaleString()} km²`} />
         </div>
 
+        {wikiSummary && (
+          <div className="rounded-2xl border border-white/5 bg-white/[0.03] glass-card p-6 mb-8 font-sora">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-muted mb-2.5">Narrative Introduction</h3>
+            <p className="text-sm leading-relaxed text-text-secondary">
+              {wikiSummary.extract}
+            </p>
+            {wikiSummary.description && (
+              <span className="text-[10px] text-text-muted mt-3 block uppercase tracking-wider">
+                Source: Wikipedia · {wikiSummary.description}
+              </span>
+            )}
+          </div>
+        )}
+
         <div className="grid gap-8 lg:grid-cols-3">
           <div className="lg:col-span-2 space-y-6 print:hidden">
             {country.capitalInfo?.latlng ? (
@@ -326,31 +352,32 @@ export default async function CountryPage({ params }: CountryPageProps) {
               </div>
             </div>
 
-            <div className="rounded-2xl border border-white/10 bg-white/[0.03] glass-card overflow-hidden">
-              <div className="p-4 border-b border-white/5">
-                <h3 className="text-sm font-bold text-muted uppercase tracking-wider font-sora">Location</h3>
-              </div>
-              <div className="relative h-48">
-                <iframe
-                  width="100%"
-                  height="100%"
-                  style={{ border: 0 }}
-                  loading="lazy"
-                  allowFullScreen
-                  src={`https://maps.google.com/maps?q=${country.latlng[0]},${country.latlng[1]}&z=5&output=embed`}
-                  className="grayscale invert hue-rotate-180"
-                />
-              </div>
-              <div className="p-3 flex justify-between items-center bg-white/[0.03]">
-                <span className="text-xs text-muted font-dm-mono">{country.latlng[0].toFixed(2)}°, {country.latlng[1].toFixed(2)}°</span>
-                <a href={country.maps.googleMaps} target="_blank" rel="noopener noreferrer" className="text-xs text-cyan-glow hover:underline flex items-center gap-1 font-sora">
-                  Open in Maps <ExternalLink className="h-3 w-3" />
-                </a>
-              </div>
-            </div>
-
           </div>
         </div>
+
+        {/* Full-width Interactive Leaflet Map */}
+        <div className="mt-8 rounded-2xl border border-white/10 bg-white/[0.03] glass-card overflow-hidden print:hidden">
+          <div className="p-5 border-b border-white/5 flex justify-between items-center">
+            <div>
+              <h3 className="text-base font-bold text-text-primary font-sora">Interactive Map</h3>
+              <p className="text-xs text-text-muted mt-0.5">Explore the geographical location and surroundings of {country.name.common}.</p>
+            </div>
+            <div className="flex items-center gap-3">
+              <span className="text-xs text-text-secondary font-dm-mono">{country.latlng[0].toFixed(2)}°, {country.latlng[1].toFixed(2)}°</span>
+              <a href={country.maps.googleMaps} target="_blank" rel="noopener noreferrer" className="text-xs text-cyan-glow hover:underline flex items-center gap-1 font-sora">
+                Google Maps <ExternalLink className="h-3.5 w-3.5" />
+              </a>
+            </div>
+          </div>
+          <CountryLocationMapWrapper
+            lat={country.latlng[0]}
+            lng={country.latlng[1]}
+            name={country.name.common}
+            flag={country.flags.svg}
+            area={country.area}
+          />
+        </div>
+
       </div>
     </main>
   );
