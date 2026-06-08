@@ -51,6 +51,14 @@ function buildSvg(country: ShareCardCountry, flagDataUrl: string): string {
   const capital = country.capital?.[0] || "N/A";
   const region = `${country.subregion ? country.subregion + " · " : ""}${country.region}`;
 
+  const nameLen = country.name.common.length;
+  const fontSize = nameLen > 25 ? 46 : nameLen > 15 ? 64 : 92;
+  const yPos = nameLen > 25 ? 190 : 220;
+
+  const officialLen = country.name.official.length;
+  const officialFontSize = officialLen > 40 ? 18 : 24;
+  const officialYPos = nameLen > 25 ? 240 : 270;
+
   const flagBox = flagDataUrl
     ? `<g transform="translate(720 110)">
         <rect width="380" height="250" rx="20" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.12)" stroke-width="2"/>
@@ -103,8 +111,8 @@ function buildSvg(country: ShareCardCountry, flagDataUrl: string): string {
       <text x="68" y="56" font-family="ui-sans-serif, system-ui" font-size="18" font-weight="700" letter-spacing="3" fill="#F0F4FF">WORLD INSIGHTS</text>
     </g>
 
-    <text x="80" y="220" font-family="ui-serif, Georgia, serif" font-size="92" font-weight="900" fill="#F0F4FF">${escapedName}</text>
-    <text x="80" y="270" font-family="ui-sans-serif, system-ui" font-size="24" fill="#5A6A8A">${escapedOfficial}</text>
+    <text x="80" y="${yPos}" font-family="ui-serif, Georgia, serif" font-size="${fontSize}" font-weight="900" fill="#F0F4FF">${escapedName}</text>
+    <text x="80" y="${officialYPos}" font-family="ui-sans-serif, system-ui" font-size="${officialFontSize}" fill="#5A6A8A">${escapedOfficial}</text>
 
     ${flagBox}
 
