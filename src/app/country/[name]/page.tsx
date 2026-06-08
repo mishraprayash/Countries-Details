@@ -12,6 +12,8 @@ import CountryActions from "@/components/CountryActions";
 import TrackView from "@/components/TrackView";
 import CurrencyConverter from "@/components/CurrencyConverter";
 import CountryLocationMapWrapper from "@/components/CountryLocationMapWrapper";
+import ClimographWrapper from "@/components/ClimographWrapper";
+import SeismicMonitorWrapper from "@/components/SeismicMonitorWrapper";
 
 import { Metadata } from "next";
 
@@ -267,6 +269,20 @@ export default async function CountryPage({ params }: CountryPageProps) {
               />
             )}
 
+            {country.capitalInfo?.latlng ? (
+              <ClimographWrapper
+                lat={country.capitalInfo.latlng[0]}
+                lng={country.capitalInfo.latlng[1]}
+                capitalName={country.capital?.[0] || country.name.common}
+              />
+            ) : (
+              <ClimographWrapper
+                lat={country.latlng[0]}
+                lng={country.latlng[1]}
+                capitalName={country.name.common}
+              />
+            )}
+
             <div className="grid gap-6 sm:grid-cols-2">
               <div className="rounded-2xl border border-white/10 bg-white/[0.03] glass-card p-6">
                 <h3 className="text-lg font-bold text-text-primary mb-4 flex items-center gap-2 font-sora">
@@ -341,6 +357,8 @@ export default async function CountryPage({ params }: CountryPageProps) {
             )}
 
             <CurrencyConverter currencies={country.currencies} />
+
+            <SeismicMonitorWrapper lat={country.latlng[0]} lng={country.latlng[1]} countryName={country.name.common} />
 
             <div className="rounded-2xl border border-white/10 bg-white/[0.03] glass-card p-6">
               <h3 className="text-sm font-bold text-muted uppercase tracking-wider mb-4 font-sora">Country Codes</h3>
