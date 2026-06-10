@@ -1,9 +1,12 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { MapContainer, TileLayer, Marker, Popup, Polyline, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+import { useTheme } from "next-themes";
+import { MAP_STYLES } from "@/constants/ui";
+import { MapStyleSelector } from "@/components/MapStyleSelector";
 
 interface GisMapProps {
   latA: number;
@@ -63,22 +66,30 @@ export default function GisMap({
   flagB,
 }: GisMapProps) {
   const mapRef = useRef<L.Map>(null);
+  const { resolvedTheme } = useTheme();
+  const [overrideStyleId, setOverrideStyleId] = useState<string | null>(null);
+
+  const mapStyleId = overrideStyleId || (resolvedTheme === "light" ? "light" : "dark");
 
   // Center point
   const center: [number, number] = [(latA + latB) / 2, (lngA + lngB) / 2];
+  const currentStyle = MAP_STYLES.find((s) => s.id === mapStyleId) || MAP_STYLES[0];
 
   return (
-    <MapContainer
-      center={center}
-      zoom={3}
-      className="h-[500px] w-full"
-      scrollWheelZoom={true}
-      ref={mapRef}
-    >
-      <TileLayer
-        attribution='&copy; OpenStreetMap contributors'
-        url="https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}.png"
-      />
+    <div className="relative w-full h-[500px]">
+      <MapStyleSelector currentStyleId={mapStyleId} onStyleChange={setOverrideStyleId} />
+      <MapContainer
+        center={center}
+        zoom={3}
+        className="h-full w-full"
+        scrollWheelZoom={true}
+        ref={mapRef}
+      >
+        <TileLayer
+          attribution={currentStyle.attribution}
+          url={currentStyle.url}
+          key={currentStyle.id}
+        />
       <FitGisBounds latA={latA} lngA={lngA} latB={latB} lngB={lngB} />
       
       {/* Starting Country A marker */}
@@ -121,5 +132,6 @@ export default function GisMap({
         </Popup>
       </Marker>
     </MapContainer>
+    </div>
   );
 }

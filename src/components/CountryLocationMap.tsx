@@ -1,9 +1,12 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+import { useTheme } from "next-themes";
+import { MAP_STYLES } from "@/constants/ui";
+import { MapStyleSelector } from "@/components/MapStyleSelector";
 
 interface CountryLocationMapProps {
   lat: number;
@@ -44,12 +47,19 @@ export default function CountryLocationMap({
   area,
 }: CountryLocationMapProps) {
   const mapRef = useRef<L.Map>(null);
+  const { resolvedTheme } = useTheme();
+  const [overrideStyleId, setOverrideStyleId] = useState<string | null>(null);
+
+  const mapStyleId = overrideStyleId || (resolvedTheme === "light" ? "light" : "dark");
 
   // Dynamically estimate zoom level based on land area
   const zoom = area > 9000000 ? 3 : area > 1000000 ? 4 : area > 100000 ? 5 : area > 10000 ? 6 : 7;
 
+  const currentStyle = MAP_STYLES.find((s) => s.id === mapStyleId) || MAP_STYLES[0];
+
   return (
     <div className="h-[380px] w-full relative">
+      <MapStyleSelector currentStyleId={mapStyleId} onStyleChange={setOverrideStyleId} />
       <MapContainer
         center={[lat, lng]}
         zoom={zoom}
@@ -58,8 +68,9 @@ export default function CountryLocationMap({
         ref={mapRef}
       >
         <TileLayer
-          attribution='&copy; OpenStreetMap contributors'
-          url="https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}.png"
+          attribution={currentStyle.attribution}
+          url={currentStyle.url}
+          key={currentStyle.id}
         />
         <Marker position={[lat, lng]} icon={createColoredIcon(flag)}>
           <Popup>

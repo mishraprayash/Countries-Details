@@ -1,12 +1,15 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { CountryStatus } from "@/types/user";
 import { useTravelMap } from "@/hooks/useTravelMap";
+import { useTheme } from "next-themes";
+import { MAP_STYLES } from "@/constants/ui";
+import { MapStyleSelector } from "@/components/MapStyleSelector";
 
 interface Coord {
   cca3: string;
@@ -68,13 +71,20 @@ function FitBounds({ coords }: { coords: Coord[] }) {
 export default function TravelMapContent({ coords, statusForCoord }: TravelMapContentProps) {
   const mapRef = useRef<L.Map>(null);
   const { setStatus, removeCountry } = useTravelMap();
+  const { resolvedTheme } = useTheme();
+  const [overrideStyleId, setOverrideStyleId] = useState<string | null>(null);
+
+  const mapStyleId = overrideStyleId || (resolvedTheme === "light" ? "light" : "dark");
 
   const center: [number, number] = coords.length > 0
     ? [coords.reduce((s, c) => s + c.lat, 0) / coords.length, coords.reduce((s, c) => s + c.lng, 0) / coords.length]
     : [20, 0];
 
+  const currentStyle = MAP_STYLES.find((s) => s.id === mapStyleId) || MAP_STYLES[0];
+
   return (
     <div className="relative w-full h-[500px]">
+      <MapStyleSelector currentStyleId={mapStyleId} onStyleChange={setOverrideStyleId} />
       <MapContainer
         center={center}
         zoom={2}
@@ -83,8 +93,9 @@ export default function TravelMapContent({ coords, statusForCoord }: TravelMapCo
         ref={mapRef}
       >
         <TileLayer
-          attribution='&copy; OpenStreetMap contributors'
-          url="https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}.png"
+          attribution={currentStyle.attribution}
+          url={currentStyle.url}
+          key={currentStyle.id}
         />
         <FitBounds coords={coords} />
         {coords.map((c) => {

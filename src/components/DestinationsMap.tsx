@@ -1,9 +1,12 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+import { useTheme } from "next-themes";
+import { MAP_STYLES } from "@/constants/ui";
+import { MapStyleSelector } from "@/components/MapStyleSelector";
 
 interface Destination {
   id: string;
@@ -117,6 +120,10 @@ export default function DestinationsMap({
   onMarkerClick,
 }: DestinationsMapProps) {
   const mapRef = useRef<L.Map>(null);
+  const { resolvedTheme } = useTheme();
+  const [overrideStyleId, setOverrideStyleId] = useState<string | null>(null);
+
+  const mapStyleId = overrideStyleId || (resolvedTheme === "light" ? "light" : "dark");
 
   // Determine bounds or center based on destinations list
   const getCenterAndZoom = (): { center: [number, number]; zoom: number } => {
@@ -140,9 +147,11 @@ export default function DestinationsMap({
   };
 
   const { center, zoom } = getCenterAndZoom();
+  const currentStyle = MAP_STYLES.find((s) => s.id === mapStyleId) || MAP_STYLES[0];
 
   return (
     <div className="h-[400px] lg:h-full w-full relative">
+      <MapStyleSelector currentStyleId={mapStyleId} onStyleChange={setOverrideStyleId} />
       <MapContainer
         center={center}
         zoom={zoom}
@@ -151,8 +160,9 @@ export default function DestinationsMap({
         ref={mapRef}
       >
         <TileLayer
-          attribution='&copy; OpenStreetMap contributors'
-          url="https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}.png"
+          attribution={currentStyle.attribution}
+          url={currentStyle.url}
+          key={currentStyle.id}
         />
         <MapController activeDestination={activeDestination} />
         {destinations.map((dest) => (
