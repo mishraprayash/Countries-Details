@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import dynamic from "next/dynamic";
 import {
   Map as MapIcon, ArrowLeft, RefreshCw, Trophy,
   ChevronRight, Compass, ShieldAlert, Footprints, Play
@@ -15,7 +16,17 @@ interface Country {
   flags: { svg: string };
   borders?: string[];
   region: string;
+  latlng?: [number, number];
 }
+
+const BorderEscapeMap = dynamic(() => import("./BorderEscapeMap"), {
+  ssr: false,
+  loading: () => (
+    <div className="h-[400px] w-full rounded-2xl bg-white/[0.02] border border-white/5 animate-pulse flex items-center justify-center">
+      <span className="text-sm text-muted">Loading Interactive Map...</span>
+    </div>
+  ),
+});
 
 type Difficulty = "easy" | "medium" | "hard";
 
@@ -420,6 +431,20 @@ export default function BorderEscapePage() {
                   </div>
                 </div>
               </div>
+
+              {/* Interactive map */}
+              <BorderEscapeMap
+                startCountry={startCountry}
+                targetCountry={targetCountry}
+                currentCountry={currentCountry}
+                neighbors={(currentCountry.borders || [])
+                  .map((code) => countries.find((c) => c.cca3 === code))
+                  .filter(Boolean) as Country[]}
+                pathCountries={path
+                  .map((code) => countries.find((c) => c.cca3 === code))
+                  .filter(Boolean) as Country[]}
+                onSelectBorder={selectBorder}
+              />
 
               {/* Borders Selector list */}
               <div>
