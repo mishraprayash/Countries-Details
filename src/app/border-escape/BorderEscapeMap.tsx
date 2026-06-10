@@ -20,18 +20,12 @@ interface Country {
 interface BorderEscapeMapProps {
   startCountry: Country;
   targetCountry: Country;
-  currentCountry: Country;
-  neighbors: Country[];
-  pathCountries: Country[];
-  onSelectBorder: (code: string) => void;
+  userPathCountries: Country[];
+  optimalPathCountries: Country[];
 }
 
-function createColoredIcon(flagUrl: string, color: string, isCurrent: boolean = false): L.DivIcon {
-  const size = isCurrent ? 36 : 28;
-  const borderStyle = isCurrent 
-    ? `3px solid ${color}; box-shadow: 0 0 12px ${color}; transform: scale(1.1); z-index: 1000;` 
-    : `2px solid ${color}; box-shadow: 0 3px 8px rgba(0,0,0,0.6);`;
-
+function createColoredIcon(flagUrl: string, color: string, label: string): L.DivIcon {
+  const size = 30;
   return L.divIcon({
     className: "",
     html: `<div style="
@@ -40,33 +34,39 @@ function createColoredIcon(flagUrl: string, color: string, isCurrent: boolean = 
       height: ${Math.round(size * 0.7)}px;
       background: #0c1020;
       border-radius: 4px;
-      border: ${borderStyle}
+      border: 2px solid ${color};
+      box-shadow: 0 0 10px ${color}80, 0 2px 6px rgba(0,0,0,0.6);
       overflow: hidden;
       display: flex;
       align-items: center;
       justify-content: center;
     ">
       <img src="${flagUrl}" style="width: 100%; height: 100%; object-fit: cover;" />
+      <div style="
+        position: absolute;
+        bottom: -1px;
+        right: -1px;
+        background: ${color};
+        color: #0c1020;
+        font-size: 8px;
+        font-weight: 900;
+        padding: 0 2px;
+        border-top-left-radius: 3px;
+      ">${label}</div>
     </div>`,
     iconSize: [size, Math.round(size * 0.7)],
     iconAnchor: [size / 2, Math.round(size * 0.7) / 2],
   });
 }
 
-function MapController({ start, target, current }: { start: Country; target: Country; current: Country }) {
+function MapController({ coords }: { coords: [number, number][] }) {
   const map = useMap();
 
   useEffect(() => {
-    if (!start.latlng || !target.latlng) return;
-    
-    // Fit bounds of start, target, and current
-    const coords: [number, number][] = [start.latlng, target.latlng];
-    if (current.latlng) {
-      coords.push(current.latlng);
-    }
+    if (coords.length === 0) return;
     const bounds = L.latLngBounds(coords);
-    map.fitBounds(bounds, { padding: [50, 50], maxZoom: 5 });
-  }, [start, target, current, map]);
+    map.fitBounds(bounds, { padding: [60, 60] });
+  }, [coords, map]);
 
   return null;
 }
@@ -74,10 +74,8 @@ function MapController({ start, target, current }: { start: Country; target: Cou
 export default function BorderEscapeMap({
   startCountry,
   targetCountry,
-  currentCountry,
-  neighbors,
-  pathCountries,
-  onSelectBorder,
+  userPathCountries,
+  optimalPathCountries,
 }: BorderEscapeMapProps) {
   const mapRef = useRef<L.Map>(null);
   const { resolvedTheme } = useTheme();
@@ -86,15 +84,22 @@ export default function BorderEscapeMap({
   const mapStyleId = overrideStyleId || (resolvedTheme === "light" ? "light" : "dark");
   const currentStyle = MAP_STYLES.find((s) => s.id === mapStyleId) || MAP_STYLES[0];
 
-  const center: [number, number] = currentCountry.latlng || [20, 0];
+  const center: [number, number] = startCountry.latlng || [20, 0];
 
-  // Map path coordinates for drawing the user's route
-  const polylinePositions = pathCountries
+  // Coordinates lists
+  const userPositions = userPathCountries
     .filter((c) => c.latlng)
     .map((c) => c.latlng as [number, number]);
 
+  const optimalPositions = optimalPathCountries
+    .filter((c) => c.latlng)
+    .map((c) => c.latlng as [number, number]);
+
+  // Combine all coordinates to fit bounds
+  const allCoords = [...userPositions, ...optimalPositions];
+
   return (
-    <div className="relative w-full h-[400px] rounded-2xl overflow-hidden border border-white/10 shadow-2xl">
+    <div className="relative w-full h-[380px] rounded-2xl overflow-hidden border border-white/10 shadow-2xl">
       <MapStyleSelector currentStyleId={mapStyleId} onStyleChange={setOverrideStyleId} />
       <MapContainer
         center={center}
@@ -108,93 +113,96 @@ export default function BorderEscapeMap({
           url={currentStyle.url}
           key={currentStyle.id}
         />
-        <MapController start={startCountry} target={targetCountry} current={currentCountry} />
+        <MapController coords={allCoords} />
 
-        {/* User's Route Polyline */}
-        {polylinePositions.length > 1 && (
+        {/* User's Route Polyline (Dashed Orange/Cyan depending on result) */}
+        {userPositions.length > 1 && (
           <Polyline
-            positions={polylinePositions}
-            color="#0ea5e9"
-            weight={3}
+            positions={userPositions}
+            color="#FFB347"
+            weight={3.5}
             dashArray="6, 8"
+            opacity={0.8}
           />
         )}
 
-        {/* Start Country Marker */}
-        {startCountry.latlng && (
-          <Marker 
-            position={startCountry.latlng} 
-            icon={createColoredIcon(startCountry.flags.svg, "#10b981")}
-          >
-            <Popup>
-              <div className="font-sora text-xs">
-                <span className="font-bold text-emerald-400">Start Location</span>
-                <p className="font-bold mt-0.5">{startCountry.name.common}</p>
-              </div>
-            </Popup>
-          </Marker>
+        {/* Shortest / Optimal Route Polyline (Solid Glowing Emerald) */}
+        {optimalPositions.length > 1 && (
+          <Polyline
+            positions={optimalPositions}
+            color="#10b981"
+            weight={4}
+            opacity={0.9}
+          />
         )}
 
-        {/* Target Country Marker */}
-        {targetCountry.latlng && (
-          <Marker 
-            position={targetCountry.latlng} 
-            icon={createColoredIcon(targetCountry.flags.svg, "#f59e0b")}
-          >
-            <Popup>
-              <div className="font-sora text-xs">
-                <span className="font-bold text-amber-500">Target Destination</span>
-                <p className="font-bold mt-0.5">{targetCountry.name.common}</p>
-              </div>
-            </Popup>
-          </Marker>
-        )}
-
-        {/* Current Country Marker */}
-        {currentCountry.latlng && currentCountry.cca3 !== startCountry.cca3 && currentCountry.cca3 !== targetCountry.cca3 && (
-          <Marker 
-            position={currentCountry.latlng} 
-            icon={createColoredIcon(currentCountry.flags.svg, "#00D4FF", true)}
-          >
-            <Popup>
-              <div className="font-sora text-xs">
-                <span className="font-bold text-cyan-glow">Current Location</span>
-                <p className="font-bold mt-0.5">{currentCountry.name.common}</p>
-              </div>
-            </Popup>
-          </Marker>
-        )}
-
-        {/* Neighboring Country Markers (Clickable border crossings) */}
-        {neighbors.map((neighbor) => {
-          if (!neighbor.latlng) return null;
-          const isTarget = neighbor.cca3 === targetCountry.cca3;
-          const color = isTarget ? "#f59e0b" : "#64748b";
+        {/* Markers along the Optimal path */}
+        {optimalPathCountries.map((c, idx) => {
+          if (!c.latlng) return null;
+          const isStart = c.cca3 === startCountry.cca3;
+          const isTarget = c.cca3 === targetCountry.cca3;
+          
+          let color = "#10b981"; // Emerald for shortest route
+          let label = `${idx + 1}`;
+          if (isStart) {
+            color = "#00D4FF";
+            label = "S";
+          } else if (isTarget) {
+            color = "#f59e0b";
+            label = "T";
+          }
 
           return (
-            <Marker
-              key={neighbor.cca3}
-              position={neighbor.latlng}
-              icon={createColoredIcon(neighbor.flags.svg, color)}
-              eventHandlers={{
-                click: () => onSelectBorder(neighbor.cca3),
-              }}
+            <Marker 
+              key={`opt-${c.cca3}`} 
+              position={c.latlng} 
+              icon={createColoredIcon(c.flags.svg, color, label)}
             >
               <Popup>
-                <div className="font-sora text-xs p-1 text-center">
-                  <p className="font-bold">{neighbor.name.common}</p>
-                  <p className="text-[10px] text-muted mt-1 uppercase tracking-wider">Click flag to cross border</p>
-                  {isTarget && (
-                    <span className="inline-block mt-1.5 px-2 py-0.5 rounded bg-amber-500/10 text-amber-500 font-bold uppercase tracking-wider text-[8px] animate-pulse">
-                      Target!
-                    </span>
-                  )}
+                <div className="font-sora text-xs">
+                  <span className="font-bold text-emerald-400">Shortest Route step #{idx + 1}</span>
+                  <p className="font-bold mt-0.5">{c.name.common}</p>
+                </div>
+              </Popup>
+            </Marker>
+          );
+        })}
+
+        {/* Markers along the User's path (if they took a different route) */}
+        {userPathCountries.map((c, idx) => {
+          if (!c.latlng) return null;
+          if (optimalPathCountries.some((opt) => opt.cca3 === c.cca3)) return null; // Avoid duplicate markers
+          
+          return (
+            <Marker 
+              key={`user-${c.cca3}`} 
+              position={c.latlng} 
+              icon={createColoredIcon(c.flags.svg, "#f43f5e", `U${idx + 1}`)}
+            >
+              <Popup>
+                <div className="font-sora text-xs">
+                  <span className="font-bold text-rose-400">Your Route step #{idx + 1}</span>
+                  <p className="font-bold mt-0.5">{c.name.common}</p>
                 </div>
               </Popup>
             </Marker>
           );
         })}
       </MapContainer>
+
+      {/* Mini Legend Overlay */}
+      <div className="absolute bottom-4 left-4 z-[1000] p-2.5 rounded-xl border border-white/10 bg-atlas-900/90 backdrop-blur-md shadow-2xl font-sora text-[9px] space-y-1 select-none pointer-events-none">
+        <div className="flex items-center gap-1.5 font-medium text-text-secondary">
+          <span className="h-1 w-4 bg-emerald-500 rounded" /> 
+          <span>Shortest Route (Optimal)</span>
+        </div>
+        {userPositions.length > 1 && userPositions.length !== optimalPositions.length && (
+          <div className="flex items-center gap-1.5 font-medium text-text-secondary">
+            <span className="h-1 w-4 border-t-2 border-dashed border-amber-400" /> 
+            <span>Your Route</span>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

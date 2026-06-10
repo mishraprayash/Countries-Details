@@ -432,20 +432,6 @@ export default function BorderEscapePage() {
                 </div>
               </div>
 
-              {/* Interactive map */}
-              <BorderEscapeMap
-                startCountry={startCountry}
-                targetCountry={targetCountry}
-                currentCountry={currentCountry}
-                neighbors={(currentCountry.borders || [])
-                  .map((code) => countries.find((c) => c.cca3 === code))
-                  .filter(Boolean) as Country[]}
-                pathCountries={path
-                  .map((code) => countries.find((c) => c.cca3 === code))
-                  .filter(Boolean) as Country[]}
-                onSelectBorder={selectBorder}
-              />
-
               {/* Borders Selector list */}
               <div>
                 <h3 className="text-sm font-bold text-text-muted uppercase tracking-wider mb-4 font-sora">
@@ -536,6 +522,20 @@ export default function BorderEscapePage() {
                   </div>
                 ))}
               </div>
+            </div>
+
+            {/* Interactive route path comparison map */}
+            <div className="mb-8">
+              <BorderEscapeMap
+                startCountry={startCountry}
+                targetCountry={targetCountry}
+                userPathCountries={path
+                  .map((code) => countries.find((c) => c.cca3 === code))
+                  .filter(Boolean) as Country[]}
+                optimalPathCountries={optimalPath
+                  .map((code) => countries.find((c) => c.cca3 === code))
+                  .filter(Boolean) as Country[]}
+              />
             </div>
 
             <div className="flex gap-4">
