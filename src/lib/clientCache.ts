@@ -22,9 +22,7 @@ export function getClientCountries(): Promise<CachedCountry[]> {
     return fetchPromise;
   }
 
-  fetchPromise = fetch(
-    "https://restcountries.com/v3.1/all?fields=name,cca3,flags,capital,region,subregion,population,area,borders,latlng"
-  )
+  fetchPromise = fetch("/api/countries")
     .then((res) => {
       if (!res.ok) throw new Error("Failed to fetch countries for client cache");
       return res.json();
@@ -36,6 +34,9 @@ export function getClientCountries(): Promise<CachedCountry[]> {
     })
     .catch((err) => {
       fetchPromise = null; // Reset promise on error so we can try again
+      if (err instanceof TypeError && (err.message.includes('fetch failed') || err.message.includes('Failed to fetch') || err.message.includes('NetworkError'))) {
+        throw new Error("Unable to connect to the countries database. Please check your internet connection or try again later.");
+      }
       throw err;
     });
 

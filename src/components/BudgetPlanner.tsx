@@ -9,96 +9,11 @@ import {
 } from "lucide-react";
 import { getClientCountries, CachedCountry } from "@/lib/clientCache";
 
-interface BudgetConfig {
-  accommodation: number;
-  food: number;
-  transport: number;
-  activities: number;
-}
-
-interface TravelStyleData {
-  backpacker: BudgetConfig;
-  moderate: BudgetConfig;
-  luxury: BudgetConfig;
-}
-
-// Cost Index multipliers in USD per day (Accommodation, Food, Transport, Activities)
-const REGIONAL_COSTS: Record<string, TravelStyleData> = {
-  "western-europe": {
-    backpacker: { accommodation: 35, food: 20, transport: 10, activities: 15 },
-    moderate: { accommodation: 120, food: 60, transport: 25, activities: 35 },
-    luxury: { accommodation: 350, food: 150, transport: 80, activities: 120 }
-  },
-  "eastern-europe": {
-    backpacker: { accommodation: 22, food: 14, transport: 6, activities: 10 },
-    moderate: { accommodation: 70, food: 35, transport: 15, activities: 20 },
-    luxury: { accommodation: 220, food: 95, transport: 50, activities: 70 }
-  },
-  "southeast-asia": {
-    backpacker: { accommodation: 10, food: 8, transport: 3, activities: 7 },
-    moderate: { accommodation: 40, food: 25, transport: 12, activities: 18 },
-    luxury: { accommodation: 180, food: 80, transport: 40, activities: 60 }
-  },
-  "east-asia": {
-    backpacker: { accommodation: 32, food: 18, transport: 8, activities: 14 },
-    moderate: { accommodation: 100, food: 55, transport: 20, activities: 30 },
-    luxury: { accommodation: 280, food: 130, transport: 70, activities: 100 }
-  },
-  "south-asia": {
-    backpacker: { accommodation: 8, food: 6, transport: 2, activities: 5 },
-    moderate: { accommodation: 30, food: 20, transport: 10, activities: 12 },
-    luxury: { accommodation: 150, food: 60, transport: 35, activities: 45 }
-  },
-  "middle-east": {
-    backpacker: { accommodation: 20, food: 12, transport: 6, activities: 10 },
-    moderate: { accommodation: 80, food: 45, transport: 20, activities: 25 },
-    luxury: { accommodation: 250, food: 110, transport: 60, activities: 80 }
-  },
-  "north-america": {
-    backpacker: { accommodation: 45, food: 25, transport: 15, activities: 20 },
-    moderate: { accommodation: 160, food: 75, transport: 35, activities: 45 },
-    luxury: { accommodation: 450, food: 180, transport: 100, activities: 150 }
-  },
-  "central-america": {
-    backpacker: { accommodation: 15, food: 10, transport: 4, activities: 8 },
-    moderate: { accommodation: 50, food: 28, transport: 12, activities: 18 },
-    luxury: { accommodation: 180, food: 75, transport: 45, activities: 60 }
-  },
-  "south-america": {
-    backpacker: { accommodation: 16, food: 11, transport: 4, activities: 8 },
-    moderate: { accommodation: 55, food: 32, transport: 15, activities: 20 },
-    luxury: { accommodation: 220, food: 90, transport: 50, activities: 75 }
-  },
-  "oceania": {
-    backpacker: { accommodation: 40, food: 22, transport: 12, activities: 18 },
-    moderate: { accommodation: 140, food: 65, transport: 30, activities: 40 },
-    luxury: { accommodation: 380, food: 160, transport: 90, activities: 130 }
-  },
-  "africa": {
-    backpacker: { accommodation: 14, food: 9, transport: 3, activities: 7 },
-    moderate: { accommodation: 50, food: 28, transport: 14, activities: 18 },
-    luxury: { accommodation: 200, food: 85, transport: 45, activities: 70 }
-  }
-};
-
-const US_BASELINE_COSTS: TravelStyleData = {
-  backpacker: { accommodation: 45, food: 25, transport: 15, activities: 20 },
-  moderate: { accommodation: 160, food: 75, transport: 35, activities: 45 },
-  luxury: { accommodation: 450, food: 180, transport: 100, activities: 150 }
-};
-
-const COMMON_CURRENCIES = [
-  { code: "USD", symbol: "$", name: "US Dollar" },
-  { code: "EUR", symbol: "€", name: "Euro" },
-  { code: "GBP", symbol: "£", name: "British Pound" },
-  { code: "JPY", symbol: "¥", name: "Japanese Yen" },
-  { code: "AUD", symbol: "A$", name: "Australian Dollar" },
-  { code: "CAD", symbol: "C$", name: "Canadian Dollar" },
-  { code: "INR", symbol: "₹", name: "Indian Rupee" },
-  { code: "CNY", symbol: "¥", name: "Chinese Yuan" },
-  { code: "BRL", symbol: "R$", name: "Brazilian Real" },
-  { code: "ZAR", symbol: "R", name: "South African Rand" }
-];
+import { 
+  REGIONAL_COSTS, 
+  US_BASELINE_COSTS, 
+  COMMON_CURRENCIES 
+} from "@/constants/budget-data";
 
 function getCostRegion(country: CachedCountry): string {
   const subregion = country.subregion?.toLowerCase() || "";
@@ -159,9 +74,12 @@ function BudgetPlannerContent({ initialCountryName }: BudgetPlannerProps) {
   const [pppRatio, setPppRatio] = useState<number | null>(null);
   const [loadingPpp, setLoadingPpp] = useState(false);
 
+  const [error, setError] = useState<string | null>(null);
+
   // Fetch countries
   useEffect(() => {
     let active = true;
+    
     getClientCountries()
       .then((data) => {
         if (!active) return;
@@ -180,8 +98,10 @@ function BudgetPlannerContent({ initialCountryName }: BudgetPlannerProps) {
           if (matched) setSelectedCountryCca3(matched.cca3);
         }
       })
-      .catch(() => {
-        if (active) setLoadingCountries(false);
+      .catch((err) => {
+        if (!active) return;
+        setLoadingCountries(false);
+        setError(err instanceof Error ? err.message : "Failed to load countries. Please try again.");
       });
 
     return () => {
@@ -191,37 +111,44 @@ function BudgetPlannerContent({ initialCountryName }: BudgetPlannerProps) {
 
   // Fetch Exchange rates against USD
   useEffect(() => {
+    const controller = new AbortController();
     /* eslint-disable react-hooks/set-state-in-effect */
     setLoadingRates(true);
     /* eslint-enable react-hooks/set-state-in-effect */
-    fetch("https://open.er-api.com/v6/latest/USD")
+    fetch("/api/exchange-rates", { signal: controller.signal })
       .then((res) => res.json())
       .then((data) => {
         if (data.rates) {
           setExchangeRates(data.rates);
         }
       })
-      .catch(() => {})
+      .catch((err) => {
+        if (err.name === 'AbortError') return;
+      })
       .finally(() => {
-        setLoadingRates(false);
+        if (!controller.signal.aborted) {
+          setLoadingRates(false);
+        }
       });
+      
+    return () => controller.abort();
   }, []);
 
   // Fetch PPP Ratio from World Bank indicator PA.NUS.PPPC.RF
   useEffect(() => {
     if (!selectedCountryCca3) return;
-    let active = true;
+    const controller = new AbortController();
+    
     /* eslint-disable react-hooks/set-state-in-effect */
     setLoadingPpp(true);
     /* eslint-enable react-hooks/set-state-in-effect */
 
-    fetch(`https://api.worldbank.org/v2/country/${selectedCountryCca3}/indicator/PA.NUS.PPPC.RF?format=json&per_page=10`)
+    fetch(`/api/world-bank/${selectedCountryCca3}`, { signal: controller.signal })
       .then((res) => {
         if (!res.ok) throw new Error("World Bank API error");
         return res.json();
       })
       .then((data) => {
-        if (!active) return;
         if (data && data[1]) {
           const validEntry = data[1].find((item: { value: number | null }) => item.value !== null);
           if (validEntry) {
@@ -231,17 +158,18 @@ function BudgetPlannerContent({ initialCountryName }: BudgetPlannerProps) {
         }
         setPppRatio(null);
       })
-      .catch(() => {
-        if (active) setPppRatio(null);
+      .catch((err) => {
+        if (err.name === 'AbortError') return;
+        setPppRatio(null);
       })
       .finally(() => {
-        if (active) {
+        if (!controller.signal.aborted) {
           setLoadingPpp(false);
         }
       });
 
     return () => {
-      active = false;
+      controller.abort();
     };
   }, [selectedCountryCca3]);
 
@@ -319,6 +247,24 @@ function BudgetPlannerContent({ initialCountryName }: BudgetPlannerProps) {
       <div className="flex flex-col items-center justify-center py-20 gap-3">
         <Loader2 className="h-10 w-10 animate-spin text-cyan-glow" />
         <span className="text-sm text-text-muted font-sora">Syncing cost indices...</span>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 gap-4 text-center">
+        <div className="p-4 rounded-full bg-red-500/10 text-red-500 mb-2">
+          <Info className="h-8 w-8" />
+        </div>
+        <h3 className="text-xl font-bold text-text-primary">Failed to load</h3>
+        <p className="text-sm text-text-muted max-w-md">{error}</p>
+        <button 
+          onClick={() => window.location.reload()}
+          className="mt-4 px-6 py-2.5 bg-white/5 hover:bg-white/10 rounded-xl transition-colors font-sora text-sm font-semibold"
+        >
+          Try Again
+        </button>
       </div>
     );
   }

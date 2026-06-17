@@ -56,21 +56,20 @@ function DashboardStats({ countries }: DashboardContentProps) {
   ];
 
   return (
-    <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+    <div className="grid gap-5 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
       {stats.map((stat, i) => {
         const Icon = stat.icon;
         const accentColor = stat.accent === "cyan" ? "text-cyan-glow" : stat.accent === "amber" ? "text-amber-glow" : "text-violet-glow";
         const accentBg = stat.accent === "cyan" ? "bg-cyan-glow/10" : stat.accent === "amber" ? "bg-amber-glow/10" : "bg-violet-glow/10";
-        const accentBorder = stat.accent === "cyan" ? "border-cyan-glow/20" : stat.accent === "amber" ? "border-amber-glow/20" : "border-violet-glow/20";
 
         return (
           <div
             key={i}
-            className={`stagger-fade-in stagger-delay-${i + 1} group relative rounded-2xl border ${accentBorder} bg-surface p-6 metric-glow overflow-hidden`}
+            className={`stagger-fade-in stagger-delay-${i + 1} group relative rounded-3xl border border-white/5 bg-white/[0.02] hover:bg-white/[0.04] hover:border-white/10 hover:-translate-y-1 transition-all duration-300 p-6 overflow-hidden shadow-lg backdrop-blur-sm`}
           >
             <div className={`absolute inset-0 ${accentBg} opacity-0 group-hover:opacity-100 transition-opacity duration-300`} />
             <div className="relative z-10">
-              <div className={`mb-4 inline-flex rounded-xl ${accentBg} p-2.5 ${accentColor}`}>
+              <div className={`mb-5 inline-flex rounded-2xl ${accentBg} p-3 ${accentColor} ring-1 ring-white/10 shadow-inner`}>
                 <Icon className="h-5 w-5" />
               </div>
               <p className="text-[11px] font-semibold uppercase tracking-[0.15em] text-text-muted">{stat.label}</p>
@@ -139,20 +138,20 @@ function DashboardSecondaryStats({ countries }: DashboardContentProps) {
   ];
 
   return (
-    <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+    <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 auto-rows-min">
       {secondaryStats.map((stat, i) => {
         const Icon = stat.icon;
         const accentColor = stat.accent === "cyan" ? "text-cyan-glow" : stat.accent === "amber" ? "text-amber-glow" : stat.accent === "pink" ? "text-pink-400" : "text-cyan-glow";
         const accentBg = stat.accent === "cyan" ? "bg-cyan-glow/10" : stat.accent === "amber" ? "bg-amber-glow/10" : stat.accent === "pink" ? "bg-pink-500/10" : "bg-cyan-glow/10";
 
         return (
-          <div key={i} className={`stagger-fade-in stagger-delay-${i + 5} glass-card rounded-2xl p-5 flex items-center gap-4`}>
-            <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${accentBg} ${accentColor}`}>
+          <div key={i} className={`stagger-fade-in stagger-delay-${i + 5} glass-card rounded-3xl p-6 flex flex-col justify-between gap-4 transition-all hover:-translate-y-1 hover:border-white/10 hover:bg-white/[0.04]`}>
+            <div className={`flex h-12 w-12 items-center justify-center rounded-2xl ${accentBg} ${accentColor} shadow-inner ring-1 ring-white/10`}>
               <Icon className="h-5 w-5" />
             </div>
             <div>
-              <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-text-muted">{stat.label}</p>
-              <p className="text-xl font-bold text-text-primary font-dm-mono">
+              <p className="text-[11px] font-bold uppercase tracking-[0.15em] text-text-muted mb-2">{stat.label}</p>
+              <p className="text-3xl font-black text-text-primary font-dm-mono drop-shadow-sm">
                 <AnimatedCounter value={stat.value} suffix={stat.suffix || ""} />
               </p>
             </div>
@@ -185,12 +184,12 @@ function DashboardSpotlight({ countries }: DashboardContentProps) {
   const regionEntries = Object.entries(regionStats).sort((a, b) => b[1].population - a[1].population);
 
   return (
-    <div className="mt-12 grid gap-8 lg:grid-cols-3">
+    <div className="grid gap-8 lg:grid-cols-2">
       {/* Left Column */}
       <div className="space-y-6">
         {/* Most Populous */}
-        <div className="stagger-fade-in stagger-delay-1 glass-card rounded-2xl p-8 relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-cyan-glow/5 rounded-full blur-3xl" />
+        <div className="stagger-fade-in stagger-delay-1 glass-card rounded-3xl p-8 relative overflow-hidden group hover:border-cyan-glow/30 transition-all duration-500">
+          <div className="absolute top-0 right-0 w-48 h-48 bg-cyan-glow/10 rounded-full blur-3xl group-hover:scale-150 group-hover:bg-cyan-glow/20 transition-all duration-700 pointer-events-none" />
           <div className="relative z-10">
             <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-xl bg-cyan-glow/10">
               <Award className="h-6 w-6 text-cyan-glow" />
@@ -198,7 +197,7 @@ function DashboardSpotlight({ countries }: DashboardContentProps) {
             <h3 className="text-sm font-semibold text-text-muted uppercase tracking-[0.12em]">Most Populous</h3>
             <p className="mt-2 text-xs text-text-muted">The world&apos;s demographic leader</p>
             <div className="mt-6">
-              <span className="text-3xl font-bold text-text-primary font-instrument-serif">{largestByPop?.name?.common || "N/A"}</span>
+              <span className="text-5xl font-normal text-text-primary font-instrument-serif">{largestByPop?.name?.common || "N/A"}</span>
             </div>
             <p className="mt-3 text-sm font-medium text-text-muted font-dm-mono">
               {((largestByPop?.population || 0) / 1000000).toFixed(1)} Million people
@@ -213,7 +212,7 @@ function DashboardSpotlight({ countries }: DashboardContentProps) {
         </div>
 
         {/* Geographical Extremes */}
-        <div className="stagger-fade-in stagger-delay-2 glass-card rounded-2xl p-6">
+        <div className="stagger-fade-in stagger-delay-2 glass-card rounded-3xl p-8 bg-gradient-to-br from-white/[0.02] to-transparent">
           <h4 className="text-[10px] font-semibold text-text-muted uppercase tracking-[0.15em]">Geographical Extremes</h4>
           <div className="mt-6 space-y-5">
             <div className="flex items-center justify-between">
@@ -236,7 +235,7 @@ function DashboardSpotlight({ countries }: DashboardContentProps) {
       </div>
 
       {/* Right Column - Regional Distribution */}
-      <div className="lg:col-span-2 stagger-fade-in stagger-delay-3 glass-card rounded-2xl p-8">
+      <div className="stagger-fade-in stagger-delay-3 glass-card rounded-3xl p-8 sm:p-10">
         <div className="mb-8 flex items-center justify-between">
           <h3 className="flex items-center gap-2 text-sm font-semibold text-text-primary uppercase tracking-[0.12em]">
             <Star className="h-4 w-4 text-amber-glow" />
@@ -306,13 +305,15 @@ export default function DashboardContent({ countries }: DashboardContentProps) {
   return (
     <>
       {/* Hero Section */}
-      <div className="relative mb-10 overflow-hidden rounded-3xl border border-white/5 bg-atlas-900 p-8 sm:p-16 shadow-2xl">
+      <div className="relative mb-10 overflow-hidden rounded-3xl border border-white/5 bg-atlas-900/40 backdrop-blur-3xl p-8 sm:p-16 shadow-2xl">
+        <div className="absolute top-0 right-0 -mr-20 -mt-20 w-96 h-96 bg-cyan-glow/20 rounded-full blur-[100px] pointer-events-none animate-pulse-slow" />
+        <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-80 h-80 bg-violet-glow/20 rounded-full blur-[100px] pointer-events-none" />
         <GlobeBackground />
         <div className="relative z-10 max-w-2xl">
-          <p className="text-xs font-semibold text-cyan-glow uppercase tracking-[0.2em] mb-4 font-sora">Global Intelligence Platform</p>
-          <h1 className="text-4xl font-normal tracking-tight text-text-primary sm:text-6xl lg:text-7xl font-instrument-serif leading-[1.1]">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-cyan-glow/10 border border-cyan-glow/20 mb-6"><div className="w-2 h-2 rounded-full bg-cyan-glow animate-pulse" /><p className="text-[10px] font-bold text-cyan-glow uppercase tracking-[0.2em] font-sora">Global Intelligence Platform</p></div>
+          <h1 className="text-5xl font-normal tracking-tight text-text-primary sm:text-6xl lg:text-8xl font-instrument-serif leading-[1.05]">
             World Insights
-            <span className="text-cyan-glow"> Hub</span>
+            <span className="block mt-2 bg-gradient-to-r from-cyan-glow via-cyan-400 to-violet-glow bg-clip-text text-transparent"> Hub</span>
           </h1>
           <p className="mt-6 text-base text-text-muted sm:mt-8 sm:text-lg lg:text-xl leading-relaxed font-sora">
             Explore global demographics, population trends, and regional distributions through our interactive data dashboard.
@@ -336,38 +337,37 @@ export default function DashboardContent({ countries }: DashboardContentProps) {
         </div>
       </div>
 
-      {/* Recently Viewed */}
-      <RecentlyViewedSection />
+      {/* Master Widget Grid */}
+      <div className="mt-10 flex flex-col gap-8">
+        
+        {/* Row 1: Dashboard Stats (4 Widgets) */}
+        <DashboardStats countries={countries} />
 
-      {/* Latest Travels */}
-      <TravelMiniSection />
-
-      {/* Divider */}
-      <div className="section-divider" />
-
-      {/* Fact of the Day */}
-      <Suspense fallback={<FactOfTheDaySkeleton />}>
-        <div className="w-full">
-          <CountryOfTheDay countries={countries} />
+        {/* Row 2: Charts & Fact of the Day (3 Widgets) */}
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+          <div className="xl:col-span-2">
+            <DashboardCharts countries={countries} />
+          </div>
+          <div className="xl:col-span-1 h-full flex flex-col">
+            <Suspense fallback={<FactOfTheDaySkeleton />}>
+              <CountryOfTheDay countries={countries} />
+            </Suspense>
+          </div>
         </div>
-      </Suspense>
 
-      {/* Divider */}
-      <div className="section-divider" />
+        {/* Row 3: Secondary Stats Bento (3 Widgets) */}
+        <DashboardSecondaryStats countries={countries} />
 
-      {/* Stats */}
-      <DashboardStats countries={countries} />
+        {/* Row 4: Carousels (2 Widgets) */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <RecentlyViewedSection />
+          <TravelMiniSection />
+        </div>
 
-      {/* Charts */}
-      <div className="mt-12">
-        <DashboardCharts countries={countries} />
+        {/* Row 5: Spotlight (2 Widgets) */}
+        <DashboardSpotlight countries={countries} />
+
       </div>
-
-      {/* Secondary Stats */}
-      <DashboardSecondaryStats countries={countries} />
-
-      {/* Spotlight */}
-      <DashboardSpotlight countries={countries} />
     </>
   );
 }

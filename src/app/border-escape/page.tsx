@@ -9,6 +9,7 @@ import {
   ChevronRight, Compass, ShieldAlert, Footprints, Play
 } from "lucide-react";
 import { getClientCountries } from "@/lib/clientCache";
+import { calculateShortestPath } from "@/utils/pathfinding";
 
 interface Country {
   cca3: string;
@@ -51,14 +52,22 @@ export default function BorderEscapePage() {
 
   // Load countries using client cache
   useEffect(() => {
+    let active = true;
+    
     getClientCountries()
       .then((data) => {
+        if (!active) return;
         // Filter out countries without code or flags
         const valid = data.filter((c) => c.cca3 && c.flags?.svg);
         setCountries(valid);
       })
-      .catch((err) => setError(String(err)))
-      .finally(() => setLoading(false));
+      .catch((err) => {
+        if (!active) return;
+        setError(err instanceof Error ? err.message : "Failed to load map data. Please try again.");
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
 
     // Load high scores from localStorage
     try {
@@ -69,32 +78,11 @@ export default function BorderEscapePage() {
         /* eslint-enable react-hooks/set-state-in-effect */
       }
     } catch {}
+    
+    return () => { active = false; };
   }, []);
 
-  // Shortest path calculator (BFS)
-  const calculateShortestPath = useCallback((startCode: string, targetCode: string, countriesList: Country[]): string[] | null => {
-    const adjMap = new Map<string, string[]>();
-    countriesList.forEach((c) => {
-      adjMap.set(c.cca3, c.borders || []);
-    });
 
-    const queue: [string, string[]][] = [[startCode, [startCode]]];
-    const visited = new Set<string>([startCode]);
-
-    while (queue.length > 0) {
-      const [curr, currentPath] = queue.shift()!;
-      if (curr === targetCode) return currentPath;
-
-      const neighbors = adjMap.get(curr) || [];
-      for (const n of neighbors) {
-        if (!visited.has(n)) {
-          visited.add(n);
-          queue.push([n, [...currentPath, n]]);
-        }
-      }
-    }
-    return null;
-  }, []);
 
   // Generate a valid game setup
   const generateGame = useCallback(() => {
@@ -183,7 +171,7 @@ export default function BorderEscapePage() {
         setGameState("playing");
       }
     }
-  }, [countries, difficulty, calculateShortestPath]);
+  }, [countries, difficulty]);
 
   const selectBorder = (code: string) => {
     if (gameState !== "playing" || !currentCountry) return;

@@ -1,10 +1,10 @@
 "use client";
 
 import { useEffect } from "react";
-import { AlertOctagon, RotateCcw, Home } from "lucide-react";
 import Link from "next/link";
+import { ShieldAlert, RefreshCw, Home } from "lucide-react";
 
-export default function RootError({
+export default function GlobalError({
   error,
   reset,
 }: {
@@ -12,33 +12,35 @@ export default function RootError({
   reset: () => void;
 }) {
   useEffect(() => {
-    // Log the error to an error reporting service
-    console.error(error);
+    // Log the error to an error reporting service in a real app
+    console.error("Global Error Caught:", error);
   }, [error]);
 
   return (
-    <main className="flex-1 bg-atlas-950 text-text-primary min-h-[70vh] flex items-center justify-center p-4">
-      <div className="max-w-md w-full rounded-3xl border border-white/5 bg-white/[0.03] glass-card p-8 text-center animate-in fade-in duration-300">
-        <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-red-500/10 ring-1 ring-red-500/20 mx-auto">
-          <AlertOctagon className="h-8 w-8 text-red-400" />
+    <main className="flex-1 bg-atlas-950 text-text-primary min-h-screen flex items-center justify-center p-6">
+      <div className="max-w-md w-full mx-auto text-center p-8 rounded-3xl bg-white/[0.02] border border-white/10 glass-card">
+        <div className="mx-auto w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center mb-6">
+          <ShieldAlert className="h-8 w-8 text-red-400" />
         </div>
-        <h2 className="text-2xl font-bold font-sora mb-2 text-text-primary">Something went wrong</h2>
-        <p className="text-muted text-sm leading-relaxed mb-8 font-sora">
-          An unexpected error occurred while loading this page. This could be due to a network interruption or temporary API issue.
+        
+        <h2 className="text-2xl font-black font-instrument-serif mb-3">Something went wrong</h2>
+        <p className="text-muted text-sm mb-8 font-sora">
+          An unexpected error occurred. Our systems have logged the issue and we will look into it.
         </p>
-
-        <div className="flex gap-3">
+        
+        <div className="flex flex-col sm:flex-row gap-3">
           <button
             onClick={() => reset()}
-            className="flex-1 py-3 rounded-xl bg-cyan-glow text-atlas-950 text-sm font-bold transition-all hover:bg-cyan-glow/80 hover:scale-[1.02] active:scale-95 shadow-lg shadow-cyan-glow/20 flex items-center justify-center gap-2 font-sora"
+            className="flex-1 flex items-center justify-center gap-2 px-5 py-3 bg-cyan-glow text-atlas-950 rounded-xl text-sm font-bold hover:bg-cyan-glow/90 transition-colors font-sora"
           >
-            <RotateCcw className="h-4 w-4" /> Try Again
+            <RefreshCw className="h-4 w-4" /> Try Again
           </button>
+          
           <Link
             href="/"
-            className="flex-1 py-3 rounded-xl bg-white/[0.05] text-text-primary text-sm font-bold transition-all hover:bg-white/[0.08] active:scale-95 ring-1 ring-white/10 flex items-center justify-center gap-2 font-sora"
+            className="flex-1 flex items-center justify-center gap-2 px-5 py-3 bg-white/5 text-text-primary rounded-xl text-sm font-bold hover:bg-white/10 transition-colors font-sora"
           >
-            <Home className="h-4 w-4" /> Home
+            <Home className="h-4 w-4" /> Go Home
           </Link>
         </div>
       </div>
