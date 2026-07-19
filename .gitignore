@@ -42,3 +42,10 @@ next-env.d.ts
 
 graphify-out/
 .opencode
+
+# local/temp
+.reasonix/
+test-api.js
+test-wb.js
+indicators.json
+wdi_indicators.json
