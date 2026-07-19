@@ -2,10 +2,13 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import dynamic from "next/dynamic";
-import { MapPin, Compass, ChevronRight, RotateCcw, Trophy, Clock, Zap, Award } from "lucide-react";
+import { MapPin, Compass, ChevronRight, RotateCcw, Trophy, Clock, Zap, Award, Lightbulb, Maximize2, Minimize2, Layers } from "lucide-react";
 import locationData from "@/data/locations.json";
 import { useGameStats } from "@/hooks/useGameStats";
+import { GAME_CONFIG } from "@/constants/game";
+import { MAP_STYLES } from "@/constants/ui";
 import type { Achievement } from "@/types";
+import type { MapStyleOption } from "@/constants/ui";
 
 // Dynamically import MapBoard to avoid SSR issues with Leaflet
 const MapBoard = dynamic(() => import("./MapBoard"), { 
@@ -39,6 +42,8 @@ interface UserGuess {
   actualLng: number;
   distance: number;
   points: number;
+  timeBonus: number;
+  hintsUsed: number;
   timeSpent: number;
 }
 
@@ -53,7 +58,7 @@ const REGIONS: { key: RegionKey; name: string; icon: string; center: [number, nu
 
 // Calculate distance using Haversine formula
 function calculateDistance(lat1: number, lng1: number, lat2: number, lng2: number): number {
-  const R = 6371; // Earth's radius in km
+  const R = 6371;
   const dLat = (lat2 - lat1) * Math.PI / 180;
   const dLng = (lng2 - lng1) * Math.PI / 180;
   const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
@@ -78,6 +83,8 @@ function shuffleArray<T>(array: T[]): T[] {
   return shuffled;
 }
 
+const HINT_COST = 100;
+
 export default function MapExplorer() {
   const { stats, recordGame, updateCombo } = useGameStats();
   const [phase, setPhase] = useState<GamePhase>("select");
@@ -98,6 +105,11 @@ export default function MapExplorer() {
   const [currentCombo, setCurrentCombo] = useState(0);
   const [unlockedAchievements, setUnlockedAchievements] = useState<Achievement[]>([]);
   const [showAchievements, setShowAchievements] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [selectedMapStyle, setSelectedMapStyle] = useState<MapStyleOption>(MAP_STYLES[0]);
+  const [showMapStyles, setShowMapStyles] = useState(false);
+  const [currentHintsUsed, setCurrentHintsUsed] = useState(0);
+  const [currentDistance, setCurrentDistance] = useState<number | null>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   const playSoundEffect = useCallback((type: "correct" | "wrong" | "combo" | "achievement") => {
@@ -153,6 +165,10 @@ export default function MapExplorer() {
     setElapsedTime(0);
     setCurrentCombo(0);
     setUnlockedAchievements([]);
+    setCurrentHintsUsed(0);
+    setCurrentDistance(null);
+    setIsExpanded(false);
+    setSelectedMapStyle(MAP_STYLES[0]);
     
     if (regionData) {
       setMapCenter(regionData.center);
@@ -181,6 +197,27 @@ export default function MapExplorer() {
     setShowResult(true);
   };
 
+  const handleGetHint = () => {
+    if (!locations[currentIndex] || showResult) return;
+    if (currentHintsUsed >= 3) return;
+
+    setCurrentHintsUsed(prev => prev + 1);
+    playSoundEffect("achievement");
+  };
+
+  const getHintText = (): string | null => {
+    const location = locations[currentIndex];
+    if (!location) return null;
+
+    switch (currentHintsUsed) {
+      case 0: return null; // No hint yet
+      case 1: return `📍 Located in ${location.country}`;
+      case 2: return `🏷️ It's a ${location.type} in ${location.country}`;
+      case 3: return `🌐 Approx. coords: ${location.lat.toFixed(1)}°, ${location.lng.toFixed(1)}°`;
+      default: return null;
+    }
+  };
+
   const handleNext = () => {
     if (!currentGuess || !locations[currentIndex]) return;
 
@@ -191,12 +228,24 @@ export default function MapExplorer() {
       currentLocation.lat,
       currentLocation.lng
     );
+    
+    // Calculate time bonus
+    const timeForThisGuess = Math.floor((Date.now() - startTime) / 1000);
+    const timeBonus = timeForThisGuess < GAME_CONFIG.TIMING.FAST_ANSWER_THRESHOLD
+      ? (GAME_CONFIG.TIMING.FAST_ANSWER_THRESHOLD - timeForThisGuess) * GAME_CONFIG.TIMING.TIME_BONUS_MULTIPLIER
+      : 0;
+    
+    // Calculate location points
     let points = calculatePoints(distance);
+    
+    // Apply hint penalty (reduce max possible score by HINT_COST per hint)
+    const hintPenalty = currentHintsUsed * HINT_COST;
+    points = Math.max(0, points - hintPenalty);
     
     const isGoodGuess = distance < 500;
     const newCombo = isGoodGuess ? currentCombo + 1 : 0;
     const comboBonus = newCombo >= 3 ? Math.round(newCombo * 20) : 0;
-    points += comboBonus;
+    points += comboBonus + timeBonus;
     
     if (isGoodGuess && distance < 500) {
       playSoundEffect("correct");
@@ -204,6 +253,8 @@ export default function MapExplorer() {
     } else if (distance >= 1000) {
       playSoundEffect("wrong");
     }
+
+    setCurrentDistance(Math.round(distance));
 
     const cumulativeTime = Math.floor((Date.now() - gameStartTime) / 1000);
     
@@ -216,6 +267,8 @@ export default function MapExplorer() {
       actualLng: currentLocation.lng,
       distance: Math.round(distance),
       points,
+      timeBonus,
+      hintsUsed: currentHintsUsed,
       timeSpent: cumulativeTime
     };
 
@@ -230,14 +283,16 @@ export default function MapExplorer() {
         setCurrentGuess(null);
         setShowResult(false);
         setStartTime(Date.now());
-      }, 800);
+        setCurrentHintsUsed(0);
+        setCurrentDistance(null);
+      }, GAME_CONFIG.TIMING.TRANSITION_DELAY);
     } else {
       setTimeout(() => {
         const finalScore = totalScore + points;
         const correctGuesses = userGuesses.filter(g => g.points > 0).length + (points > 0 ? 1 : 0);
         recordGame(finalScore, locations.length * 1000, selectedRegion!, difficulty, placeCount, correctGuesses);
         setPhase("results");
-      }, 800);
+      }, GAME_CONFIG.TIMING.TRANSITION_DELAY);
     }
   };
 
@@ -255,6 +310,8 @@ export default function MapExplorer() {
       actualLng: locations[currentIndex].lng,
       distance: 99999,
       points: 0,
+      timeBonus: 0,
+      hintsUsed: 0,
       timeSpent: cumulativeTime
     };
 
@@ -265,11 +322,25 @@ export default function MapExplorer() {
       setCurrentGuess(null);
       setShowResult(false);
       setStartTime(Date.now());
+      setCurrentHintsUsed(0);
+      setCurrentDistance(null);
     } else {
       const correctGuesses = userGuesses.filter(g => g.points > 0).length;
       recordGame(totalScore, locations.length * 1000, selectedRegion!, difficulty, placeCount, correctGuesses);
       setPhase("results");
     }
+  };
+
+  const playAgain = () => {
+    setLocations([]);
+    setCurrentIndex(0);
+    setUserGuesses([]);
+    setTotalScore(0);
+    setCurrentGuess(null);
+    setShowResult(false);
+    setCurrentHintsUsed(0);
+    setCurrentDistance(null);
+    setPhase("settings");
   };
 
   const resetGame = () => {
@@ -281,10 +352,13 @@ export default function MapExplorer() {
     setTotalScore(0);
     setCurrentGuess(null);
     setShowResult(false);
+    setCurrentHintsUsed(0);
+    setCurrentDistance(null);
   };
 
   const maxPossibleScore = locations.length * 1000;
   const percentage = maxPossibleScore > 0 ? Math.round((totalScore / maxPossibleScore) * 100) : 0;
+  const currentHintText = getHintText();
 
   // Phase 1: Region Selection
   if (phase === "select") {
@@ -422,43 +496,47 @@ export default function MapExplorer() {
       const secs = seconds % 60;
       return `${mins}:${secs.toString().padStart(2, '0')}`;
     };
+
+    const guessLine = showResult && currentGuess && currentLocation
+      ? { from: currentGuess, to: { lat: currentLocation.lat, lng: currentLocation.lng } }
+      : null;
     
     return (
-      <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-          <div>
-            <h2 className="text-xl sm:text-2xl font-black text-text-primary font-instrument-serif">
-              Location {currentIndex + 1} of {locations.length}
-            </h2>
-            <p className="text-muted text-sm font-sora">
-              Click on the map where you think <span className="text-cyan-glow font-semibold font-sora">{currentLocation?.name}</span> is located
-            </p>
-          </div>
-          <div className="flex items-center gap-2 flex-wrap font-sora">
-            {currentCombo >= 2 && (
-              <div className="px-3 py-1 rounded-full bg-amber-glow/20 border border-amber-glow/30 flex items-center gap-1">
-                <Zap className="h-3 w-3 text-amber-glow" />
-                <span className="text-amber-glow font-bold text-sm font-dm-mono">{currentCombo}x</span>
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+            <div>
+              <h2 className="text-xl sm:text-2xl font-black text-text-primary font-instrument-serif">
+                Location {currentIndex + 1} of {locations.length}
+              </h2>
+              <p className="text-muted text-sm font-sora">
+                Click on the map where you think <span className="text-cyan-glow font-semibold font-sora">{currentLocation?.name}</span> is located
+              </p>
+            </div>
+            <div className="flex items-center gap-2 flex-wrap font-sora">
+              {currentCombo >= 2 && (
+                <div className="px-3 py-1 rounded-full bg-amber-glow/20 border border-amber-glow/30 flex items-center gap-1">
+                  <Zap className="h-3 w-3 text-amber-glow" />
+                  <span className="text-amber-glow font-bold text-sm font-dm-mono">{currentCombo}x</span>
+                </div>
+              )}
+              <div className="px-3 py-1 rounded-lg bg-white/[0.05] flex items-center gap-1">
+                <Clock className="h-3 w-3 text-muted" />
+                <span className="text-muted font-dm-mono text-sm">{formatTime(elapsedTime)}</span>
               </div>
-            )}
-            <div className="px-3 py-1 rounded-lg bg-white/[0.05] flex items-center gap-1">
-              <Clock className="h-3 w-3 text-muted" />
-              <span className="text-muted font-dm-mono text-sm">{formatTime(elapsedTime)}</span>
-            </div>
-            <button
-              onClick={skipLocation}
-              className="px-4 py-2 rounded-lg text-sm font-medium text-muted hover:text-text-primary hover:bg-white/10 transition-colors"
-            >
-              Skip
-            </button>
-            <div className="px-4 py-2 rounded-lg bg-cyan-glow/20 border border-cyan-glow/30">
-              <span className="text-cyan-glow font-bold font-dm-mono">{totalScore}</span>
-              <span className="text-muted text-sm ml-1 font-sora">pts</span>
+              <button
+                onClick={skipLocation}
+                className="px-4 py-2 rounded-lg text-sm font-medium text-muted hover:text-text-primary hover:bg-white/10 transition-colors"
+              >
+                Skip
+              </button>
+              <div className="px-4 py-2 rounded-lg bg-cyan-glow/20 border border-cyan-glow/30">
+                <span className="text-cyan-glow font-bold font-dm-mono">{totalScore}</span>
+                <span className="text-muted text-sm ml-1 font-sora">pts</span>
+              </div>
             </div>
           </div>
-        </div>
 
-        <div className="relative rounded-2xl overflow-hidden border border-white/10">
+        <div className={`relative overflow-hidden ${isExpanded ? 'aspect-square max-h-[80vh] w-full' : 'rounded-2xl border border-white/10'}`}>
           <MapBoard
             center={mapCenter}
             zoom={mapZoom}
@@ -466,10 +544,54 @@ export default function MapExplorer() {
             userMarker={currentGuess}
             showResult={showResult}
             actualLocation={showResult && currentLocation ? { lat: currentLocation.lat, lng: currentLocation.lng } : null}
+            guessLine={guessLine}
             regionKey={selectedRegion || undefined}
+            mapStyle={selectedMapStyle}
+            isFullscreen={isExpanded}
           />
-          
-          <div className="absolute top-4 left-4 right-4 sm:left-auto sm:right-4 sm:w-auto z-[1000]">
+
+          {/* Top-left: Map controls */}
+          <div className="absolute top-4 left-4 z-[1000] flex flex-row gap-2">
+            {/* Map style selector */}
+            <div className="relative">
+              <button
+                onClick={() => setShowMapStyles(!showMapStyles)}
+                className="bg-atlas-950/90 backdrop-blur-md rounded-xl p-3 border border-white/10 hover:bg-atlas-950/70 transition-colors"
+                title="Change map style"
+              >
+                <Layers className="h-5 w-5 text-text-primary" />
+              </button>
+              {showMapStyles && (
+                <div className="absolute top-full left-0 mt-2 bg-atlas-950/95 backdrop-blur-md rounded-xl border border-white/10 p-2 min-w-[160px] shadow-2xl">
+                  {MAP_STYLES.map((style) => (
+                    <button
+                      key={style.id}
+                      onClick={() => { setSelectedMapStyle(style); setShowMapStyles(false); }}
+                      className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors font-sora ${
+                        selectedMapStyle.id === style.id
+                          ? "bg-cyan-glow/20 text-cyan-glow font-semibold"
+                          : "text-text-secondary hover:bg-white/5 hover:text-text-primary"
+                      }`}
+                    >
+                      {style.name}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Expand/collapse toggle */}
+            <button
+              onClick={() => setIsExpanded(!isExpanded)}
+              className="bg-atlas-950/90 backdrop-blur-md rounded-xl p-3 border border-white/10 hover:bg-atlas-950/70 transition-colors"
+              title={isExpanded ? "Collapse map" : "Expand map to square"}
+            >
+              {isExpanded ? <Minimize2 className="h-5 w-5 text-text-primary" /> : <Maximize2 className="h-5 w-5 text-text-primary" />}
+            </button>
+          </div>
+
+          {/* Top-right: Location name badge */}
+          <div className="absolute top-4 right-4 z-[1000]">
             <div className="bg-atlas-950/90 backdrop-blur-md rounded-xl px-4 py-3 border border-white/10 inline-flex items-center gap-3">
               <div className="p-2 rounded-lg bg-cyan-glow/20">
                 <MapPin className="h-4 w-4 text-cyan-glow" />
@@ -480,8 +602,55 @@ export default function MapExplorer() {
               </div>
             </div>
           </div>
+
+          {/* Hint system - bottom left */}
+          {!showResult && currentHintsUsed < 3 && (
+            <div className="absolute bottom-4 left-4 z-[1000]">
+              <button
+                onClick={handleGetHint}
+                className="bg-atlas-950/90 backdrop-blur-md rounded-xl px-4 py-3 border border-white/10 hover:bg-atlas-950/70 transition-colors flex items-center gap-2 group"
+                title={`Reveal a hint (-${HINT_COST} pts penalty)`}
+              >
+                <Lightbulb className="h-4 w-4 text-amber-glow group-hover:animate-pulse" />
+                <span className="text-sm font-sora text-text-secondary group-hover:text-text-primary">
+                  Hint ({3 - currentHintsUsed} left · -{HINT_COST * (currentHintsUsed + 1)} pts)
+                </span>
+              </button>
+            </div>
+          )}
+
+          {/* Hint text shown */}
+          {currentHintText && !showResult && (
+            <div className="absolute bottom-20 left-4 z-[1000] animate-in fade-in slide-in-from-bottom-2">
+              <div className="bg-atlas-950/90 backdrop-blur-md rounded-xl px-4 py-3 border border-amber-glow/30 flex items-center gap-2">
+                <Lightbulb className="h-4 w-4 text-amber-glow" />
+                <span className="text-sm font-sora text-text-primary">{currentHintText}</span>
+              </div>
+            </div>
+          )}
+
+          {/* Distance badge after guess */}
+          {showResult && currentDistance !== null && (
+            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-[1000] animate-in fade-in slide-in-from-bottom-4">
+              <div className={`rounded-2xl px-8 py-4 border shadow-2xl backdrop-blur-md text-center ${
+                currentDistance < 500
+                  ? "bg-emerald-500/20 border-emerald-500/40"
+                  : currentDistance < 1000
+                  ? "bg-amber-glow/20 border-amber-glow/30"
+                  : "bg-red-500/20 border-red-500/30"
+              }`}>
+                <div className="text-3xl font-black font-dm-mono text-text-primary">
+                  {currentDistance.toLocaleString()} km
+                </div>
+                <div className="text-sm font-sora text-text-secondary mt-1">
+                  {currentDistance < 50 ? "🎯 Perfect!" : currentDistance < 500 ? "🔥 Great guess!" : currentDistance < 1000 ? "👍 Not bad" : "😅 Way off"}
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
+        {/* Next button after guess */}
         {currentGuess && showResult && (
           <div className="mt-4 flex justify-center animate-in fade-in slide-in-from-bottom-4">
             <button
@@ -576,6 +745,7 @@ export default function MapExplorer() {
               actualLocation={null}
               allGuesses={userGuesses}
               regionKey={selectedRegion || undefined}
+              mapStyle={selectedMapStyle}
             />
           </div>
 
@@ -605,13 +775,24 @@ export default function MapExplorer() {
                       <p className="text-xs text-muted font-dm-mono">
                         {guess.distance > 9000 ? "Skipped" : `${guess.distance.toLocaleString()} km away`}
                         <span className="ml-2 text-cyan-glow">• {formatSec(timeForThis)}</span>
+                        {guess.timeBonus > 0 && (
+                          <span className="ml-2 text-amber-glow">• ⚡ +{guess.timeBonus} fast</span>
+                        )}
+                        {guess.hintsUsed > 0 && (
+                          <span className="ml-2 text-violet-glow">• 💡 {guess.hintsUsed} hint{guess.hintsUsed > 1 ? 's' : ''}</span>
+                        )}
                       </p>
                     </div>
                   </div>
-                  <div className={`font-bold font-dm-mono ${
-                    guess.points > 500 ? "text-emerald-400" : guess.points > 0 ? "text-amber-glow" : "text-red-400"
-                  }`}>
-                    {guess.points} pts
+                  <div className="text-right">
+                    <div className={`font-bold font-dm-mono ${
+                      guess.points > 500 ? "text-emerald-400" : guess.points > 0 ? "text-amber-glow" : "text-red-400"
+                    }`}>
+                      {guess.points} pts
+                    </div>
+                    {guess.timeBonus > 0 && (
+                      <div className="text-[10px] text-amber-glow/70 font-dm-mono">+{guess.timeBonus} time bonus</div>
+                    )}
                   </div>
                 </div>
               );
@@ -620,9 +801,7 @@ export default function MapExplorer() {
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <button
-              onClick={() => {
-                setPhase("settings");
-              }}
+              onClick={playAgain}
               className="flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-white/[0.05] text-text-primary font-bold hover:bg-white/[0.08] transition-all border border-white/10 font-sora"
             >
               <RotateCcw className="h-4 w-4" />

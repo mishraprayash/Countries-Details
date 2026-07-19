@@ -253,12 +253,13 @@ body::before {
 @media print {
   @page {
     size: A4;
-    margin: 14mm 14mm 16mm 14mm;
+    margin: 0;
   }
 
   html, body {
     background: #ffffff !important;
-    color: #0a0a0a !important;
+    color: #000000 !important;
+    color-scheme: light !important;
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }

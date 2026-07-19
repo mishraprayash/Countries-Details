@@ -29,7 +29,7 @@ export default function DestinationsPage() {
           </div>
         </div>
 
-        {/* Popular Destinations component (no countryName passed, so it shows the selector) */}
+        {/* Popular Destinations component */}
         <PopularDestinations />
 
       </div>

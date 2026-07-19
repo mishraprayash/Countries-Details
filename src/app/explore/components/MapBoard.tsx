@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { MapContainer, TileLayer, Marker, Popup, useMap, useMapEvents } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup, useMap, useMapEvents, Polyline } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+import type { MapStyleOption } from "@/constants/ui";
 
 interface MapBoardProps {
   center: [number, number];
@@ -12,8 +13,11 @@ interface MapBoardProps {
   userMarker: { lat: number; lng: number } | null;
   showResult: boolean;
   actualLocation: { lat: number; lng: number } | null;
+  guessLine?: { from: { lat: number; lng: number }; to: { lat: number; lng: number } } | null;
   allGuesses?: { locationName: string; lat: number; lng: number; actualLat: number; actualLng: number; points: number; distance: number }[];
   regionKey?: string;
+  mapStyle?: MapStyleOption;
+  isFullscreen?: boolean;
 }
 
 // Simplified continent GeoJSON boundaries (as coordinate arrays)
@@ -33,7 +37,6 @@ function RegionHighlight({ regionKey }: { regionKey?: string }) {
   useEffect(() => {
     if (!regionKey || !continentBounds[regionKey]) return;
     
-    // Create a polygon for the region
     const bounds = continentBounds[regionKey];
     const polygon = L.polygon(
       bounds.map(coord => [coord[0], coord[1]] as [number, number]),
@@ -132,13 +135,18 @@ export default function MapBoard({
   userMarker,
   showResult,
   actualLocation,
+  guessLine,
   allGuesses,
   regionKey,
+  mapStyle,
+  isFullscreen,
 }: MapBoardProps) {
   const mapRef = useRef<L.Map>(null);
+  const tileUrl = mapStyle?.url || "https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}.png";
+  const tileAttribution = mapStyle?.attribution || '&copy; OpenStreetMap contributors';
 
   return (
-    <div className="w-full h-[500px] rounded-xl overflow-hidden border border-white/5">
+    <div className={`w-full ${isFullscreen ? 'h-full' : 'h-[500px]'} rounded-xl overflow-hidden border border-white/5`}>
       <MapContainer
         center={center}
         zoom={zoom}
@@ -147,13 +155,29 @@ export default function MapBoard({
         ref={mapRef}
       >
         <TileLayer
-          attribution='&copy; OpenStreetMap contributors'
-          url="https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}.png"
+          attribution={tileAttribution}
+          url={tileUrl}
         />
         
         <MapController center={center} zoom={zoom} />
         <MapClickHandler onMapClick={onMapClick} />
         <RegionHighlight regionKey={regionKey} />
+        
+        {/* Guess feedback line - from user guess to actual location */}
+        {guessLine && (
+          <Polyline
+            positions={[
+              [guessLine.from.lat, guessLine.from.lng],
+              [guessLine.to.lat, guessLine.to.lng],
+            ]}
+            pathOptions={{
+              color: '#f59e0b',
+              weight: 3,
+              opacity: 0.6,
+              dashArray: '8, 8',
+            }}
+          />
+        )}
         
         {/* User's guess marker during gameplay - numbered */}
         {userMarker && (
@@ -180,6 +204,21 @@ export default function MapBoard({
         {/* All guesses on results screen - numbered markers */}
         {allGuesses && allGuesses.map((guess, idx) => (
           <div key={idx}>
+            {/* Line connecting guess to actual on results */}
+            {guess.lat !== 0 && guess.lng !== 0 && (
+              <Polyline
+                positions={[
+                  [guess.lat, guess.lng],
+                  [guess.actualLat, guess.actualLng],
+                ]}
+                pathOptions={{
+                  color: '#f59e0b',
+                  weight: 2,
+                  opacity: 0.3,
+                  dashArray: '6, 6',
+                }}
+              />
+            )}
             {/* User's guess - numbered */}
             {guess.lat !== 0 && guess.lng !== 0 && (
               <Marker position={[guess.lat, guess.lng]} icon={createNumberedIcon(idx + 1, true)}>
@@ -202,7 +241,7 @@ export default function MapBoard({
             </Marker>
           </div>
         ))}
-</MapContainer>
+      </MapContainer>
     </div>
   );
 }
