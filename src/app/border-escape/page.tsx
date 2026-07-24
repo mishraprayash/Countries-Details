@@ -44,6 +44,7 @@ export default function BorderEscapePage() {
   const [currentCountry, setCurrentCountry] = useState<Country | null>(null);
   const [path, setPath] = useState<string[]>([]); // Array of CCA3 codes visited
   const [optimalPath, setOptimalPath] = useState<string[]>([]);
+  const [revealed, setRevealed] = useState(false);
   const [personalBests, setPersonalBests] = useState<Record<Difficulty, number | null>>({
     easy: null,
     medium: null,
@@ -156,6 +157,7 @@ export default function BorderEscapePage() {
       setCurrentCountry(start);
       setPath([start.cca3]);
       setOptimalPath(pathResult);
+      setRevealed(false);
       setGameState("playing");
     } else {
       // Fallback in case loop fails: Spain to India
@@ -168,6 +170,7 @@ export default function BorderEscapePage() {
         setPath(["ESP"]);
         const defaultPath = calculateShortestPath("ESP", "IND", countries) || [];
         setOptimalPath(defaultPath);
+        setRevealed(false);
         setGameState("playing");
       }
     }
@@ -391,12 +394,21 @@ export default function BorderEscapePage() {
               </div>
 
               {/* Danger / Restart buttons */}
-              <div className="flex gap-2">
+              <div className="flex flex-col sm:flex-row gap-2">
                 <button
                   onClick={() => setGameState("start")}
                   className="flex-1 py-3 rounded-xl border border-white/10 bg-white/[0.03] text-sm text-text-primary hover:bg-white/[0.06] transition-all font-sora font-semibold flex items-center justify-center gap-2"
                 >
                   <RefreshCw className="h-4 w-4" /> Restart
+                </button>
+                <button
+                  onClick={() => {
+                    setRevealed(true);
+                    setGameState("victory");
+                  }}
+                  className="flex-1 py-3 rounded-xl border border-amber-glow/20 bg-amber-glow/5 text-sm text-amber-glow hover:bg-amber-glow/10 transition-all font-sora font-semibold flex items-center justify-center gap-2"
+                >
+                  <Compass className="h-4 w-4" /> Show Answer
                 </button>
               </div>
             </div>
@@ -478,13 +490,25 @@ export default function BorderEscapePage() {
         {/* VICTORY SCREEN */}
         {gameState === "victory" && startCountry && targetCountry && (
           <div className="max-w-xl mx-auto rounded-3xl border border-white/5 bg-white/[0.03] glass-card p-6 sm:p-10 text-center animate-in zoom-in-95 duration-500">
-            <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-amber-glow/10 ring-4 ring-amber-glow/20 mx-auto">
-              <Trophy className="h-10 w-10 text-amber-glow" />
+            <div className={`mb-6 flex h-20 w-20 items-center justify-center rounded-full mx-auto ${
+              revealed 
+                ? "bg-cyan-glow/10 ring-4 ring-cyan-glow/20" 
+                : "bg-amber-glow/10 ring-4 ring-amber-glow/20"
+            }`}>
+              {revealed ? (
+                <Compass className="h-10 w-10 text-cyan-glow" />
+              ) : (
+                <Trophy className="h-10 w-10 text-amber-glow" />
+              )}
             </div>
             
-            <h2 className="text-3xl font-black font-instrument-serif text-text-primary mb-2">Border Escaped!</h2>
+            <h2 className="text-3xl font-black font-instrument-serif text-text-primary mb-2">
+              {revealed ? "Route Revealed" : "Border Escaped!"}
+            </h2>
             <p className="text-muted text-sm font-sora mb-6">
-              You successfully built a land bridge from {startCountry.name.common} to {targetCountry.name.common}.
+              {revealed 
+                ? `Here is the optimal path from ${startCountry.name.common} to ${targetCountry.name.common}.` 
+                : `You successfully built a land bridge from ${startCountry.name.common} to ${targetCountry.name.common}.`}
             </p>
 
             <div className="grid grid-cols-2 gap-4 mb-8 bg-white/[0.01] border border-white/5 p-5 rounded-2xl font-sora">
@@ -498,17 +522,41 @@ export default function BorderEscapePage() {
               </div>
             </div>
 
-            <div className="mb-8 text-left p-4 rounded-2xl bg-white/[0.02] border border-white/5 font-sora text-sm">
-              <span className="text-xs font-bold text-text-muted uppercase tracking-wider mb-3 block">Optimal Route:</span>
-              <div className="flex flex-wrap items-center gap-1.5">
-                {optimalPath.map((code, idx) => (
-                  <div key={idx} className="flex items-center gap-1">
-                    <span className="px-2.5 py-1 rounded bg-white/[0.04] text-xs font-medium text-text-secondary border border-white/5">
-                      {getCountryName(code)}
-                    </span>
-                    {idx < optimalPath.length - 1 && <ChevronRight className="h-3 w-3 text-text-muted" />}
-                  </div>
-                ))}
+            <div className="grid gap-4 md:grid-cols-2 mb-8 text-left">
+              <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/5 font-sora text-sm">
+                <span className="text-xs font-bold text-rose-400 uppercase tracking-wider mb-3 block">Your Route ({path.length - 1} steps):</span>
+                <div className="flex flex-wrap items-center gap-1.5">
+                  {path.map((code, idx) => (
+                    <div key={idx} className="flex items-center gap-1 my-0.5">
+                      <span className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-white/[0.04] text-xs font-medium text-text-secondary border border-white/5">
+                        <span className="relative w-4 h-2.5 rounded overflow-hidden shrink-0 border border-white/10">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img src={getCountryFlag(code)} alt="" className="w-full h-full object-cover" />
+                        </span>
+                        {getCountryName(code)}
+                      </span>
+                      {idx < path.length - 1 && <ChevronRight className="h-3 w-3 text-text-muted" />}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/5 font-sora text-sm">
+                <span className="text-xs font-bold text-emerald-400 uppercase tracking-wider mb-3 block">Optimal Route ({optimalPath.length - 1} steps):</span>
+                <div className="flex flex-wrap items-center gap-1.5">
+                  {optimalPath.map((code, idx) => (
+                    <div key={idx} className="flex items-center gap-1 my-0.5">
+                      <span className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-white/[0.04] text-xs font-medium text-text-secondary border border-white/5">
+                        <span className="relative w-4 h-2.5 rounded overflow-hidden shrink-0 border border-white/10">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img src={getCountryFlag(code)} alt="" className="w-full h-full object-cover" />
+                        </span>
+                        {getCountryName(code)}
+                      </span>
+                      {idx < optimalPath.length - 1 && <ChevronRight className="h-3 w-3 text-text-muted" />}
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
 
@@ -523,6 +571,7 @@ export default function BorderEscapePage() {
                 optimalPathCountries={optimalPath
                   .map((code) => countries.find((c) => c.cca3 === code))
                   .filter(Boolean) as Country[]}
+                revealed={revealed}
               />
             </div>
 

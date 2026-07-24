@@ -22,16 +22,19 @@ interface BorderEscapeMapProps {
   targetCountry: Country;
   userPathCountries: Country[];
   optimalPathCountries: Country[];
+  revealed?: boolean;
 }
 
 function createColoredIcon(flagUrl: string, color: string, label: string): L.DivIcon {
-  const size = 30;
+  // Dynamically increase icon size for longer labels (e.g. U1,3,5)
+  const width = label.length > 3 ? 44 : 30;
+  const height = 21;
   return L.divIcon({
     className: "",
     html: `<div style="
       position: relative;
-      width: ${size}px;
-      height: ${Math.round(size * 0.7)}px;
+      width: ${width}px;
+      height: ${height}px;
       background: #0c1020;
       border-radius: 4px;
       border: 2px solid ${color};
@@ -50,12 +53,13 @@ function createColoredIcon(flagUrl: string, color: string, label: string): L.Div
         color: #0c1020;
         font-size: 8px;
         font-weight: 900;
-        padding: 0 2px;
+        padding: 0 3px;
         border-top-left-radius: 3px;
+        white-space: nowrap;
       ">${label}</div>
     </div>`,
-    iconSize: [size, Math.round(size * 0.7)],
-    iconAnchor: [size / 2, Math.round(size * 0.7) / 2],
+    iconSize: [width, height],
+    iconAnchor: [width / 2, height / 2],
   });
 }
 
@@ -65,42 +69,52 @@ function MapController({ coords }: { coords: [number, number][] }) {
   useEffect(() => {
     if (coords.length === 0) return;
     const bounds = L.latLngBounds(coords);
-    map.fitBounds(bounds, { padding: [60, 60] });
+    map.fitBounds(bounds, { padding: [40, 40] });
   }, [coords, map]);
 
   return null;
 }
 
-export default function BorderEscapeMap({
+interface SingleMapProps {
+  center: [number, number];
+  coords: [number, number][];
+  currentStyle: typeof MAP_STYLES[0];
+  mapStyleId: string;
+  onStyleChange: (id: string) => void;
+  positions: [number, number][];
+  color: string;
+  isDashed?: boolean;
+  countries: Country[];
+  startCountry: Country;
+  targetCountry: Country;
+  isOptimal: boolean;
+}
+
+function SingleMap({
+  center,
+  coords,
+  currentStyle,
+  mapStyleId,
+  onStyleChange,
+  positions,
+  color,
+  isDashed = false,
+  countries,
   startCountry,
   targetCountry,
-  userPathCountries,
-  optimalPathCountries,
-}: BorderEscapeMapProps) {
+  isOptimal,
+}: SingleMapProps) {
   const mapRef = useRef<L.Map>(null);
-  const { resolvedTheme } = useTheme();
-  const [overrideStyleId, setOverrideStyleId] = useState<string | null>(null);
 
-  const mapStyleId = overrideStyleId || (resolvedTheme === "light" ? "light" : "dark");
-  const currentStyle = MAP_STYLES.find((s) => s.id === mapStyleId) || MAP_STYLES[0];
-
-  const center: [number, number] = startCountry.latlng || [20, 0];
-
-  // Coordinates lists
-  const userPositions = userPathCountries
-    .filter((c) => c.latlng)
-    .map((c) => c.latlng as [number, number]);
-
-  const optimalPositions = optimalPathCountries
-    .filter((c) => c.latlng)
-    .map((c) => c.latlng as [number, number]);
-
-  // Combine all coordinates to fit bounds
-  const allCoords = [...userPositions, ...optimalPositions];
+  // Group duplicate visits to the same country to prevent overlapping/invisible markers
+  const uniqueCca3s = Array.from(new Set(countries.map((c) => c.cca3)));
+  const uniqueCountries = uniqueCca3s
+    .map((code) => countries.find((c) => c.cca3 === code))
+    .filter((c): c is Country => !!c && !!c.latlng);
 
   return (
-    <div className="relative w-full h-[380px] rounded-2xl overflow-hidden border border-white/10 shadow-2xl">
-      <MapStyleSelector currentStyleId={mapStyleId} onStyleChange={setOverrideStyleId} />
+    <div className="relative w-full h-[260px] sm:h-[340px] rounded-2xl overflow-hidden border border-white/10 shadow-lg">
+      <MapStyleSelector currentStyleId={mapStyleId} onStyleChange={onStyleChange} />
       <MapContainer
         center={center}
         zoom={3}
@@ -113,75 +127,62 @@ export default function BorderEscapeMap({
           url={currentStyle.url}
           key={currentStyle.id}
         />
-        <MapController coords={allCoords} />
+        <MapController coords={coords} />
 
-        {/* User's Route Polyline (Dashed Orange/Cyan depending on result) */}
-        {userPositions.length > 1 && (
+        {positions.length > 1 && (
           <Polyline
-            positions={userPositions}
-            color="#FFB347"
-            weight={3.5}
-            dashArray="6, 8"
-            opacity={0.8}
-          />
-        )}
-
-        {/* Shortest / Optimal Route Polyline (Solid Glowing Emerald) */}
-        {optimalPositions.length > 1 && (
-          <Polyline
-            positions={optimalPositions}
-            color="#10b981"
+            positions={positions}
+            color={color}
             weight={4}
+            dashArray={isDashed ? "6, 8" : undefined}
             opacity={0.9}
           />
         )}
 
-        {/* Markers along the Optimal path */}
-        {optimalPathCountries.map((c, idx) => {
-          if (!c.latlng) return null;
+        {uniqueCountries.map((c) => {
           const isStart = c.cca3 === startCountry.cca3;
           const isTarget = c.cca3 === targetCountry.cca3;
           
-          let color = "#10b981"; // Emerald for shortest route
-          let label = `${idx + 1}`;
+          // Find all step indices where the user/shortest path visited this country
+          const indices = countries
+            .map((x, i) => (x.cca3 === c.cca3 ? i : -1))
+            .filter((i) => i !== -1);
+          
+          let markerColor = color;
+          let label = "";
+          
           if (isStart) {
-            color = "#00D4FF";
+            markerColor = "#00D4FF";
             label = "S";
           } else if (isTarget) {
-            color = "#f59e0b";
+            markerColor = "#f59e0b";
             label = "T";
+          } else {
+            const prefix = isOptimal ? "" : "U";
+            if (indices.length <= 3) {
+              label = prefix + indices.join(",");
+            } else {
+              label = prefix + indices.slice(0, 2).join(",") + "+";
+            }
           }
 
           return (
             <Marker 
-              key={`opt-${c.cca3}`} 
-              position={c.latlng} 
-              icon={createColoredIcon(c.flags.svg, color, label)}
+              key={`${isOptimal ? "opt" : "user"}-${c.cca3}`} 
+              position={c.latlng as [number, number]} 
+              icon={createColoredIcon(c.flags.svg, markerColor, label)}
             >
               <Popup>
                 <div className="font-sora text-xs">
-                  <span className="font-bold text-emerald-400">Shortest Route step #{idx + 1}</span>
-                  <p className="font-bold mt-0.5">{c.name.common}</p>
-                </div>
-              </Popup>
-            </Marker>
-          );
-        })}
-
-        {/* Markers along the User's path (if they took a different route) */}
-        {userPathCountries.map((c, idx) => {
-          if (!c.latlng) return null;
-          if (optimalPathCountries.some((opt) => opt.cca3 === c.cca3)) return null; // Avoid duplicate markers
-          
-          return (
-            <Marker 
-              key={`user-${c.cca3}`} 
-              position={c.latlng} 
-              icon={createColoredIcon(c.flags.svg, "#f43f5e", `U${idx + 1}`)}
-            >
-              <Popup>
-                <div className="font-sora text-xs">
-                  <span className="font-bold text-rose-400">Your Route step #{idx + 1}</span>
+                  <span className="font-bold" style={{ color: markerColor }}>
+                    {isStart 
+                      ? "Start Location" 
+                      : isTarget 
+                        ? "Target Destination" 
+                        : isOptimal 
+                          ? `Shortest Route step(s) #${indices.join(", #")}` 
+                          : `Your Route step(s) #${indices.join(", #")}`}
+                  </span>
                   <p className="font-bold mt-0.5">{c.name.common}</p>
                 </div>
               </Popup>
@@ -189,20 +190,108 @@ export default function BorderEscapeMap({
           );
         })}
       </MapContainer>
+    </div>
+  );
+}
 
-      {/* Mini Legend Overlay */}
-      <div className="absolute bottom-4 left-4 z-[1000] p-2.5 rounded-xl border border-white/10 bg-atlas-900/90 backdrop-blur-md shadow-2xl font-sora text-[9px] space-y-1 select-none pointer-events-none">
-        <div className="flex items-center gap-1.5 font-medium text-text-secondary">
-          <span className="h-1 w-4 bg-emerald-500 rounded" /> 
-          <span>Shortest Route (Optimal)</span>
-        </div>
-        {userPositions.length > 1 && userPositions.length !== optimalPositions.length && (
-          <div className="flex items-center gap-1.5 font-medium text-text-secondary">
-            <span className="h-1 w-4 border-t-2 border-dashed border-amber-400" /> 
-            <span>Your Route</span>
+export default function BorderEscapeMap({
+  startCountry,
+  targetCountry,
+  userPathCountries,
+  optimalPathCountries,
+}: BorderEscapeMapProps) {
+  const { resolvedTheme } = useTheme();
+  const [overrideStyleId, setOverrideStyleId] = useState<string | null>(null);
+
+  const mapStyleId = overrideStyleId || (resolvedTheme === "light" ? "light" : "dark");
+  const currentStyle = MAP_STYLES.find((s) => s.id === mapStyleId) || MAP_STYLES[0];
+
+  const center: [number, number] = startCountry.latlng || [20, 0];
+
+  const userPositions = userPathCountries
+    .filter((c) => c.latlng)
+    .map((c) => c.latlng as [number, number]);
+
+  const optimalPositions = optimalPathCountries
+    .filter((c) => c.latlng)
+    .map((c) => c.latlng as [number, number]);
+
+  const showBoth = userPositions.length > 1;
+
+  if (showBoth) {
+    return (
+      <div className="flex flex-col gap-6 w-full">
+        <div className="space-y-2">
+          <div className="flex items-center gap-2 px-1">
+            <span className="h-2 w-2 rounded-full bg-amber-400" />
+            <span className="text-xs font-bold text-rose-400 uppercase tracking-wider font-sora">
+              Your Route Map
+            </span>
           </div>
-        )}
+          <SingleMap
+            center={center}
+            coords={userPositions}
+            currentStyle={currentStyle}
+            mapStyleId={mapStyleId}
+            onStyleChange={setOverrideStyleId}
+            positions={userPositions}
+            color="#FFB347"
+            isDashed={true}
+            countries={userPathCountries}
+            startCountry={startCountry}
+            targetCountry={targetCountry}
+            isOptimal={false}
+          />
+        </div>
+
+        <div className="space-y-2">
+          <div className="flex items-center gap-2 px-1">
+            <span className="h-2 w-2 rounded-full bg-emerald-500" />
+            <span className="text-xs font-bold text-emerald-400 uppercase tracking-wider font-sora">
+              Optimal Route Map
+            </span>
+          </div>
+          <SingleMap
+            center={center}
+            coords={optimalPositions}
+            currentStyle={currentStyle}
+            mapStyleId={mapStyleId}
+            onStyleChange={setOverrideStyleId}
+            positions={optimalPositions}
+            color="#10b981"
+            isDashed={false}
+            countries={optimalPathCountries}
+            startCountry={startCountry}
+            targetCountry={targetCountry}
+            isOptimal={true}
+          />
+        </div>
       </div>
+    );
+  }
+
+  return (
+    <div className="space-y-2">
+      <div className="flex items-center gap-2 px-1">
+        <span className="h-2 w-2 rounded-full bg-emerald-500" />
+        <span className="text-xs font-bold text-emerald-400 uppercase tracking-wider font-sora">
+          Optimal Route Map
+        </span>
+      </div>
+      <SingleMap
+        center={center}
+        coords={optimalPositions}
+        currentStyle={currentStyle}
+        mapStyleId={mapStyleId}
+        onStyleChange={setOverrideStyleId}
+        positions={optimalPositions}
+        color="#10b981"
+        isDashed={false}
+        countries={optimalPathCountries}
+        startCountry={startCountry}
+        targetCountry={targetCountry}
+        isOptimal={true}
+      />
     </div>
   );
 }
