@@ -23,8 +23,9 @@ export default function RecentlyViewedSection() {
       fetch("/api/countries")
         .then((res) => res.ok ? res.json() : [])
         .then((data: Country[]) => {
+          const countryMap = new Map<string, Country>(data.map((c) => [c.cca3, c]));
           const ordered = recentlyViewed
-            .map((v) => data.find((c) => c.cca3 === v.cca3))
+            .map((v) => countryMap.get(v.cca3))
             .filter(Boolean) as Country[];
           setCountryDetails(ordered);
         })
