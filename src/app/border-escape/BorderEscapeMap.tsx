@@ -106,11 +106,25 @@ function SingleMap({
 }: SingleMapProps) {
   const mapRef = useRef<L.Map>(null);
 
-  // Group duplicate visits to the same country to prevent overlapping/invisible markers
-  const uniqueCca3s = Array.from(new Set(countries.map((c) => c.cca3)));
-  const uniqueCountries = uniqueCca3s
-    .map((code) => countries.find((c) => c.cca3 === code))
-    .filter((c): c is Country => !!c && !!c.latlng);
+  // Pre-index country lookup and visit step indices in a single pass O(N)
+  const countryMap = new Map<string, Country>();
+  const indicesMap = new Map<string, number[]>();
+
+  for (let i = 0; i < countries.length; i++) {
+    const c = countries[i];
+    if (!c) continue;
+    if (c.latlng && !countryMap.has(c.cca3)) {
+      countryMap.set(c.cca3, c);
+    }
+    let idxList = indicesMap.get(c.cca3);
+    if (!idxList) {
+      idxList = [];
+      indicesMap.set(c.cca3, idxList);
+    }
+    idxList.push(i);
+  }
+
+  const uniqueCountries = Array.from(countryMap.values());
 
   return (
     <div className="relative w-full h-[260px] sm:h-[340px] rounded-2xl overflow-hidden border border-white/10 shadow-lg">
@@ -142,11 +156,7 @@ function SingleMap({
         {uniqueCountries.map((c) => {
           const isStart = c.cca3 === startCountry.cca3;
           const isTarget = c.cca3 === targetCountry.cca3;
-          
-          // Find all step indices where the user/shortest path visited this country
-          const indices = countries
-            .map((x, i) => (x.cca3 === c.cca3 ? i : -1))
-            .filter((i) => i !== -1);
+          const indices = indicesMap.get(c.cca3) || [];
           
           let markerColor = color;
           let label = "";
