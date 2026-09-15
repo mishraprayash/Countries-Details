@@ -44,9 +44,18 @@ const REGION_COLORS: Record<string, { accent: string; glow: string; bg: string }
 
 function DashboardStats({ countries }: DashboardContentProps) {
   const totalCountries = countries.length;
-  const totalPopulation = countries.reduce((acc, c) => acc + c.population, 0);
-  const totalArea = countries.reduce((acc, c) => acc + (c.area || 0), 0);
-  const independentCount = countries.filter(c => c.independent === true).length;
+  let totalPopulation = 0;
+  let totalArea = 0;
+  let independentCount = 0;
+
+  for (let i = 0; i < totalCountries; i++) {
+    const c = countries[i];
+    totalPopulation += c.population || 0;
+    totalArea += c.area || 0;
+    if (c.independent === true) {
+      independentCount++;
+    }
+  }
 
   const stats = [
     { label: "Total Countries", value: totalCountries, icon: Globe, accent: "cyan" },
