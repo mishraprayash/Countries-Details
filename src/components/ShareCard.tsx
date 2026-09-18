@@ -26,8 +26,29 @@ const CARD_HEIGHT = 630;
 const formatStat = (n: number, divisor: number, suffix: string) =>
   `${(n / divisor).toFixed(divisor === 1 ? 0 : 1)}${suffix}`;
 
+export function isAllowedFlagUrl(url: string): boolean {
+  try {
+    const parsed = new URL(url);
+    if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
+      return false;
+    }
+    const hostname = parsed.hostname.toLowerCase();
+    return (
+      hostname === "flagcdn.com" ||
+      hostname.endsWith(".flagcdn.com") ||
+      hostname === "wikimedia.org" ||
+      hostname.endsWith(".wikimedia.org")
+    );
+  } catch {
+    return false;
+  }
+}
+
 async function fetchFlagAsDataUrl(url: string): Promise<string> {
   try {
+    if (!isAllowedFlagUrl(url)) {
+      return "";
+    }
     const res = await fetch(url);
     const blob = await res.blob();
     return await new Promise<string>((resolve, reject) => {
