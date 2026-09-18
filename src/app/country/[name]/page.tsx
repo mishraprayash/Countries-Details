@@ -16,6 +16,7 @@ import ClimographWrapper from "@/components/ClimographWrapper";
 import SeismicMonitorWrapper from "@/components/SeismicMonitorWrapper";
 import PopularDestinations from "@/components/PopularDestinations";
 import PrintLayout from "@/components/PrintLayout";
+import { serializeJsonLd } from "@/utils/jsonLd";
 
 import { Metadata } from "next";
 
@@ -118,7 +119,7 @@ export default async function CountryPage({ params }: CountryPageProps) {
     <main className="flex-1 bg-atlas-950 print:bg-white text-text-primary print:text-black min-h-screen">
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }}
       />
 
       <TrackView
